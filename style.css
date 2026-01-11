@@ -733,12 +733,10 @@ section p {
 }
 
 .explore-panel {
-    background: rgba(51, 255, 51, 0.03);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(51, 255, 51, 0.2);
-    border-radius: 20px;
-    padding: 2.5rem;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
     opacity: 0;
     transform: translateY(10px);
     transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
@@ -782,6 +780,12 @@ section p {
     flex-wrap: wrap;
     align-items: center;
     gap: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.explore-panel-actions.visible {
+    opacity: 1;
 }
 
 .explore-panel-actions .cta-button {
@@ -809,20 +813,20 @@ section p {
     font-family: 'VT323', monospace;
     font-size: 1.25rem;
     font-weight: 400;
-    opacity: 0.6;
+    opacity: 1;
     cursor: pointer;
-    padding: 0.5rem 0;
-    transition: opacity 0.2s ease, text-shadow 0.2s ease;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
+    padding: 0.25rem 0.5rem;
+    transition: background-color 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+    text-decoration: none;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 .explore-reset:hover,
 .explore-reset:focus {
-    opacity: 1;
+    background-color: #33FF33;
+    color: #000000;
     outline: none;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+    text-shadow: none;
 }
 
 /* Panel Response - styled like main questions */
@@ -840,26 +844,40 @@ section p {
     outline: none;
 }
 
+.response-text {
+    display: inline;
+}
+
+.response-cursor {
+    display: inline;
+    animation: cursor-blink 1s step-end infinite;
+    opacity: 0;
+}
+
+.response-cursor.visible {
+    opacity: 1;
+}
+
 /* Enter Main Site link */
 .explore-link {
     color: #33FF33;
     font-family: 'VT323', monospace;
     font-size: 1.25rem;
     font-weight: 400;
-    opacity: 0.6;
+    opacity: 1;
     cursor: pointer;
-    padding: 0.5rem 0;
-    transition: opacity 0.2s ease, text-shadow 0.2s ease;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
+    padding: 0.25rem 0.5rem;
+    transition: background-color 0.2s ease, color 0.2s ease, text-shadow 0.2s ease;
+    text-decoration: none;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 .explore-link:hover,
 .explore-link:focus {
-    opacity: 1;
+    background-color: #33FF33;
+    color: #000000;
     outline: none;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+    text-shadow: none;
 }
 
 /* Main Site Link */
@@ -903,10 +921,6 @@ section p {
         margin-top: 3rem;
     }
 
-    .explore-panel {
-        padding: 2rem;
-    }
-
     .explore-panel-actions {
         flex-direction: column;
         align-items: flex-start;
@@ -926,11 +940,6 @@ section p {
 
     .explore-question-area {
         min-height: 150px;
-    }
-
-    .explore-panel {
-        padding: 1.5rem;
-        border-radius: 16px;
     }
 
     .explore-panel h2 {

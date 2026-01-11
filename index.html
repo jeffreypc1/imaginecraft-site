@@ -41,7 +41,7 @@
             <div class="explore-panels" id="explorePanels" aria-live="polite">
                 <!-- Panel 1: I have ideas -->
                 <article class="explore-panel" data-thought="0" hidden>
-                    <p class="panel-response" data-response="Starting is the hardest part. We will figure out the first step together."></p>
+                    <p class="panel-response" data-response="Starting is the hardest part. We will figure out the first step together."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
                         <a href="main.html" class="explore-link">Enter Main Site</a>
@@ -50,7 +50,7 @@
 
                 <!-- Panel 2: I don't know where to start -->
                 <article class="explore-panel" data-thought="1" hidden>
-                    <p class="panel-response" data-response="You don't need a map. Just tell us what's on your mind."></p>
+                    <p class="panel-response" data-response="Who we are is less important than what we can build together."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
                         <a href="main.html" class="explore-link">Enter Main Site</a>
@@ -59,7 +59,7 @@
 
                 <!-- Panel 3: Our tools don't fit us -->
                 <article class="explore-panel" data-thought="2" hidden>
-                    <p class="panel-response" data-response="Generic software forces you to adapt. Custom software adapts to you."></p>
+                    <p class="panel-response" data-response="The right tools don't exist yet; we have to invent them."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
                         <a href="main.html" class="explore-link">Enter Main Site</a>
@@ -68,7 +68,7 @@
 
                 <!-- Panel 4: I want software that matches how we work -->
                 <article class="explore-panel" data-thought="3" hidden>
-                    <p class="panel-response" data-response="We build tools that feel like they've always been there."></p>
+                    <p class="panel-response" data-response="Complexity is the enemy. We specialize in radical simplicity."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
                         <a href="main.html" class="explore-link">Enter Main Site</a>
@@ -77,7 +77,7 @@
 
                 <!-- Panel 5: Help us think this through -->
                 <article class="explore-panel" data-thought="4" hidden>
-                    <p class="panel-response" data-response="Sometimes the best code starts with the right question."></p>
+                    <p class="panel-response" data-response="Your vision is the blueprint. Our code is the foundation."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
                         <a href="main.html" class="explore-link">Enter Main Site</a>
@@ -86,7 +86,7 @@
 
                 <!-- Panel 6: Who are you? -->
                 <article class="explore-panel" data-thought="5" hidden>
-                    <p class="panel-response" data-response="We're builders who believe software should feel inevitable."></p>
+                    <p class="panel-response" data-response="We're builders who believe software should feel inevitable."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
                         <a href="main.html" class="explore-link">Enter Main Site</a>
@@ -95,7 +95,7 @@
 
                 <!-- Generic panel for typed input -->
                 <article class="explore-panel" data-thought="custom" hidden>
-                    <p class="panel-response" data-response="Every project starts with a conversation. Let's start ours."></p>
+                    <p class="panel-response" data-response="Every project starts with a conversation. Let's start ours."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
                         <a href="main.html" class="explore-link">Enter Main Site</a>
@@ -309,12 +309,22 @@
                     panel.hidden = false;
                     panel.classList.add('visible');
 
-                    // Type out the panel response
+                    // Get panel elements
                     const responseEl = panel.querySelector('.panel-response');
-                    if (responseEl) {
+                    const textEl = panel.querySelector('.response-text');
+                    const cursorEl = panel.querySelector('.response-cursor');
+                    const actionsEl = panel.querySelector('.explore-panel-actions');
+
+                    if (responseEl && textEl && cursorEl) {
                         const fullResponse = responseEl.dataset.response;
-                        responseEl.textContent = '';
-                        typePanelResponse(responseEl, fullResponse, 0);
+                        textEl.textContent = '';
+
+                        // Hide actions initially
+                        if (actionsEl) actionsEl.classList.remove('visible');
+
+                        // Show cursor and start typing
+                        cursorEl.classList.add('visible');
+                        typePanelResponse(textEl, cursorEl, actionsEl, fullResponse, 0);
                     }
 
                     // Focus the panel for accessibility
@@ -326,17 +336,21 @@
                     panel.hidden = true;
                     panel.classList.remove('visible');
                     // Clear any response text when hiding
-                    const responseEl = panel.querySelector('.panel-response');
-                    if (responseEl) responseEl.textContent = '';
+                    const textEl = panel.querySelector('.response-text');
+                    const cursorEl = panel.querySelector('.response-cursor');
+                    const actionsEl = panel.querySelector('.explore-panel-actions');
+                    if (textEl) textEl.textContent = '';
+                    if (cursorEl) cursorEl.classList.remove('visible');
+                    if (actionsEl) actionsEl.classList.remove('visible');
                 }
             });
 
             panelsContainer.classList.add('visible');
         }
 
-        function typePanelResponse(element, text, index) {
+        function typePanelResponse(textEl, cursorEl, actionsEl, text, index) {
             if (index <= text.length) {
-                element.textContent = text.substring(0, index);
+                textEl.textContent = text.substring(0, index);
 
                 let delay = 0;
                 if (!prefersReducedMotion) {
@@ -349,8 +363,12 @@
                 }
 
                 setTimeout(() => {
-                    typePanelResponse(element, text, index + 1);
+                    typePanelResponse(textEl, cursorEl, actionsEl, text, index + 1);
                 }, delay);
+            } else {
+                // Typing complete - hide cursor and show actions
+                if (cursorEl) cursorEl.classList.remove('visible');
+                if (actionsEl) actionsEl.classList.add('visible');
             }
         }
 
@@ -371,11 +389,18 @@
             // Hide cursor initially (will be shown after delay when cycling restarts)
             cursorElement.classList.remove('visible');
 
-            // Hide all panels
+            // Hide all panels and reset their elements
             const panels = panelsContainer.querySelectorAll('.explore-panel');
             panels.forEach(panel => {
                 panel.hidden = true;
                 panel.classList.remove('visible');
+                // Reset panel elements
+                const textEl = panel.querySelector('.response-text');
+                const responseCursorEl = panel.querySelector('.response-cursor');
+                const actionsEl = panel.querySelector('.explore-panel-actions');
+                if (textEl) textEl.textContent = '';
+                if (responseCursorEl) responseCursorEl.classList.remove('visible');
+                if (actionsEl) actionsEl.classList.remove('visible');
             });
             panelsContainer.classList.remove('visible');
 
