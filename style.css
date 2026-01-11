@@ -796,7 +796,8 @@ section p {
 /* High-Tech Button Base Styles */
 .explore-reset,
 .explore-link,
-.explore-action-link {
+.explore-action-link,
+.explore-admin-link {
     background: transparent;
     border: 1px solid #34ff35;
     border-radius: 3px;
@@ -822,7 +823,8 @@ section p {
 
 .explore-reset.ready,
 .explore-link.ready,
-.explore-action-link.ready {
+.explore-action-link.ready,
+.explore-admin-link.ready {
     opacity: 1;
     cursor: pointer;
     pointer-events: auto;
@@ -833,7 +835,9 @@ section p {
 .explore-link.ready:hover,
 .explore-link.ready:focus,
 .explore-action-link.ready:hover,
-.explore-action-link.ready:focus {
+.explore-action-link.ready:focus,
+.explore-admin-link.ready:hover,
+.explore-admin-link.ready:focus {
     outline: none;
     background-color: #34ff35;
     color: #000000;
@@ -1119,6 +1123,10 @@ section p {
     align-items: center;
     gap: 0;
     pointer-events: auto;
+    /* Hero-sized: expand to 40-50% viewport width */
+    width: 50vw;
+    min-width: 40vw;
+    max-width: 90vw;
 }
 
 .ascii-logo-container.visible {
@@ -1128,21 +1136,38 @@ section p {
 .ascii-logo-wrapper {
     position: relative;
     display: inline-block;
+    width: 100%;
+}
+
+.ascii-logo-home-link {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.ascii-logo-home-link:hover .ascii-logo {
+    border-color: rgba(52, 255, 53, 0.6);
+    box-shadow: 0 0 20px rgba(52, 255, 53, 0.4);
 }
 
 .ascii-logo {
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 0.7rem;
+    /* Responsive font size for hero display */
+    font-size: clamp(0.5rem, 1.2vw, 1.2rem);
     line-height: 1.1;
     color: #34ff35;
     text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     white-space: pre;
     text-align: center;
     margin: 0;
-    padding: 1rem 2rem 1rem 1rem;
+    padding: 1.5rem 2.5rem 1.5rem 1.5rem;
     background: rgba(0, 0, 0, 0.95);
     border: 1px solid rgba(52, 255, 53, 0.3);
     border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .ascii-logo-close {
@@ -1184,22 +1209,25 @@ section p {
 
     .ascii-logo-container {
         top: 0.5rem;
-        left: 0.5rem;
-        right: 0.5rem;
-        transform: none;
-        max-width: calc(100% - 1rem);
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: 70vw;
+        min-width: 60vw;
+        max-width: 95vw;
     }
 
     .ascii-logo {
-        font-size: 0.5rem;
-        padding: 0.75rem 1.5rem 0.75rem 0.75rem;
+        font-size: clamp(0.4rem, 1.5vw, 0.8rem);
+        padding: 1rem 1.5rem 1rem 1rem;
         max-width: 100%;
         overflow-x: auto;
     }
 
     .explore-reset,
     .explore-link,
-    .explore-action-link {
+    .explore-action-link,
+    .explore-admin-link {
         font-size: 1.5rem;
         padding: 0.4rem 1rem;
         height: 2.5rem;
@@ -1216,8 +1244,13 @@ section p {
         aspect-ratio: 4 / 3;
     }
 
+    .ascii-logo-container {
+        width: 90vw;
+        min-width: 85vw;
+    }
+
     .ascii-logo {
-        font-size: 0.4rem;
+        font-size: clamp(0.35rem, 2vw, 0.5rem);
     }
 
     .explore-question {
@@ -1234,7 +1267,8 @@ section p {
 
     .explore-reset,
     .explore-link,
-    .explore-action-link {
+    .explore-action-link,
+    .explore-admin-link {
         font-size: 1.25rem;
         width: 100%;
         text-align: center;
