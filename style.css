@@ -588,11 +588,12 @@ section p {
 }
 
 .explore-question {
-    font-size: clamp(0.75rem, 1.5vw, 0.9rem);
-    font-weight: 300;
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-weight: 400;
     letter-spacing: 0.15em;
     line-height: 1.2;
-    color: #888888;
+    color: #000000;
     text-transform: uppercase;
     margin-bottom: 3rem;
     transition: opacity 0.3s ease;
@@ -667,15 +668,15 @@ section p {
     background: transparent;
     border: none;
     padding: 0;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: clamp(1rem, 2vw, 1.25rem);
-    font-weight: 300;
-    color: #888888;
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+    font-weight: 400;
+    color: #000000;
     text-align: center;
     cursor: pointer;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 1.5s ease, transform 0.6s ease, color 0.6s ease, text-shadow 0.6s ease;
+    transition: opacity 0.3s ease, transform 0.6s ease, text-shadow 0.6s ease;
     position: relative;
     display: inline;
     vertical-align: middle;
@@ -688,7 +689,7 @@ section p {
 }
 
 .explore-thought.fade-in {
-    opacity: 0.5;
+    opacity: 1;
 }
 
 .explore-thought.fade-out {
@@ -700,7 +701,6 @@ section p {
     opacity: 1;
     outline: none;
     transform: scale(1.02);
-    color: #000000;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -708,7 +708,6 @@ section p {
     opacity: 1;
     cursor: default;
     transform: scale(1);
-    color: #000000;
     text-shadow: none;
 }
 
@@ -808,21 +807,21 @@ section p {
     outline: none;
 }
 
-/* Back to Main Site Link */
+/* Main Site Link */
 .explore-back-link {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    color: #888888;
-    font-size: 0.85rem;
+    font-family: 'VT323', monospace;
+    color: #000000;
+    font-size: 1.2rem;
     font-weight: 400;
-    opacity: 0.6;
     text-decoration: none;
     transition: opacity 0.2s ease;
 }
 
 .explore-back-link:hover {
-    opacity: 1;
+    opacity: 0.7;
 }
 
 /* ========================================
@@ -913,7 +912,7 @@ section p {
     }
 
     .explore-thought.fade-in {
-        opacity: 0.7;
+        opacity: 1;
     }
 
     .explore-thought.fade-out {
@@ -923,7 +922,6 @@ section p {
     .explore-thought.visible:hover,
     .explore-thought.visible:focus {
         transform: none;
-        color: #000000;
     }
 
     .explore-panels,
