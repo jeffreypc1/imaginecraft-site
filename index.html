@@ -17,7 +17,6 @@
                 <h1 class="explore-question" id="exploreQuestion">Why are you here?</h1>
                 <!-- Cursor and thoughts inline together -->
                 <div class="explore-cursor-line">
-                    <span class="explore-cursor" id="exploreCursor" aria-hidden="true">█</span>
                     <div class="explore-thought-container" aria-live="polite" aria-atomic="true">
                         <button
                             class="explore-thought"
@@ -25,7 +24,7 @@
                             tabindex="0"
                             aria-label="Click to select this thought"
                         ></button>
-                    </div>
+                    </div><span class="explore-cursor" id="exploreCursor" aria-hidden="true">█</span>
                     <!-- Optional: text input appears here when user starts typing -->
                     <input
                         type="text"
@@ -42,85 +41,68 @@
             <div class="explore-panels" id="explorePanels" aria-live="polite">
                 <!-- Panel 1: I have ideas -->
                 <article class="explore-panel" data-thought="0" hidden>
-                    <h2>Let's give those ideas shape.</h2>
-                    <p>Ideas are the starting point. We work alongside you to explore, refine, and validate concepts before a single line of code is written. Through structured conversations and rapid prototyping, we help you see what's possible and what's practical.</p>
-                    <p>No pitch decks required. Just bring what's on your mind.</p>
+                    <p class="panel-response" data-response="Starting is the hardest part. We will figure out the first step together."></p>
                     <div class="explore-panel-actions">
-                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Book a short call</a>
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                        <a href="main.html" class="explore-link">Enter Main Site</a>
                     </div>
                 </article>
 
                 <!-- Panel 2: I don't know where to start -->
                 <article class="explore-panel" data-thought="1" hidden>
-                    <h2>Starting is the hardest part.</h2>
-                    <p>You don't need a detailed specification or a clear roadmap to begin. We've helped teams move from "we should probably build something" to working software in weeks, not months.</p>
-                    <p>We'll figure out the first step together.</p>
+                    <p class="panel-response" data-response="You don't need a map. Just tell us what's on your mind."></p>
                     <div class="explore-panel-actions">
-                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Let's talk it through</a>
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                        <a href="main.html" class="explore-link">Enter Main Site</a>
                     </div>
                 </article>
 
                 <!-- Panel 3: Our tools don't fit us -->
                 <article class="explore-panel" data-thought="2" hidden>
-                    <h2>Off-the-shelf rarely fits.</h2>
-                    <p>Generic software forces your team to adapt to its limitations. We build tools that work the way you already think, using modern approaches that make custom software faster and more affordable than ever.</p>
-                    <p>Software should bend to you, not the other way around.</p>
+                    <p class="panel-response" data-response="Generic software forces you to adapt. Custom software adapts to you."></p>
                     <div class="explore-panel-actions">
-                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Show me what's possible</a>
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                        <a href="main.html" class="explore-link">Enter Main Site</a>
                     </div>
                 </article>
 
                 <!-- Panel 4: I want software that matches how we work -->
                 <article class="explore-panel" data-thought="3" hidden>
-                    <h2>Built around your workflow.</h2>
-                    <p>We spend time understanding how your team actually operates, the informal processes, the workarounds, the things that make you efficient. Then we build software that amplifies what already works.</p>
-                    <p>No learning curve. Just tools that feel like they've always been there.</p>
+                    <p class="panel-response" data-response="We build tools that feel like they've always been there."></p>
                     <div class="explore-panel-actions">
-                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Tell us how you work</a>
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                        <a href="main.html" class="explore-link">Enter Main Site</a>
                     </div>
                 </article>
 
                 <!-- Panel 5: Help us think this through -->
                 <article class="explore-panel" data-thought="4" hidden>
-                    <h2>Thinking partners, not just builders.</h2>
-                    <p>Sometimes you need someone to challenge assumptions, ask the right questions, and help you see around corners. We bring experience from dozens of projects across industries, without imposing a one-size-fits-all approach.</p>
-                    <p>Clarity first. Then we decide what to build.</p>
+                    <p class="panel-response" data-response="Sometimes the best code starts with the right question."></p>
                     <div class="explore-panel-actions">
-                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Schedule a working session</a>
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                        <a href="main.html" class="explore-link">Enter Main Site</a>
                     </div>
                 </article>
 
                 <!-- Panel 6: Who are you? -->
                 <article class="explore-panel" data-thought="5" hidden>
-                    <h2>We build software for people with vision.</h2>
-                    <p>We're a small studio of designers and engineers who believe software should feel inevitable—like it was always meant to exist. We work closely with founders, teams, and organizations who have something worth building.</p>
-                    <p>If you've found your way here, we'd like to know more about you too.</p>
+                    <p class="panel-response" data-response="We're builders who believe software should feel inevitable."></p>
                     <div class="explore-panel-actions">
-                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Introduce yourself</a>
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                        <a href="main.html" class="explore-link">Enter Main Site</a>
                     </div>
                 </article>
 
                 <!-- Generic panel for typed input -->
                 <article class="explore-panel" data-thought="custom" hidden>
-                    <h2>Let's explore that together.</h2>
-                    <p>Every project starts with a conversation. Whatever brought you here, we're curious to hear more about it.</p>
-                    <p>Reach out and we'll find a time to talk.</p>
+                    <p class="panel-response" data-response="Every project starts with a conversation. Let's start ours."></p>
                     <div class="explore-panel-actions">
-                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Start the conversation</a>
                         <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                        <a href="main.html" class="explore-link">Enter Main Site</a>
                     </div>
                 </article>
             </div>
         </div>
-
-        <!-- Main Site link -->
-        <a href="./main.html" class="explore-back-link">Main Site</a>
     </main>
 
     <!-- Contact Modal (reused from main site) -->
@@ -327,17 +309,49 @@
                     panel.hidden = false;
                     panel.classList.add('visible');
 
+                    // Type out the panel response
+                    const responseEl = panel.querySelector('.panel-response');
+                    if (responseEl) {
+                        const fullResponse = responseEl.dataset.response;
+                        responseEl.textContent = '';
+                        typePanelResponse(responseEl, fullResponse, 0);
+                    }
+
                     // Focus the panel for accessibility
                     setTimeout(() => {
-                        panel.querySelector('h2').focus();
+                        const focusTarget = panel.querySelector('.panel-response') || panel.querySelector('h2');
+                        if (focusTarget) focusTarget.focus();
                     }, 100);
                 } else {
                     panel.hidden = true;
                     panel.classList.remove('visible');
+                    // Clear any response text when hiding
+                    const responseEl = panel.querySelector('.panel-response');
+                    if (responseEl) responseEl.textContent = '';
                 }
             });
 
             panelsContainer.classList.add('visible');
+        }
+
+        function typePanelResponse(element, text, index) {
+            if (index <= text.length) {
+                element.textContent = text.substring(0, index);
+
+                let delay = 0;
+                if (!prefersReducedMotion) {
+                    const lastChar = text.charAt(index - 1);
+                    if (isPunctuation(lastChar)) {
+                        delay = timing.punctuationPause;
+                    } else {
+                        delay = randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
+                    }
+                }
+
+                setTimeout(() => {
+                    typePanelResponse(element, text, index + 1);
+                }, delay);
+            }
         }
 
         function resetExplore() {

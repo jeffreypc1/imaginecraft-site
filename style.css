@@ -663,7 +663,11 @@ section p {
 /* Thought Container - now inline with cursor */
 .explore-thought-container {
     display: inline;
-    margin-left: 0.25rem;
+}
+
+/* Cursor follows the text */
+.explore-cursor {
+    margin-left: 0;
 }
 
 /* Thought Button */
@@ -816,6 +820,43 @@ section p {
 
 .explore-reset:hover,
 .explore-reset:focus {
+    opacity: 1;
+    outline: none;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+}
+
+/* Panel Response - styled like main questions */
+.panel-response {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    color: #33FF33;
+    margin-bottom: 2rem;
+    max-width: none;
+    opacity: 1;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    outline: none;
+}
+
+/* Enter Main Site link */
+.explore-link {
+    color: #33FF33;
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    font-weight: 400;
+    opacity: 0.6;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    transition: opacity 0.2s ease, text-shadow 0.2s ease;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
+}
+
+.explore-link:hover,
+.explore-link:focus {
     opacity: 1;
     outline: none;
     text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
