@@ -1,0 +1,241 @@
+/* ImagineCraft Studios - Main Stylesheet */
+/* Color Palette: Charcoal #1F1F1F, Off-white #FAFAF7 */
+
+:root {
+    --charcoal: #1F1F1F;
+    --off-white: #FAFAF7;
+    --charcoal-light: #2a2a2a;
+    --off-white-dark: #e8e8e5;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--off-white);
+    color: var(--charcoal);
+    line-height: 1.6;
+}
+
+/* Header & Navigation */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--off-white);
+    z-index: 100;
+    border-bottom: 1px solid var(--off-white-dark);
+}
+
+.nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 2.5rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--charcoal);
+    font-size: 0.95rem;
+    font-weight: 400;
+    transition: opacity 0.2s ease;
+}
+
+.nav-links a:hover {
+    opacity: 0.6;
+}
+
+/* Hero Section */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    background-color: var(--charcoal);
+    color: var(--off-white);
+}
+
+.hero-headline {
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    max-width: 900px;
+    margin-bottom: 1.5rem;
+}
+
+.hero-subtext {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: 300;
+    opacity: 0.8;
+    margin-bottom: 3rem;
+}
+
+/* CTA Button */
+.cta-button {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    background-color: var(--off-white);
+    color: var(--charcoal);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 4px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Section Styles */
+.section-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8rem 2rem;
+}
+
+section h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+}
+
+section p {
+    font-size: 1.1rem;
+    max-width: 600px;
+    opacity: 0.85;
+}
+
+/* About Section */
+.about {
+    background-color: var(--off-white);
+}
+
+/* Work Section */
+.work {
+    background-color: var(--off-white-dark);
+}
+
+.work-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.work-item {
+    background-color: var(--off-white);
+    padding: 2.5rem;
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.work-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+.work-item h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.work-item p {
+    font-size: 1rem;
+    opacity: 0.75;
+}
+
+/* Contact Section */
+.contact {
+    background-color: var(--charcoal);
+    color: var(--off-white);
+    text-align: center;
+}
+
+.contact .section-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contact p {
+    margin-bottom: 2rem;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--charcoal);
+    color: var(--off-white);
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--charcoal-light);
+}
+
+.footer p {
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .nav {
+        padding: 1rem 1.5rem;
+    }
+
+    .nav-links {
+        gap: 1.5rem;
+    }
+
+    .section-content {
+        padding: 5rem 1.5rem;
+    }
+
+    .hero {
+        padding: 6rem 1.5rem 4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-links {
+        display: none;
+    }
+
+    .hero-headline {
+        font-size: 2.2rem;
+    }
+
+    .cta-button {
+        padding: 0.875rem 2rem;
+    }
+}
