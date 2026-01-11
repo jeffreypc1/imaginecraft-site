@@ -549,3 +549,353 @@ section p {
         padding: 0.75rem;
     }
 }
+
+/* ========================================
+   Explore Page - Interactive Landing
+   ======================================== */
+
+.explore-page {
+    min-height: 100vh;
+    background-color: var(--charcoal);
+    color: var(--off-white);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 2rem;
+    position: relative;
+}
+
+.explore-container {
+    max-width: 800px;
+    width: 100%;
+}
+
+/* Question Area */
+.explore-question-area {
+    cursor: text;
+    min-height: 200px;
+}
+
+.explore-question {
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+}
+
+/* Cursor Line */
+.explore-cursor-line {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    min-height: 2rem;
+}
+
+.explore-cursor {
+    width: 2px;
+    height: 1.5rem;
+    background-color: var(--off-white);
+    animation: cursor-blink 1s step-end infinite;
+}
+
+@keyframes cursor-blink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
+}
+
+/* Text Input */
+.explore-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--off-white);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 300;
+    padding: 0;
+    width: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease, width 0.3s ease;
+}
+
+.explore-input.active,
+.explore-input:focus {
+    opacity: 1;
+    width: 100%;
+}
+
+.explore-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Thought Container */
+.explore-thought-container {
+    min-height: 3rem;
+    margin-top: 0.5rem;
+}
+
+/* Thought Button */
+.explore-thought {
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: 300;
+    color: var(--off-white);
+    text-align: left;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, transform 0.3s ease;
+    position: relative;
+    display: inline-block;
+}
+
+.explore-thought::after {
+    content: '';
+    position: absolute;
+    bottom: 0.25rem;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--off-white);
+    transition: width 0.3s ease;
+}
+
+.explore-thought.visible {
+    visibility: visible;
+}
+
+.explore-thought.fade-in {
+    opacity: 0.7;
+}
+
+.explore-thought.fade-out {
+    opacity: 0;
+}
+
+.explore-thought.visible:hover,
+.explore-thought.visible:focus {
+    opacity: 1;
+    outline: none;
+}
+
+.explore-thought.visible:hover::after,
+.explore-thought.visible:focus::after {
+    width: 100%;
+}
+
+.explore-thought.selected {
+    opacity: 1;
+    cursor: default;
+}
+
+.explore-thought.selected::after {
+    width: 100%;
+    opacity: 0.5;
+}
+
+/* Response Panels */
+.explore-panels {
+    margin-top: 4rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.explore-panels.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.explore-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2.5rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+}
+
+.explore-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.explore-panel h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    color: var(--off-white);
+    outline: none;
+}
+
+.explore-panel p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    line-height: 1.7;
+    opacity: 0.85;
+    margin-bottom: 1rem;
+    max-width: none;
+}
+
+.explore-panel p:last-of-type {
+    margin-bottom: 2rem;
+}
+
+/* Panel Actions */
+.explore-panel-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.explore-panel-actions .cta-button {
+    padding: 0.875rem 1.75rem;
+    font-size: 0.95rem;
+}
+
+.explore-reset {
+    background: transparent;
+    border: none;
+    color: var(--off-white);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    opacity: 0.6;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    transition: opacity 0.2s ease;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.explore-reset:hover,
+.explore-reset:focus {
+    opacity: 1;
+    outline: none;
+}
+
+/* Back to Main Site Link */
+.explore-back-link {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    color: var(--off-white);
+    font-size: 0.85rem;
+    font-weight: 400;
+    opacity: 0.4;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.explore-back-link:hover {
+    opacity: 0.8;
+}
+
+/* ========================================
+   Explore Page - Responsive
+   ======================================== */
+
+@media (max-width: 768px) {
+    .explore-page {
+        padding: 3rem 1.5rem;
+    }
+
+    .explore-question {
+        margin-bottom: 1.5rem;
+    }
+
+    .explore-panels {
+        margin-top: 3rem;
+    }
+
+    .explore-panel {
+        padding: 2rem;
+    }
+
+    .explore-panel-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .explore-panel-actions .cta-button {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .explore-page {
+        padding: 2rem 1.25rem;
+    }
+
+    .explore-question-area {
+        min-height: 150px;
+    }
+
+    .explore-panel {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+
+    .explore-panel h2 {
+        font-size: 1.35rem;
+    }
+
+    .explore-panel p {
+        font-size: 1rem;
+    }
+
+    .explore-back-link {
+        bottom: 1rem;
+        right: 1rem;
+    }
+}
+
+/* ========================================
+   Explore Page - Reduced Motion
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .explore-cursor {
+        animation: none;
+        opacity: 1;
+    }
+
+    .explore-thought {
+        transition: none;
+    }
+
+    .explore-thought.fade-in {
+        opacity: 0.7;
+    }
+
+    .explore-thought.fade-out {
+        opacity: 0;
+    }
+
+    .explore-panels,
+    .explore-panel {
+        transition: none;
+    }
+
+    .explore-input {
+        transition: none;
+    }
+}
