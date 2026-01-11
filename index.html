@@ -41,66 +41,71 @@
             <div class="explore-panels" id="explorePanels" aria-live="polite">
                 <!-- Panel 1: I have ideas -->
                 <article class="explore-panel" data-thought="0" hidden>
-                    <p class="panel-response" data-response="Starting is the hardest part. We will figure out the first step together."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
+                    <p class="panel-response" data-response="Starting is the hardest part. We will figure out the first step together."><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
-                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
-                        <a href="main.html" class="explore-link">Enter Main Site</a>
+                        <button class="explore-reset" id="resetBtn0"><span class="action-text"></span></button>
+                        <a href="main.html" class="explore-link" id="enterBtn0"><span class="action-text"></span></a>
                     </div>
                 </article>
 
                 <!-- Panel 2: I don't know where to start -->
                 <article class="explore-panel" data-thought="1" hidden>
-                    <p class="panel-response" data-response="Who we are is less important than what we can build together."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
+                    <p class="panel-response" data-response="Who we are is less important than what we can build together."><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
-                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
-                        <a href="main.html" class="explore-link">Enter Main Site</a>
+                        <button class="explore-reset" id="resetBtn1"><span class="action-text"></span></button>
+                        <a href="main.html" class="explore-link" id="enterBtn1"><span class="action-text"></span></a>
                     </div>
                 </article>
 
                 <!-- Panel 3: Our tools don't fit us -->
                 <article class="explore-panel" data-thought="2" hidden>
-                    <p class="panel-response" data-response="The right tools don't exist yet; we have to invent them."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
+                    <p class="panel-response" data-response="The right tools don't exist yet; we have to invent them."><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
-                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
-                        <a href="main.html" class="explore-link">Enter Main Site</a>
+                        <button class="explore-reset" id="resetBtn2"><span class="action-text"></span></button>
+                        <a href="main.html" class="explore-link" id="enterBtn2"><span class="action-text"></span></a>
                     </div>
                 </article>
 
                 <!-- Panel 4: I want software that matches how we work -->
                 <article class="explore-panel" data-thought="3" hidden>
-                    <p class="panel-response" data-response="Complexity is the enemy. We specialize in radical simplicity."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
+                    <p class="panel-response" data-response="Complexity is the enemy. We specialize in radical simplicity."><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
-                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
-                        <a href="main.html" class="explore-link">Enter Main Site</a>
+                        <button class="explore-reset" id="resetBtn3"><span class="action-text"></span></button>
+                        <a href="main.html" class="explore-link" id="enterBtn3"><span class="action-text"></span></a>
                     </div>
                 </article>
 
                 <!-- Panel 5: Help us think this through -->
                 <article class="explore-panel" data-thought="4" hidden>
-                    <p class="panel-response" data-response="Your vision is the blueprint. Our code is the foundation."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
+                    <p class="panel-response" data-response="Your vision is the blueprint. Our code is the foundation."><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
-                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
-                        <a href="main.html" class="explore-link">Enter Main Site</a>
+                        <button class="explore-reset" id="resetBtn4"><span class="action-text"></span></button>
+                        <a href="main.html" class="explore-link" id="enterBtn4"><span class="action-text"></span></a>
                     </div>
                 </article>
 
                 <!-- Panel 6: Who are you? -->
                 <article class="explore-panel" data-thought="5" hidden>
-                    <p class="panel-response" data-response="We're builders who believe software should feel inevitable."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
+                    <p class="panel-response" data-response="We're builders who believe software should feel inevitable."><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
-                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
-                        <a href="main.html" class="explore-link">Enter Main Site</a>
+                        <button class="explore-reset" id="resetBtn5"><span class="action-text"></span></button>
+                        <a href="main.html" class="explore-link" id="enterBtn5"><span class="action-text"></span></a>
                     </div>
                 </article>
 
                 <!-- Generic panel for typed input -->
                 <article class="explore-panel" data-thought="custom" hidden>
-                    <p class="panel-response" data-response="Every project starts with a conversation. Let's start ours."><span class="response-text"></span><span class="response-cursor" aria-hidden="true">█</span></p>
+                    <p class="panel-response" data-response="Every project starts with a conversation. Let's start ours."><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
-                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
-                        <a href="main.html" class="explore-link">Enter Main Site</a>
+                        <button class="explore-reset" id="resetBtnCustom"><span class="action-text"></span></button>
+                        <a href="main.html" class="explore-link" id="enterBtnCustom"><span class="action-text"></span></a>
                     </div>
                 </article>
+            </div>
+
+            <!-- Critical Error Overlay for Easter Egg -->
+            <div class="critical-error-overlay" id="criticalErrorOverlay" hidden>
+                <p class="error-message" id="errorMessage"></p>
             </div>
         </div>
     </main>
@@ -150,7 +155,9 @@
             animationTimeout: null,
             isAnimating: false,
             currentText: '',
-            targetText: ''
+            targetText: '',
+            idleTimer: null,
+            isInCrashSequence: false
         };
 
         // Timing configuration (in ms)
@@ -161,7 +168,8 @@
             punctuationPause: 500,
             backspaceSpeedMin: 50,
             backspaceSpeedMax: 100,
-            linger: 4000
+            linger: 4000,
+            idleTimeout: 120000 // 2 minutes
         };
 
         // Helper function for random delay between min and max
@@ -184,6 +192,102 @@
         const inputElement = document.getElementById('exploreInput');
         const panelsContainer = document.getElementById('explorePanels');
         const cursorElement = document.getElementById('exploreCursor');
+        const errorOverlay = document.getElementById('criticalErrorOverlay');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // ========================================
+        // Idle Timer / Easter Egg
+        // ========================================
+        function resetIdleTimer() {
+            if (state.isInCrashSequence) return;
+            clearTimeout(state.idleTimer);
+            state.idleTimer = setTimeout(triggerCriticalError, timing.idleTimeout);
+        }
+
+        function triggerCriticalError() {
+            if (state.isInCrashSequence) return;
+            state.isInCrashSequence = true;
+            stopCycling();
+
+            // Hide cursor
+            cursorElement.classList.remove('visible');
+
+            // Rapid flicker with red tint
+            const explorePage = document.querySelector('.explore-page');
+            let flickerCount = 0;
+            const maxFlickers = 10;
+
+            const flickerInterval = setInterval(() => {
+                explorePage.classList.toggle('flicker-red');
+                flickerCount++;
+                if (flickerCount >= maxFlickers) {
+                    clearInterval(flickerInterval);
+                    explorePage.classList.remove('flicker-red');
+                    showCriticalError();
+                }
+            }, 80);
+        }
+
+        function showCriticalError() {
+            // Clear the screen
+            const container = document.querySelector('.explore-container');
+            container.classList.add('hidden');
+
+            // Show error overlay
+            errorOverlay.hidden = false;
+            errorOverlay.classList.add('visible');
+            errorMessage.textContent = '';
+
+            // Type out error message with cursor
+            const errorText = 'CRITICAL ERROR: SYSTEM DEPLETION. REBOOT RECOMMENDED.';
+            typeErrorMessage(errorText, 0, () => {
+                // Wait 10 seconds then reboot
+                setTimeout(() => {
+                    // Black screen
+                    errorOverlay.classList.add('blackout');
+                    errorMessage.textContent = '';
+
+                    // After 2 seconds, reboot
+                    setTimeout(() => {
+                        rebootSystem();
+                    }, 2000);
+                }, 10000);
+            });
+        }
+
+        function typeErrorMessage(text, index, callback) {
+            if (index <= text.length) {
+                errorMessage.innerHTML = text.substring(0, index) + '<span class="error-cursor">█</span>';
+
+                const delay = prefersReducedMotion ? 0 : randomDelay(50, 100);
+                setTimeout(() => {
+                    typeErrorMessage(text, index + 1, callback);
+                }, delay);
+            } else {
+                errorMessage.innerHTML = text + '<span class="error-cursor blink">█</span>';
+                if (callback) callback();
+            }
+        }
+
+        function rebootSystem() {
+            // Hide error overlay
+            errorOverlay.hidden = true;
+            errorOverlay.classList.remove('visible', 'blackout');
+            errorMessage.textContent = '';
+
+            // Show container again
+            const container = document.querySelector('.explore-container');
+            container.classList.remove('hidden');
+
+            // Full reset
+            state.isInCrashSequence = false;
+            resetExplore();
+        }
+
+        // Track user activity for idle timer
+        ['click', 'mousemove', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+            document.addEventListener(event, resetIdleTimer, { passive: true });
+        });
 
         // ========================================
         // Typing Animation
@@ -294,7 +398,7 @@
             thoughtElement.classList.remove('fade-out', 'fade-in');
             thoughtElement.setAttribute('aria-pressed', 'true');
 
-            // Hide cursor
+            // Hide cursor from thought line (it will appear in response)
             cursorElement.classList.remove('visible');
 
             // Show the corresponding panel
@@ -312,19 +416,29 @@
                     // Get panel elements
                     const responseEl = panel.querySelector('.panel-response');
                     const textEl = panel.querySelector('.response-text');
-                    const cursorEl = panel.querySelector('.response-cursor');
                     const actionsEl = panel.querySelector('.explore-panel-actions');
+                    const resetBtn = panel.querySelector('.explore-reset');
+                    const enterBtn = panel.querySelector('.explore-link');
 
-                    if (responseEl && textEl && cursorEl) {
+                    if (responseEl && textEl) {
                         const fullResponse = responseEl.dataset.response;
                         textEl.textContent = '';
+
+                        // Clear action texts
+                        if (resetBtn) {
+                            const resetText = resetBtn.querySelector('.action-text');
+                            if (resetText) resetText.textContent = '';
+                        }
+                        if (enterBtn) {
+                            const enterText = enterBtn.querySelector('.action-text');
+                            if (enterText) enterText.textContent = '';
+                        }
 
                         // Hide actions initially
                         if (actionsEl) actionsEl.classList.remove('visible');
 
-                        // Show cursor and start typing
-                        cursorEl.classList.add('visible');
-                        typePanelResponse(textEl, cursorEl, actionsEl, fullResponse, 0);
+                        // Start sequential typing: response -> actions
+                        typePanelResponse(textEl, actionsEl, resetBtn, enterBtn, fullResponse, 0);
                     }
 
                     // Focus the panel for accessibility
@@ -337,10 +451,8 @@
                     panel.classList.remove('visible');
                     // Clear any response text when hiding
                     const textEl = panel.querySelector('.response-text');
-                    const cursorEl = panel.querySelector('.response-cursor');
                     const actionsEl = panel.querySelector('.explore-panel-actions');
                     if (textEl) textEl.textContent = '';
-                    if (cursorEl) cursorEl.classList.remove('visible');
                     if (actionsEl) actionsEl.classList.remove('visible');
                 }
             });
@@ -348,9 +460,10 @@
             panelsContainer.classList.add('visible');
         }
 
-        function typePanelResponse(textEl, cursorEl, actionsEl, text, index) {
+        function typePanelResponse(textEl, actionsEl, resetBtn, enterBtn, text, index) {
             if (index <= text.length) {
-                textEl.textContent = text.substring(0, index);
+                // Show cursor after text
+                textEl.innerHTML = text.substring(0, index) + '<span class="typing-cursor">█</span>';
 
                 let delay = 0;
                 if (!prefersReducedMotion) {
@@ -363,12 +476,67 @@
                 }
 
                 setTimeout(() => {
-                    typePanelResponse(textEl, cursorEl, actionsEl, text, index + 1);
+                    typePanelResponse(textEl, actionsEl, resetBtn, enterBtn, text, index + 1);
                 }, delay);
             } else {
-                // Typing complete - hide cursor and show actions
-                if (cursorEl) cursorEl.classList.remove('visible');
-                if (actionsEl) actionsEl.classList.add('visible');
+                // Response typing complete - remove cursor from response
+                textEl.textContent = text;
+
+                // Show actions container and start typing navigation
+                if (actionsEl) {
+                    actionsEl.classList.add('visible');
+                    // Type out the navigation links
+                    typeNavigationLinks(resetBtn, enterBtn);
+                }
+            }
+        }
+
+        function typeNavigationLinks(resetBtn, enterBtn) {
+            const resetText = 'Change direction';
+            const enterText = 'Enter Main Site';
+
+            // Type "Change direction" first
+            typeActionText(resetBtn, resetText, 0, () => {
+                // Small pause then type "Enter Main Site"
+                setTimeout(() => {
+                    typeActionText(enterBtn, enterText, 0, () => {
+                        // All done - make buttons functional
+                        if (resetBtn) {
+                            resetBtn.classList.add('ready');
+                            resetBtn.onclick = resetExplore;
+                        }
+                        if (enterBtn) {
+                            enterBtn.classList.add('ready');
+                        }
+                    });
+                }, 300);
+            });
+        }
+
+        function typeActionText(btn, text, index, callback) {
+            if (!btn) {
+                if (callback) callback();
+                return;
+            }
+
+            const textSpan = btn.querySelector('.action-text');
+            if (!textSpan) {
+                if (callback) callback();
+                return;
+            }
+
+            if (index <= text.length) {
+                // Show cursor after text
+                textSpan.innerHTML = text.substring(0, index) + '<span class="typing-cursor">█</span>';
+
+                const delay = prefersReducedMotion ? 0 : randomDelay(60, 120);
+                setTimeout(() => {
+                    typeActionText(btn, text, index + 1, callback);
+                }, delay);
+            } else {
+                // Typing complete - show final text without cursor
+                textSpan.textContent = text;
+                if (callback) callback();
             }
         }
 
@@ -396,11 +564,23 @@
                 panel.classList.remove('visible');
                 // Reset panel elements
                 const textEl = panel.querySelector('.response-text');
-                const responseCursorEl = panel.querySelector('.response-cursor');
                 const actionsEl = panel.querySelector('.explore-panel-actions');
+                const resetBtn = panel.querySelector('.explore-reset');
+                const enterBtn = panel.querySelector('.explore-link');
+
                 if (textEl) textEl.textContent = '';
-                if (responseCursorEl) responseCursorEl.classList.remove('visible');
                 if (actionsEl) actionsEl.classList.remove('visible');
+                if (resetBtn) {
+                    resetBtn.classList.remove('ready');
+                    resetBtn.onclick = null;
+                    const resetTextSpan = resetBtn.querySelector('.action-text');
+                    if (resetTextSpan) resetTextSpan.textContent = '';
+                }
+                if (enterBtn) {
+                    enterBtn.classList.remove('ready');
+                    const enterTextSpan = enterBtn.querySelector('.action-text');
+                    if (enterTextSpan) enterTextSpan.textContent = '';
+                }
             });
             panelsContainer.classList.remove('visible');
 
@@ -410,6 +590,9 @@
 
             // Restart cycling
             startCycling();
+
+            // Reset idle timer
+            resetIdleTimer();
         }
 
         // ========================================
@@ -509,6 +692,7 @@
             }
 
             startCycling();
+            resetIdleTimer();
         });
     </script>
 </body>
