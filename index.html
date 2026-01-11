@@ -322,6 +322,21 @@
         const navLinks = loadNavLinksFromStorage();
         const actions = loadActionsFromStorage();
 
+        // Load Matrix fade duration from localStorage (admin configurable)
+        function loadMatrixFadeDurationFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_matrix_fade_duration');
+                if (stored) {
+                    return parseFloat(stored);
+                }
+            } catch (e) {
+                console.warn('Failed to load matrix fade duration from localStorage:', e);
+            }
+            return 1.5; // Default fade duration in seconds
+        }
+
+        const matrixFadeDuration = loadMatrixFadeDurationFromStorage();
+
         let state = {
             currentIndex: 0,
             isUserTyping: false,
@@ -644,6 +659,9 @@
             if (enterBtn) {
                 enterBtn.classList.add('ready');
             }
+
+            // Stop cursor blinking - typing is complete
+            cursorElement.classList.add('cursor-stopped');
         }
 
         function typeActionText(btn, text, index, callback) {
@@ -886,16 +904,21 @@
             setTimeout(() => {
                 clearInterval(interval);
 
-                // Start 1.5s fade-out transition
+                // Apply dynamic fade duration from admin settings
+                const fadeDurationMs = matrixFadeDuration * 1000;
+                canvas.style.transition = `opacity ${matrixFadeDuration}s ease`;
+
+                // Start fade-out transition
                 canvas.classList.add('fade-out');
 
                 // After fade-out completes, clean up
                 setTimeout(() => {
                     canvas.classList.remove('active', 'fade-out');
+                    canvas.style.transition = ''; // Reset to CSS default
                     state.matrixActive = false;
                     // Clear canvas
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
-                }, 1500);
+                }, fadeDurationMs);
             }, 5000);
         }
 
@@ -924,7 +947,7 @@
             thoughtElement.removeAttribute('aria-pressed');
 
             // Hide cursor initially (will be shown after delay when cycling restarts)
-            cursorElement.classList.remove('visible');
+            cursorElement.classList.remove('visible', 'cursor-stopped');
 
             // Hide all panels and reset their elements
             const panels = panelsContainer.querySelectorAll('.explore-panel');

@@ -623,6 +623,11 @@ section p {
     opacity: 1;
 }
 
+.explore-cursor.cursor-stopped {
+    animation: none;
+    opacity: 0;
+}
+
 @keyframes cursor-blink {
     0%, 50% {
         opacity: 1;
@@ -806,6 +811,13 @@ section p {
     transition: all 0.3s ease;
     text-decoration: none;
     text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    /* Standardize button heights */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    line-height: 1;
+    box-sizing: border-box;
 }
 
 .explore-reset.ready,
@@ -1190,6 +1202,7 @@ section p {
     .explore-action-link {
         font-size: 1.5rem;
         padding: 0.4rem 1rem;
+        height: 2.5rem;
     }
 
     .explore-panel-actions {
@@ -1225,6 +1238,7 @@ section p {
         font-size: 1.25rem;
         width: 100%;
         text-align: center;
+        height: 2.25rem;
     }
 }
 
