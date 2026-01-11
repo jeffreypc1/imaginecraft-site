@@ -584,6 +584,7 @@ section p {
     letter-spacing: -0.02em;
     line-height: 1.2;
     margin-bottom: 2rem;
+    transition: opacity 0.3s ease;
 }
 
 /* Cursor Line */
@@ -663,21 +664,11 @@ section p {
     cursor: pointer;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 1.5s ease, transform 0.3s ease;
+    transition: opacity 1.5s ease, transform 0.3s ease, letter-spacing 0.3s ease, text-shadow 0.3s ease;
     position: relative;
     display: inline;
     vertical-align: middle;
-}
-
-.explore-thought::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background-color: #1F1F1F;
-    transition: width 0.3s ease;
+    text-decoration: none;
 }
 
 .explore-thought.visible {
@@ -696,21 +687,17 @@ section p {
 .explore-thought.visible:focus {
     opacity: 1;
     outline: none;
-}
-
-.explore-thought.visible:hover::after,
-.explore-thought.visible:focus::after {
-    width: 100%;
+    transform: scale(1.05);
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 20px rgba(91, 95, 234, 0.4), 0 0 40px rgba(91, 95, 234, 0.2);
 }
 
 .explore-thought.selected {
     opacity: 1;
     cursor: default;
-}
-
-.explore-thought.selected::after {
-    width: 100%;
-    opacity: 0.5;
+    transform: scale(1);
+    letter-spacing: normal;
+    text-shadow: none;
 }
 
 /* Response Panels */
@@ -776,6 +763,15 @@ section p {
 .explore-panel-actions .cta-button {
     padding: 0.875rem 1.75rem;
     font-size: 0.95rem;
+    background-color: #5B5FEA;
+    border: 1px solid #5B5FEA;
+    color: #FFFFFF;
+}
+
+.explore-panel-actions .cta-button:hover {
+    background-color: #4a4ed9;
+    border-color: #4a4ed9;
+    box-shadow: 0 4px 20px rgba(91, 95, 234, 0.3);
 }
 
 .explore-reset {
@@ -890,6 +886,10 @@ section p {
         opacity: 1;
     }
 
+    .explore-question {
+        transition: none;
+    }
+
     .explore-thought {
         transition: none;
     }
@@ -900,6 +900,12 @@ section p {
 
     .explore-thought.fade-out {
         opacity: 0;
+    }
+
+    .explore-thought.visible:hover,
+    .explore-thought.visible:focus {
+        transform: none;
+        letter-spacing: normal;
     }
 
     .explore-panels,

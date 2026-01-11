@@ -14,7 +14,7 @@
         <div class="explore-container">
             <!-- Question and cursor area -->
             <div class="explore-question-area">
-                <h1 class="explore-question">Why are you here?</h1>
+                <h1 class="explore-question" id="exploreQuestion">Why are you here?</h1>
                 <!-- Cursor and thoughts inline together -->
                 <div class="explore-cursor-line">
                     <span class="explore-cursor" id="exploreCursor" aria-hidden="true"></span>
@@ -139,6 +139,11 @@
         // ========================================
         // State Management
         // ========================================
+        const questions = [
+            "Why are you here?",
+            "Who are you?"
+        ];
+
         const thoughts = [
             "I have ideas.",
             "I don't know where to start.",
@@ -149,6 +154,7 @@
 
         let state = {
             currentIndex: 0,
+            currentQuestionIndex: 0,
             isTyping: false,
             isSelected: false,
             selectedIndex: null,
@@ -175,6 +181,22 @@
         const inputElement = document.getElementById('exploreInput');
         const panelsContainer = document.getElementById('explorePanels');
         const cursorElement = document.getElementById('exploreCursor');
+        const questionElement = document.getElementById('exploreQuestion');
+
+        // ========================================
+        // Question Cycling
+        // ========================================
+        function cycleQuestion() {
+            // Randomly decide whether to switch questions (30% chance)
+            if (Math.random() < 0.3) {
+                state.currentQuestionIndex = (state.currentQuestionIndex + 1) % questions.length;
+                questionElement.style.opacity = '0';
+                setTimeout(() => {
+                    questionElement.textContent = questions[state.currentQuestionIndex];
+                    questionElement.style.opacity = '1';
+                }, 300);
+            }
+        }
 
         // ========================================
         // Thought Cycling
@@ -206,6 +228,8 @@
                 if (!state.isTyping && !state.isSelected) {
                     thoughtElement.classList.remove('visible');
                     state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                    // Occasionally cycle the question when thoughts cycle
+                    cycleQuestion();
                     showThought(state.currentIndex);
                 }
             }, timing.fadeOut - timing.overlap);
@@ -270,6 +294,10 @@
             state.isTyping = false;
             state.selectedIndex = null;
             state.currentIndex = 0;
+            state.currentQuestionIndex = 0;
+
+            // Reset question
+            questionElement.textContent = questions[0];
 
             // Reset thought element
             thoughtElement.classList.remove('selected', 'visible', 'fade-in', 'fade-out');
