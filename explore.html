@@ -95,6 +95,17 @@
                     </div>
                 </article>
 
+                <!-- Panel 6: Who are you? -->
+                <article class="explore-panel" data-thought="5" hidden>
+                    <h2>We build software for people with vision.</h2>
+                    <p>We're a small studio of designers and engineers who believe software should feel inevitable—like it was always meant to exist. We work closely with founders, teams, and organizations who have something worth building.</p>
+                    <p>If you've found your way here, we'd like to know more about you too.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Introduce yourself</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
+
                 <!-- Generic panel for typed input -->
                 <article class="explore-panel" data-thought="custom" hidden>
                     <h2>Let's explore that together.</h2>
@@ -139,22 +150,17 @@
         // ========================================
         // State Management
         // ========================================
-        const questions = [
-            "Why are you here?",
-            "Who are you?"
-        ];
-
         const thoughts = [
             "I have ideas.",
             "I don't know where to start.",
             "Our tools don't fit us.",
             "I want software that matches how we work.",
-            "Help us think this through."
+            "Help us think this through.",
+            "Who are you?"
         ];
 
         let state = {
             currentIndex: 0,
-            currentQuestionIndex: 0,
             isTyping: false,
             isSelected: false,
             selectedIndex: null,
@@ -181,22 +187,6 @@
         const inputElement = document.getElementById('exploreInput');
         const panelsContainer = document.getElementById('explorePanels');
         const cursorElement = document.getElementById('exploreCursor');
-        const questionElement = document.getElementById('exploreQuestion');
-
-        // ========================================
-        // Question Cycling
-        // ========================================
-        function cycleQuestion() {
-            // Randomly decide whether to switch questions (30% chance)
-            if (Math.random() < 0.3) {
-                state.currentQuestionIndex = (state.currentQuestionIndex + 1) % questions.length;
-                questionElement.style.opacity = '0';
-                setTimeout(() => {
-                    questionElement.textContent = questions[state.currentQuestionIndex];
-                    questionElement.style.opacity = '1';
-                }, 300);
-            }
-        }
 
         // ========================================
         // Thought Cycling
@@ -228,8 +218,6 @@
                 if (!state.isTyping && !state.isSelected) {
                     thoughtElement.classList.remove('visible');
                     state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                    // Occasionally cycle the question when thoughts cycle
-                    cycleQuestion();
                     showThought(state.currentIndex);
                 }
             }, timing.fadeOut - timing.overlap);
@@ -294,10 +282,6 @@
             state.isTyping = false;
             state.selectedIndex = null;
             state.currentIndex = 0;
-            state.currentQuestionIndex = 0;
-
-            // Reset question
-            questionElement.textContent = questions[0];
 
             // Reset thought element
             thoughtElement.classList.remove('selected', 'visible', 'fade-in', 'fade-out');
