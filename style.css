@@ -556,8 +556,8 @@ section p {
 
 .explore-page {
     min-height: 100vh;
-    background-color: #FFFFFF;
-    color: #1F1F1F;
+    background-color: #000000;
+    color: #33FF33;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -589,14 +589,15 @@ section p {
 
 .explore-question {
     font-family: 'VT323', monospace;
-    font-size: clamp(1.1rem, 2vw, 1.4rem);
+    font-size: 1.5rem;
     font-weight: 400;
     letter-spacing: 0.15em;
     line-height: 1.2;
-    color: #000000;
+    color: #33FF33;
     text-transform: uppercase;
     margin-bottom: 3rem;
     transition: opacity 0.3s ease;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 /* Cursor Line */
@@ -610,23 +611,24 @@ section p {
 }
 
 .explore-cursor {
-    width: 1px;
-    height: 1.2rem;
-    background-color: #AAAAAA;
-    animation: cursor-blink 1.2s ease-in-out infinite;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: #33FF33;
+    animation: cursor-blink 1s step-end infinite;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.3s ease;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 .explore-cursor.visible {
-    opacity: 0.6;
+    opacity: 1;
 }
 
 @keyframes cursor-blink {
     0%, 50% {
         opacity: 1;
     }
-    51%, 100% {
+    50.1%, 100% {
         opacity: 0;
     }
 }
@@ -637,14 +639,15 @@ section p {
     background: transparent;
     border: none;
     outline: none;
-    color: #1F1F1F;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 1.25rem;
-    font-weight: 300;
+    color: #33FF33;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    font-weight: 400;
     padding: 0;
     width: 0;
     opacity: 0;
     transition: opacity 0.3s ease, width 0.3s ease;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 .explore-input.active,
@@ -654,7 +657,7 @@ section p {
 }
 
 .explore-input::placeholder {
-    color: rgba(31, 31, 31, 0.3);
+    color: rgba(51, 255, 51, 0.3);
 }
 
 /* Thought Container - now inline with cursor */
@@ -669,9 +672,9 @@ section p {
     border: none;
     padding: 0;
     font-family: 'VT323', monospace;
-    font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+    font-size: 1.5rem;
     font-weight: 400;
-    color: #000000;
+    color: #33FF33;
     text-align: center;
     cursor: pointer;
     opacity: 0;
@@ -682,6 +685,7 @@ section p {
     vertical-align: middle;
     text-decoration: none;
     letter-spacing: 0.08em;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 .explore-thought.visible {
@@ -701,14 +705,14 @@ section p {
     opacity: 1;
     outline: none;
     transform: scale(1.02);
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.8), 0 0 24px rgba(51, 255, 51, 0.5);
 }
 
 .explore-thought.selected {
     opacity: 1;
     cursor: default;
     transform: scale(1);
-    text-shadow: none;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 /* Response Panels */
@@ -725,10 +729,10 @@ section p {
 }
 
 .explore-panel {
-    background: rgba(31, 31, 31, 0.03);
+    background: rgba(51, 255, 51, 0.03);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(31, 31, 31, 0.1);
+    border: 1px solid rgba(51, 255, 51, 0.2);
     border-radius: 20px;
     padding: 2.5rem;
     opacity: 0;
@@ -742,21 +746,26 @@ section p {
 }
 
 .explore-panel h2 {
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.05em;
     margin-bottom: 1.25rem;
-    color: #1F1F1F;
+    color: #33FF33;
     outline: none;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 .explore-panel p {
-    font-size: 1.1rem;
-    font-weight: 300;
-    line-height: 1.7;
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.5;
     opacity: 0.85;
     margin-bottom: 1rem;
     max-width: none;
+    color: #33FF33;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
 }
 
 .explore-panel p:last-of-type {
@@ -773,38 +782,43 @@ section p {
 
 .explore-panel-actions .cta-button {
     padding: 0.875rem 1.75rem;
-    font-size: 0.95rem;
-    background-color: #000000;
-    border: 1px solid #000000;
-    color: #FFFFFF;
-    letter-spacing: 0.02em;
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    background-color: transparent;
+    border: 1px solid #33FF33;
+    color: #33FF33;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
 }
 
 .explore-panel-actions .cta-button:hover {
-    background-color: #1F1F1F;
-    border-color: #1F1F1F;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    background-color: rgba(51, 255, 51, 0.1);
+    border-color: #33FF33;
+    box-shadow: 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
 }
 
 .explore-reset {
     background: transparent;
     border: none;
-    color: #1F1F1F;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 0.9rem;
+    color: #33FF33;
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
     font-weight: 400;
     opacity: 0.6;
     cursor: pointer;
     padding: 0.5rem 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, text-shadow 0.2s ease;
     text-decoration: underline;
     text-underline-offset: 3px;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
 }
 
 .explore-reset:hover,
 .explore-reset:focus {
     opacity: 1;
     outline: none;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
 }
 
 /* Main Site Link */
@@ -813,15 +827,17 @@ section p {
     bottom: 2rem;
     right: 2rem;
     font-family: 'VT323', monospace;
-    color: #000000;
-    font-size: 1.2rem;
+    color: #33FF33;
+    font-size: 1.5rem;
     font-weight: 400;
     text-decoration: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, text-shadow 0.2s ease;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
 }
 
 .explore-back-link:hover {
-    opacity: 0.7;
+    opacity: 1;
+    text-shadow: 0 0 12px rgba(51, 255, 51, 0.8), 0 0 24px rgba(51, 255, 51, 0.5);
 }
 
 /* ========================================
@@ -932,4 +948,72 @@ section p {
     .explore-input {
         transition: none;
     }
+}
+
+/* ========================================
+   Explore Page - Modal Styling Override
+   ======================================== */
+
+.explore-page .modal-content {
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(51, 255, 51, 0.3);
+}
+
+.explore-page .modal-content h2 {
+    font-family: 'VT323', monospace;
+    color: #33FF33;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+}
+
+.explore-page .modal-close {
+    color: #33FF33;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
+}
+
+.explore-page .modal-close:hover {
+    color: #33FF33;
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.8);
+}
+
+.explore-page .form-group label {
+    font-family: 'VT323', monospace;
+    color: #33FF33;
+    font-size: 1.1rem;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
+}
+
+.explore-page .modal-form .form-group input,
+.explore-page .modal-form .form-group textarea {
+    font-family: 'VT323', monospace;
+    background: rgba(51, 255, 51, 0.05);
+    border: 1px solid rgba(51, 255, 51, 0.3);
+    color: #33FF33;
+    font-size: 1.1rem;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
+}
+
+.explore-page .modal-form .form-group input::placeholder,
+.explore-page .modal-form .form-group textarea::placeholder {
+    color: rgba(51, 255, 51, 0.4);
+}
+
+.explore-page .modal-form .form-group input:focus,
+.explore-page .modal-form .form-group textarea:focus {
+    border-color: rgba(51, 255, 51, 0.6);
+    background: rgba(51, 255, 51, 0.1);
+}
+
+.explore-page .modal-form .cta-button {
+    font-family: 'VT323', monospace;
+    background-color: transparent;
+    border: 1px solid #33FF33;
+    color: #33FF33;
+    font-size: 1.2rem;
+    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
+}
+
+.explore-page .modal-form .cta-button:hover {
+    background-color: rgba(51, 255, 51, 0.1);
+    box-shadow: 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
 }

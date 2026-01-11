@@ -17,7 +17,7 @@
                 <h1 class="explore-question" id="exploreQuestion">Why are you here?</h1>
                 <!-- Cursor and thoughts inline together -->
                 <div class="explore-cursor-line">
-                    <span class="explore-cursor" id="exploreCursor" aria-hidden="true"></span>
+                    <span class="explore-cursor" id="exploreCursor" aria-hidden="true">█</span>
                     <div class="explore-thought-container" aria-live="polite" aria-atomic="true">
                         <button
                             class="explore-thought"
@@ -174,10 +174,23 @@
         // Timing configuration (in ms)
         const timing = {
             initialDelay: 3000,
-            typeSpeed: 50,
-            backspaceSpeed: 30,
-            linger: 3000
+            typeSpeedMin: 100,
+            typeSpeedMax: 250,
+            punctuationPause: 500,
+            backspaceSpeedMin: 50,
+            backspaceSpeedMax: 100,
+            linger: 4000
         };
+
+        // Helper function for random delay between min and max
+        function randomDelay(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Check if character is punctuation
+        function isPunctuation(char) {
+            return ['.', ',', '!', '?', ';', ':'].includes(char);
+        }
 
         // Check for reduced motion preference
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -200,9 +213,20 @@
                 state.currentText = text.substring(0, index);
                 thoughtElement.textContent = state.currentText;
 
+                // Calculate delay - longer after punctuation, variable otherwise
+                let delay = 0;
+                if (!prefersReducedMotion) {
+                    const lastChar = text.charAt(index - 1);
+                    if (isPunctuation(lastChar)) {
+                        delay = timing.punctuationPause;
+                    } else {
+                        delay = randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
+                    }
+                }
+
                 state.animationTimeout = setTimeout(() => {
                     typeCharacter(text, index + 1, callback);
-                }, prefersReducedMotion ? 0 : timing.typeSpeed);
+                }, delay);
             } else {
                 if (callback) callback();
             }
@@ -215,9 +239,12 @@
                 state.currentText = state.currentText.substring(0, state.currentText.length - 1);
                 thoughtElement.textContent = state.currentText;
 
+                // Random jitter for backspace speed
+                const delay = prefersReducedMotion ? 0 : randomDelay(timing.backspaceSpeedMin, timing.backspaceSpeedMax);
+
                 state.animationTimeout = setTimeout(() => {
                     backspaceCharacter(callback);
-                }, prefersReducedMotion ? 0 : timing.backspaceSpeed);
+                }, delay);
             } else {
                 if (callback) callback();
             }
