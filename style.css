@@ -1276,3 +1276,207 @@ section p {
     }
 }
 
+/* ========================================
+   Earthquake Transition Effect
+   ======================================== */
+
+/* Earthquake shake animation */
+@keyframes earthquake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    5% { transform: translate(-8px, 4px) rotate(-0.5deg); }
+    10% { transform: translate(6px, -6px) rotate(0.8deg); }
+    15% { transform: translate(-10px, 2px) rotate(-1deg); }
+    20% { transform: translate(4px, 8px) rotate(0.5deg); }
+    25% { transform: translate(-6px, -4px) rotate(-0.8deg); }
+    30% { transform: translate(10px, 6px) rotate(1.2deg); }
+    35% { transform: translate(-4px, -8px) rotate(-0.5deg); }
+    40% { transform: translate(8px, 4px) rotate(0.8deg); }
+    45% { transform: translate(-10px, -2px) rotate(-1.2deg); }
+    50% { transform: translate(6px, 6px) rotate(1deg); }
+    55% { transform: translate(-8px, -6px) rotate(-0.8deg); }
+    60% { transform: translate(10px, 2px) rotate(0.5deg); }
+    65% { transform: translate(-6px, 8px) rotate(-1deg); }
+    70% { transform: translate(4px, -4px) rotate(1.2deg); }
+    75% { transform: translate(-10px, 6px) rotate(-0.5deg); }
+    80% { transform: translate(8px, -8px) rotate(0.8deg); }
+    85% { transform: translate(-4px, 4px) rotate(-1.2deg); }
+    90% { transform: translate(6px, -2px) rotate(1deg); }
+    95% { transform: translate(-8px, 8px) rotate(-0.8deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.explore-container.earthquake-shake {
+    animation: earthquake 1.5s ease-in-out;
+}
+
+/* Transition overlay container */
+.earthquake-transition-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.earthquake-transition-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Left and right crack halves */
+.crack-half {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background-color: #000000;
+    transition: none;
+    overflow: hidden;
+}
+
+.crack-half-left {
+    left: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.crack-half-right {
+    right: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Crack line effect (jagged edge) */
+.crack-half-left::after,
+.crack-half-right::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        #000000 0%,
+        #34ff35 2%,
+        #000000 4%,
+        #34ff35 6%,
+        #000000 8%,
+        #34ff35 10%,
+        #000000 12%,
+        #34ff35 15%,
+        #000000 18%,
+        #34ff35 22%,
+        #000000 26%,
+        #34ff35 30%,
+        #000000 35%,
+        #34ff35 40%,
+        #000000 45%,
+        #34ff35 50%,
+        #000000 55%,
+        #34ff35 60%,
+        #000000 65%,
+        #34ff35 70%,
+        #000000 75%,
+        #34ff35 80%,
+        #000000 85%,
+        #34ff35 90%,
+        #000000 95%,
+        #34ff35 100%
+    );
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 0 20px rgba(52, 255, 53, 0.8), 0 0 40px rgba(52, 255, 53, 0.4);
+}
+
+.crack-half-left::after {
+    right: -10px;
+}
+
+.crack-half-right::before {
+    left: -10px;
+}
+
+/* Show crack lines when cracking */
+.earthquake-transition-overlay.cracking .crack-half-left::after,
+.earthquake-transition-overlay.cracking .crack-half-right::before {
+    opacity: 1;
+}
+
+/* Slide animation for crack halves */
+.earthquake-transition-overlay.cracking .crack-half-left {
+    animation: slideOutLeft 0.8s ease-in forwards;
+}
+
+.earthquake-transition-overlay.cracking .crack-half-right {
+    animation: slideOutRight 0.8s ease-in forwards;
+}
+
+@keyframes slideOutLeft {
+    0% {
+        transform: translateX(0);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+    20% {
+        transform: translateX(0);
+        clip-path: polygon(0 0, 100% 0, 98% 15%, 100% 30%, 97% 45%, 100% 60%, 98% 75%, 100% 90%, 100% 100%, 0 100%);
+    }
+    100% {
+        transform: translateX(-110%);
+        clip-path: polygon(0 0, 100% 0, 98% 15%, 100% 30%, 97% 45%, 100% 60%, 98% 75%, 100% 90%, 100% 100%, 0 100%);
+    }
+}
+
+@keyframes slideOutRight {
+    0% {
+        transform: translateX(0);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+    20% {
+        transform: translateX(0);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 2% 90%, 0% 75%, 3% 60%, 0% 45%, 2% 30%, 0% 15%);
+    }
+    100% {
+        transform: translateX(110%);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 2% 90%, 0% 75%, 3% 60%, 0% 45%, 2% 30%, 0% 15%);
+    }
+}
+
+/* Main site reveal container */
+.main-site-reveal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease;
+}
+
+.main-site-reveal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.main-site-reveal iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Reduced motion support for earthquake */
+@media (prefers-reduced-motion: reduce) {
+    .explore-container.earthquake-shake {
+        animation: none;
+    }
+
+    .earthquake-transition-overlay.cracking .crack-half-left,
+    .earthquake-transition-overlay.cracking .crack-half-right {
+        animation-duration: 0.3s;
+    }
+}
+
