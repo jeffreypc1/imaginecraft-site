@@ -219,6 +219,9 @@
             "We listen first. Then we build what actually matters to you."
         ];
 
+        // Default hero text
+        const defaultHeroText = 'Why are you here?';
+
         // Load from localStorage or use defaults
         function loadThoughtsFromStorage() {
             try {
@@ -244,8 +247,21 @@
             return defaultResponses;
         }
 
+        function loadHeroTextFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_hero_text');
+                if (stored) {
+                    return stored;
+                }
+            } catch (e) {
+                console.warn('Failed to load hero text from localStorage:', e);
+            }
+            return defaultHeroText;
+        }
+
         const thoughts = loadThoughtsFromStorage();
         const responses = loadResponsesFromStorage();
+        const heroText = loadHeroTextFromStorage();
 
         let state = {
             currentIndex: 0,
@@ -387,6 +403,10 @@
         function selectThought(index) {
             state.isSelected = true;
             state.selectedIndex = index;
+            // Sync currentIndex for sequential cycling continuity
+            if (typeof index === 'number') {
+                state.currentIndex = index;
+            }
             stopCycling();
 
             // If we're selecting a cycling thought, show the full text
@@ -549,8 +569,9 @@
             state.isSelected = false;
             state.isUserTyping = false;
             state.isAnimating = false;
+            // Advance to the next thought in sequence (don't reset to 0)
+            state.currentIndex = (state.currentIndex + 1) % thoughts.length;
             state.selectedIndex = null;
-            state.currentIndex = 0;
             state.currentText = '';
             state.targetText = '';
 
@@ -691,6 +712,12 @@
         // Initialize
         // ========================================
         document.addEventListener('DOMContentLoaded', () => {
+            // Set hero text from localStorage
+            const heroElement = document.getElementById('exploreQuestion');
+            if (heroElement && heroText) {
+                heroElement.textContent = heroText;
+            }
+
             // Apply reduced motion adjustments
             if (prefersReducedMotion) {
                 timing.fadeIn = 0;
