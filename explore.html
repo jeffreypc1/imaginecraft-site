@@ -15,8 +15,17 @@
             <!-- Question and cursor area -->
             <div class="explore-question-area">
                 <h1 class="explore-question">Why are you here?</h1>
+                <!-- Cursor and thoughts inline together -->
                 <div class="explore-cursor-line">
-                    <span class="explore-cursor" aria-hidden="true"></span>
+                    <span class="explore-cursor" id="exploreCursor" aria-hidden="true"></span>
+                    <div class="explore-thought-container" aria-live="polite" aria-atomic="true">
+                        <button
+                            class="explore-thought"
+                            id="currentThought"
+                            tabindex="0"
+                            aria-label="Click to select this thought"
+                        ></button>
+                    </div>
                     <!-- Optional: text input appears here when user starts typing -->
                     <input
                         type="text"
@@ -26,16 +35,6 @@
                         aria-label="Type your own response"
                         autocomplete="off"
                     >
-                </div>
-
-                <!-- Cycling thoughts appear here -->
-                <div class="explore-thought-container" aria-live="polite" aria-atomic="true">
-                    <button
-                        class="explore-thought"
-                        id="currentThought"
-                        tabindex="0"
-                        aria-label="Click to select this thought"
-                    ></button>
                 </div>
             </div>
 
@@ -159,10 +158,10 @@
 
         // Timing configuration (in ms)
         const timing = {
-            initialDelay: 2000,
-            fadeIn: 500,
-            linger: 3000,
-            fadeOut: 700,
+            initialDelay: 5000,
+            fadeIn: 1500,
+            linger: 4000,
+            fadeOut: 1500,
             overlap: 200
         };
 
@@ -175,6 +174,7 @@
         const thoughtElement = document.getElementById('currentThought');
         const inputElement = document.getElementById('exploreInput');
         const panelsContainer = document.getElementById('explorePanels');
+        const cursorElement = document.getElementById('exploreCursor');
 
         // ========================================
         // Thought Cycling
@@ -212,7 +212,9 @@
         }
 
         function startCycling() {
+            // Show cursor after initial delay, then start cycling thoughts
             state.cycleTimeout = setTimeout(() => {
+                cursorElement.classList.add('visible');
                 showThought(state.currentIndex);
             }, timing.initialDelay);
         }
@@ -236,7 +238,7 @@
             thoughtElement.setAttribute('aria-pressed', 'true');
 
             // Hide cursor
-            document.querySelector('.explore-cursor').style.display = 'none';
+            cursorElement.classList.remove('visible');
 
             // Show the corresponding panel
             showPanel(index);
@@ -274,8 +276,8 @@
             thoughtElement.textContent = '';
             thoughtElement.removeAttribute('aria-pressed');
 
-            // Show cursor again
-            document.querySelector('.explore-cursor').style.display = '';
+            // Hide cursor initially (will be shown after delay when cycling restarts)
+            cursorElement.classList.remove('visible');
 
             // Hide all panels
             const panels = panelsContainer.querySelectorAll('.explore-panel');
@@ -384,7 +386,7 @@
             if (prefersReducedMotion) {
                 timing.fadeIn = 0;
                 timing.fadeOut = 0;
-                timing.linger = 4000;
+                timing.linger = 5000;
             }
 
             startCycling();
