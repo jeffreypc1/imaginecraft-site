@@ -16,7 +16,7 @@
             <ul class="nav-links">
                 <li><a href="#about">About</a></li>
                 <li><a href="#work">Work</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#" onclick="openContactModal(); return false;">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -59,27 +59,61 @@
             <div class="section-content">
                 <h2>Let's Create Together</h2>
                 <p>Ready to bring your ideas to life? We'd love to hear from you.</p>
-                <form class="contact-form" action="mailto:jeffrey@obrienimmigration.com" method="POST" enctype="text/plain">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" placeholder="Your name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="your@email.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" placeholder="Tell us about your project..." required></textarea>
-                    </div>
-                    <button type="submit" class="cta-button">Send Message</button>
-                </form>
+                <button class="cta-button say-hello-btn" onclick="openContactModal()">Say Hello</button>
             </div>
         </section>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeContactModal()" aria-label="Close modal">&times;</button>
+            <h2>Get in Touch</h2>
+            <form class="modal-form" action="mailto:jeffrey@obrienimmigration.com" method="POST" enctype="text/plain">
+                <div class="form-group">
+                    <label for="modal-name">Name</label>
+                    <input type="text" id="modal-name" name="name" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-email">Email</label>
+                    <input type="email" id="modal-email" name="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-message">Message</label>
+                    <textarea id="modal-message" name="message" placeholder="Tell us about your project..." required></textarea>
+                </div>
+                <button type="submit" class="cta-button">Send Message</button>
+            </form>
+        </div>
+    </div>
     </main>
 
     <footer class="footer">
         <p>&copy; 2026 ImagineCraft Studios. All rights reserved.</p>
     </footer>
+
+    <script>
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target === document.getElementById('contactModal')) {
+                closeContactModal();
+            }
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeContactModal();
+            }
+        });
+    </script>
 </body>
 </html>
