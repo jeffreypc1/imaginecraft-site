@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ImagineCraft Studios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1F1F1F;
+            --background: #FAFAF7;
+            --accent: #5B5FEA;
+            --glass: rgba(255, 255, 255, 0.1);
+            --charcoal: var(--primary);
+            --off-white: var(--background);
+            --charcoal-light: #2a2a2a;
+            --off-white-dark: #e8e8e5;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--background);
+            color: var(--primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--charcoal);
+            color: var(--off-white);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--off-white);
+            font-size: 0.95rem;
+            font-weight: 400;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
+        /* Login Section */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 76px);
+            padding: 2rem;
+            background-color: var(--charcoal);
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            color: var(--off-white);
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .login-card p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--off-white);
+            opacity: 0.9;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1rem;
+            color: var(--off-white);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: var(--off-white);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background-color: #4a4ed8;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            display: none;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard.visible {
+            display: block;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .dashboard-actions .btn {
+            width: auto;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--off-white);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #16a34a;
+        }
+
+        /* Thought Cards */
+        .thoughts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .thought-card {
+            background: white;
+            border: 1px solid var(--off-white-dark);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .thought-card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .thought-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .thought-card .card-number {
+            background: var(--charcoal);
+            color: var(--off-white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .thought-card label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(31, 31, 31, 0.6);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .thought-card input,
+        .thought-card textarea {
+            width: 100%;
+            padding: 0.75rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.95rem;
+            color: var(--primary);
+            background: var(--background);
+            border: 1px solid var(--off-white-dark);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .thought-card input:focus,
+        .thought-card textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
+        }
+
+        .thought-card textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .thought-card .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .thought-card .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--charcoal);
+            color: var(--off-white);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--error);
+        }
+
+        /* Logout button in header */
+        .logout-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--off-white);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+            display: none;
+        }
+
+        .logout-btn.visible {
+            display: block;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem 1.5rem;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .login-card {
+                padding: 2rem;
+            }
+
+            .dashboard {
+                padding: 1.5rem;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .dashboard-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .thoughts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">ImagineCraft Studios</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="main.html">Main Site</a></li>
+                <li><a href="index.html">Explore</a></li>
+            </ul>
+        </nav>
+        <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout</button>
+    </header>
+
+    <!-- Login Section -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-card">
+            <h1>Admin Dashboard</h1>
+            <p>Enter your password to manage thoughts and responses.</p>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter admin password" required>
+                    <p class="error-message" id="loginError">Incorrect password. Please try again.</p>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div class="dashboard" id="dashboard">
+        <div class="dashboard-header">
+            <h1>Manage Thoughts & Responses</h1>
+            <div class="dashboard-actions">
+                <button class="btn btn-outline" onclick="resetToDefaults()">Reset to Defaults</button>
+                <button class="btn btn-success" onclick="saveChanges()">Save Changes</button>
+            </div>
+        </div>
+        <div class="thoughts-grid" id="thoughtsGrid">
+            <!-- Cards will be generated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toastMessage">Changes saved successfully!</span>
+    </div>
+
+    <script>
+        // Default thoughts and responses (must match index.html)
+        const defaultThoughts = [
+            "I have ideas.",
+            "I don't know where to start.",
+            "Our tools don't fit us.",
+            "I want software that matches how we work.",
+            "Help us think this through.",
+            "Who are you?",
+            "I need something custom.",
+            "Our budget is limited.",
+            "We've tried this before.",
+            "How long will it take?",
+            "Can you work with our team?",
+            "What makes you different?"
+        ];
+
+        const defaultResponses = [
+            "Starting is the hardest part. We will figure out the first step together.",
+            "Who we are is less important than what we can build together.",
+            "The right tools don't exist yet; we have to invent them.",
+            "Complexity is the enemy. We specialize in radical simplicity.",
+            "Your vision is the blueprint. Our code is the foundation.",
+            "We're builders who believe software should feel inevitable.",
+            "Custom is our specialty. Every solution we build is tailored.",
+            "Great work doesn't require a fortune. Let's find what's possible.",
+            "Past failures are lessons. We learn what didn't work and build better.",
+            "Quality takes time, but we move with purpose. Let's set expectations.",
+            "Collaboration is core to how we work. Your team becomes ours.",
+            "We listen first. Then we build what actually matters to you."
+        ];
+
+        // Hardcoded password
+        const ADMIN_PASSWORD = 'admin123';
+
+        // Current data
+        let currentThoughts = [];
+        let currentResponses = [];
+
+        // Load data from localStorage
+        function loadFromStorage() {
+            try {
+                const storedThoughts = localStorage.getItem('imaginecraft_thoughts');
+                const storedResponses = localStorage.getItem('imaginecraft_responses');
+                currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
+                currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
+            } catch (e) {
+                console.warn('Failed to load from localStorage:', e);
+                currentThoughts = [...defaultThoughts];
+                currentResponses = [...defaultResponses];
+            }
+        }
+
+        // Save data to localStorage
+        function saveToStorage() {
+            try {
+                localStorage.setItem('imaginecraft_thoughts', JSON.stringify(currentThoughts));
+                localStorage.setItem('imaginecraft_responses', JSON.stringify(currentResponses));
+                return true;
+            } catch (e) {
+                console.error('Failed to save to localStorage:', e);
+                return false;
+            }
+        }
+
+        // Handle login
+        function handleLogin(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('loginError');
+
+            if (password === ADMIN_PASSWORD) {
+                errorEl.classList.remove('visible');
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('dashboard').classList.add('visible');
+                document.getElementById('logoutBtn').classList.add('visible');
+                sessionStorage.setItem('admin_authenticated', 'true');
+                renderThoughtCards();
+            } else {
+                errorEl.classList.add('visible');
+            }
+        }
+
+        // Logout
+        function logout() {
+            sessionStorage.removeItem('admin_authenticated');
+            document.getElementById('dashboard').classList.remove('visible');
+            document.getElementById('logoutBtn').classList.remove('visible');
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('password').value = '';
+        }
+
+        // Check if already authenticated
+        function checkAuth() {
+            if (sessionStorage.getItem('admin_authenticated') === 'true') {
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('dashboard').classList.add('visible');
+                document.getElementById('logoutBtn').classList.add('visible');
+                renderThoughtCards();
+            }
+        }
+
+        // Render thought cards
+        function renderThoughtCards() {
+            const grid = document.getElementById('thoughtsGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 12; i++) {
+                const card = document.createElement('div');
+                card.className = 'thought-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="card-number">${i + 1}</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Thought</label>
+                        <input type="text" id="thought-${i}" value="${escapeHtml(currentThoughts[i] || '')}" placeholder="Enter thought...">
+                    </div>
+                    <div class="form-group">
+                        <label>Response</label>
+                        <textarea id="response-${i}" placeholder="Enter response...">${escapeHtml(currentResponses[i] || '')}</textarea>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Save changes
+        function saveChanges() {
+            for (let i = 0; i < 12; i++) {
+                currentThoughts[i] = document.getElementById(`thought-${i}`).value;
+                currentResponses[i] = document.getElementById(`response-${i}`).value;
+            }
+
+            if (saveToStorage()) {
+                showToast('Changes saved successfully!', 'success');
+            } else {
+                showToast('Failed to save changes.', 'error');
+            }
+        }
+
+        // Reset to defaults
+        function resetToDefaults() {
+            if (confirm('Are you sure you want to reset all thoughts and responses to defaults? This cannot be undone.')) {
+                currentThoughts = [...defaultThoughts];
+                currentResponses = [...defaultResponses];
+                saveToStorage();
+                renderThoughtCards();
+                showToast('Reset to defaults successfully!', 'success');
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastMessage.textContent = message;
+            toast.className = 'toast visible ' + type;
+
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            checkAuth();
+        });
+    </script>
+</body>
+</html>
