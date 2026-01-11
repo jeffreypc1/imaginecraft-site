@@ -95,6 +95,16 @@ body {
     line-height: 1.1;
     max-width: 900px;
     margin-bottom: 1.5rem;
+    animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.03);
+    }
 }
 
 .hero-subtext {
@@ -104,17 +114,20 @@ body {
     margin-bottom: 3rem;
 }
 
-/* CTA Button */
+/* CTA Button - Glassmorphism */
 .cta-button {
     display: inline-block;
     padding: 1rem 2.5rem;
-    background-color: var(--off-white);
-    color: var(--charcoal);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--off-white);
     text-decoration: none;
     font-size: 1rem;
     font-weight: 500;
     border-radius: 4px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .cta-button:hover {
