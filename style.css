@@ -1,9 +1,15 @@
 /* ImagineCraft Studios - Main Stylesheet */
-/* Color Palette: Charcoal #1F1F1F, Off-white #FAFAF7 */
+/* 2026 Design System */
 
 :root {
-    --charcoal: #1F1F1F;
-    --off-white: #FAFAF7;
+    --primary: #1F1F1F;
+    --background: #FAFAF7;
+    --accent: #5B5FEA;
+    --glass: rgba(255, 255, 255, 0.1);
+
+    /* Legacy aliases for compatibility */
+    --charcoal: var(--primary);
+    --off-white: var(--background);
     --charcoal-light: #2a2a2a;
     --off-white-dark: #e8e8e5;
 }
@@ -19,9 +25,9 @@ html {
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: var(--off-white);
-    color: var(--charcoal);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--background);
+    color: var(--primary);
     line-height: 1.6;
 }
 
