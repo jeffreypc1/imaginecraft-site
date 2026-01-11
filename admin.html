@@ -227,18 +227,6 @@
             padding: 0.75rem 1.5rem;
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: var(--off-white);
-            transform: translateY(-2px);
-        }
-
         .btn-success {
             background-color: var(--success);
             border-color: var(--success);
@@ -285,6 +273,66 @@
         }
 
         .hero-section input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
+        }
+
+        /* Navigation Links Section */
+        .nav-links-section {
+            background: white;
+            border: 1px solid var(--off-white-dark);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-links-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .nav-links-section p {
+            font-size: 0.9rem;
+            color: rgba(31, 31, 31, 0.6);
+            margin-bottom: 1rem;
+        }
+
+        .nav-links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .nav-links-section .form-group {
+            margin-bottom: 0;
+        }
+
+        .nav-links-section label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(31, 31, 31, 0.6);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links-section input {
+            width: 100%;
+            padding: 0.75rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1rem;
+            color: var(--primary);
+            background: var(--background);
+            border: 1px solid var(--off-white-dark);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-links-section input:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
         }
@@ -370,6 +418,62 @@
 
         .thought-card .form-group:last-child {
             margin-bottom: 0;
+        }
+
+        /* Action Type Dropdown */
+        .thought-card select {
+            width: 100%;
+            padding: 0.75rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.95rem;
+            color: var(--primary);
+            background: var(--background);
+            border: 1px solid var(--off-white-dark);
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231F1F1F' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+
+        .thought-card select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
+        }
+
+        /* Conditional Action Fields */
+        .action-fields {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--background);
+            border-radius: 8px;
+            border: 1px dashed var(--off-white-dark);
+        }
+
+        .action-fields.hidden {
+            display: none;
+        }
+
+        .action-fields label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .action-fields input,
+        .action-fields textarea {
+            margin-top: 0.5rem;
+        }
+
+        .action-fields textarea {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            min-height: 120px;
+            line-height: 1.4;
         }
 
         /* Toast Notification */
@@ -494,7 +598,6 @@
         <div class="dashboard-header">
             <h1>Manage Thoughts & Responses</h1>
             <div class="dashboard-actions">
-                <button class="btn btn-outline" onclick="resetToDefaults()">Reset to Defaults</button>
                 <button class="btn btn-success" onclick="saveChanges()">Save Changes</button>
             </div>
         </div>
@@ -503,6 +606,22 @@
             <h2>Hero Heading</h2>
             <p>This is the main static heading displayed at the top. It does not cycle like the thoughts.</p>
             <input type="text" id="heroText" placeholder="Enter hero heading..." value="WHY ARE YOU HERE?">
+        </div>
+
+        <!-- Navigation Links Section -->
+        <div class="nav-links-section">
+            <h2>Navigation Link Text</h2>
+            <p>Customize the text for the navigation links shown after each response.</p>
+            <div class="nav-links-grid">
+                <div class="form-group">
+                    <label>Change Directions Link</label>
+                    <input type="text" id="changeDirectionsText" placeholder="Change direction" value="Change direction">
+                </div>
+                <div class="form-group">
+                    <label>Main Site Link</label>
+                    <input type="text" id="mainSiteText" placeholder="Enter Main Site" value="Enter Main Site">
+                </div>
+            </div>
         </div>
 
         <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--primary);">Cycling Thoughts & Responses</h2>
@@ -551,13 +670,39 @@
         // Hardcoded password
         const ADMIN_PASSWORD = 'admin123';
 
-        // Default hero text
+        // Default settings
         const defaultHeroText = 'WHY ARE YOU HERE?';
+        const defaultNavLinks = {
+            changeDirections: 'Change direction',
+            mainSite: 'Enter Main Site'
+        };
+
+        // Action types
+        const ACTION_TYPES = [
+            { value: 'none', label: 'None' },
+            { value: 'video', label: 'Video' },
+            { value: 'image', label: 'Static Image' },
+            { value: 'logo', label: 'Logo' },
+            { value: 'matrix', label: 'The Matrix' },
+            { value: 'contact', label: 'Contact Us Form' }
+        ];
 
         // Current data
         let currentThoughts = [];
         let currentResponses = [];
         let currentHeroText = defaultHeroText;
+        let currentNavLinks = { ...defaultNavLinks };
+        let currentActions = [];
+
+        // Initialize default actions
+        function initDefaultActions() {
+            return Array(12).fill(null).map(() => ({
+                type: 'none',
+                url: '',
+                logo: '',
+                linkText: 'Click here'
+            }));
+        }
 
         // Load data from localStorage
         function loadFromStorage() {
@@ -565,14 +710,26 @@
                 const storedThoughts = localStorage.getItem('imaginecraft_thoughts');
                 const storedResponses = localStorage.getItem('imaginecraft_responses');
                 const storedHeroText = localStorage.getItem('imaginecraft_hero_text');
+                const storedNavLinks = localStorage.getItem('imaginecraft_nav_links');
+                const storedActions = localStorage.getItem('imaginecraft_actions');
+
                 currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
                 currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
                 currentHeroText = storedHeroText || defaultHeroText;
+                currentNavLinks = storedNavLinks ? JSON.parse(storedNavLinks) : { ...defaultNavLinks };
+                currentActions = storedActions ? JSON.parse(storedActions) : initDefaultActions();
+
+                // Ensure all 12 actions exist
+                while (currentActions.length < 12) {
+                    currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
+                }
             } catch (e) {
                 console.warn('Failed to load from localStorage:', e);
                 currentThoughts = [...defaultThoughts];
                 currentResponses = [...defaultResponses];
                 currentHeroText = defaultHeroText;
+                currentNavLinks = { ...defaultNavLinks };
+                currentActions = initDefaultActions();
             }
         }
 
@@ -582,6 +739,8 @@
                 localStorage.setItem('imaginecraft_thoughts', JSON.stringify(currentThoughts));
                 localStorage.setItem('imaginecraft_responses', JSON.stringify(currentResponses));
                 localStorage.setItem('imaginecraft_hero_text', currentHeroText);
+                localStorage.setItem('imaginecraft_nav_links', JSON.stringify(currentNavLinks));
+                localStorage.setItem('imaginecraft_actions', JSON.stringify(currentActions));
                 return true;
             } catch (e) {
                 console.error('Failed to save to localStorage:', e);
@@ -601,7 +760,7 @@
                 document.getElementById('dashboard').classList.add('visible');
                 document.getElementById('logoutBtn').classList.add('visible');
                 sessionStorage.setItem('admin_authenticated', 'true');
-                renderThoughtCards();
+                renderDashboard();
             } else {
                 errorEl.classList.add('visible');
             }
@@ -622,22 +781,38 @@
                 document.getElementById('loginContainer').style.display = 'none';
                 document.getElementById('dashboard').classList.add('visible');
                 document.getElementById('logoutBtn').classList.add('visible');
-                renderThoughtCards();
+                renderDashboard();
             }
         }
 
-        // Render thought cards
-        function renderThoughtCards() {
+        // Render full dashboard
+        function renderDashboard() {
             // Update hero text field
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
                 heroInput.value = currentHeroText;
             }
 
+            // Update navigation link fields
+            const changeDirectionsInput = document.getElementById('changeDirectionsText');
+            const mainSiteInput = document.getElementById('mainSiteText');
+            if (changeDirectionsInput) {
+                changeDirectionsInput.value = currentNavLinks.changeDirections || defaultNavLinks.changeDirections;
+            }
+            if (mainSiteInput) {
+                mainSiteInput.value = currentNavLinks.mainSite || defaultNavLinks.mainSite;
+            }
+
+            renderThoughtCards();
+        }
+
+        // Render thought cards
+        function renderThoughtCards() {
             const grid = document.getElementById('thoughtsGrid');
             grid.innerHTML = '';
 
             for (let i = 0; i < 12; i++) {
+                const action = currentActions[i] || { type: 'none', url: '', logo: '', linkText: 'Click here' };
                 const card = document.createElement('div');
                 card.className = 'thought-card';
                 card.innerHTML = `
@@ -652,8 +827,86 @@
                         <label>Response</label>
                         <textarea id="response-${i}" placeholder="Enter response...">${escapeHtml(currentResponses[i] || '')}</textarea>
                     </div>
+                    <div class="form-group">
+                        <label>Action Type</label>
+                        <select id="action-type-${i}" onchange="handleActionTypeChange(${i})">
+                            ${ACTION_TYPES.map(type => `
+                                <option value="${type.value}" ${action.type === type.value ? 'selected' : ''}>
+                                    ${type.label}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    <div id="action-fields-${i}" class="action-fields ${action.type === 'none' ? 'hidden' : ''}">
+                        ${renderActionFields(i, action)}
+                    </div>
                 `;
                 grid.appendChild(card);
+            }
+        }
+
+        // Render action-specific fields
+        function renderActionFields(index, action) {
+            const linkTextField = `
+                <div class="form-group">
+                    <label>Link Text (shown in terminal)</label>
+                    <input type="text" id="action-linktext-${index}" value="${escapeHtml(action.linkText || 'Click here')}" placeholder="Click here">
+                </div>
+            `;
+
+            switch (action.type) {
+                case 'video':
+                    return `
+                        ${linkTextField}
+                        <div class="form-group">
+                            <label>YouTube URL</label>
+                            <input type="url" id="action-url-${index}" value="${escapeHtml(action.url || '')}" placeholder="https://www.youtube.com/watch?v=...">
+                        </div>
+                    `;
+                case 'image':
+                    return `
+                        ${linkTextField}
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input type="url" id="action-url-${index}" value="${escapeHtml(action.url || '')}" placeholder="https://example.com/image.jpg">
+                        </div>
+                    `;
+                case 'logo':
+                    return `
+                        ${linkTextField}
+                        <div class="form-group">
+                            <label>ASCII Logo</label>
+                            <textarea id="action-logo-${index}" placeholder="Enter ASCII art...">${escapeHtml(action.logo || '')}</textarea>
+                        </div>
+                    `;
+                case 'matrix':
+                    return linkTextField;
+                case 'contact':
+                    return linkTextField;
+                default:
+                    return '';
+            }
+        }
+
+        // Handle action type change
+        function handleActionTypeChange(index) {
+            const select = document.getElementById(`action-type-${index}`);
+            const fieldsContainer = document.getElementById(`action-fields-${index}`);
+            const actionType = select.value;
+
+            // Update current action
+            if (!currentActions[index]) {
+                currentActions[index] = { type: 'none', url: '', logo: '', linkText: 'Click here' };
+            }
+            currentActions[index].type = actionType;
+
+            // Show/hide fields container
+            if (actionType === 'none') {
+                fieldsContainer.classList.add('hidden');
+                fieldsContainer.innerHTML = '';
+            } else {
+                fieldsContainer.classList.remove('hidden');
+                fieldsContainer.innerHTML = renderActionFields(index, currentActions[index]);
             }
         }
 
@@ -672,27 +925,52 @@
                 currentHeroText = heroInput.value || defaultHeroText;
             }
 
+            // Save navigation link text
+            const changeDirectionsInput = document.getElementById('changeDirectionsText');
+            const mainSiteInput = document.getElementById('mainSiteText');
+            if (changeDirectionsInput) {
+                currentNavLinks.changeDirections = changeDirectionsInput.value || defaultNavLinks.changeDirections;
+            }
+            if (mainSiteInput) {
+                currentNavLinks.mainSite = mainSiteInput.value || defaultNavLinks.mainSite;
+            }
+
+            // Save thoughts, responses, and actions
             for (let i = 0; i < 12; i++) {
                 currentThoughts[i] = document.getElementById(`thought-${i}`).value;
                 currentResponses[i] = document.getElementById(`response-${i}`).value;
+
+                const actionType = document.getElementById(`action-type-${i}`).value;
+                if (!currentActions[i]) {
+                    currentActions[i] = { type: 'none', url: '', logo: '', linkText: 'Click here' };
+                }
+                currentActions[i].type = actionType;
+
+                // Save action-specific fields
+                if (actionType !== 'none') {
+                    const linkTextInput = document.getElementById(`action-linktext-${i}`);
+                    if (linkTextInput) {
+                        currentActions[i].linkText = linkTextInput.value || 'Click here';
+                    }
+
+                    if (actionType === 'video' || actionType === 'image') {
+                        const urlInput = document.getElementById(`action-url-${i}`);
+                        if (urlInput) {
+                            currentActions[i].url = urlInput.value;
+                        }
+                    } else if (actionType === 'logo') {
+                        const logoInput = document.getElementById(`action-logo-${i}`);
+                        if (logoInput) {
+                            currentActions[i].logo = logoInput.value;
+                        }
+                    }
+                }
             }
 
             if (saveToStorage()) {
                 showToast('Changes saved successfully!', 'success');
             } else {
                 showToast('Failed to save changes.', 'error');
-            }
-        }
-
-        // Reset to defaults
-        function resetToDefaults() {
-            if (confirm('Are you sure you want to reset all content to defaults? This cannot be undone.')) {
-                currentHeroText = defaultHeroText;
-                currentThoughts = [...defaultThoughts];
-                currentResponses = [...defaultResponses];
-                saveToStorage();
-                renderThoughtCards();
-                showToast('Reset to defaults successfully!', 'success');
             }
         }
 
