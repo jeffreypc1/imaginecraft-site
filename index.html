@@ -336,11 +336,26 @@
             matrixAnimationId: null
         };
 
-        // Timing configuration (in ms)
+        // Load typing speed from localStorage (admin configurable)
+        function loadTypingSpeedFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_typing_speed');
+                if (stored) {
+                    return parseInt(stored, 10);
+                }
+            } catch (e) {
+                console.warn('Failed to load typing speed from localStorage:', e);
+            }
+            return 150; // Default base speed
+        }
+
+        const baseTypingSpeed = loadTypingSpeedFromStorage();
+
+        // Timing configuration (in ms) - uses admin-configurable base speed
         const timing = {
             initialDelay: 3000,
-            typeSpeedMin: 100,
-            typeSpeedMax: 250,
+            typeSpeedMin: Math.max(50, baseTypingSpeed - 50),
+            typeSpeedMax: baseTypingSpeed + 100,
             punctuationPause: 500,
             backspaceSpeedMin: 50,
             backspaceSpeedMax: 100,
@@ -769,10 +784,32 @@
             if (!logoText) return;
 
             const container = document.getElementById('asciiLogoContainer');
+
+            // Clear any existing content
+            container.innerHTML = '';
+
+            // Create wrapper for positioning the close button
+            const wrapper = document.createElement('div');
+            wrapper.className = 'ascii-logo-wrapper';
+
+            // Create close button
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'ascii-logo-close';
+            closeBtn.textContent = 'X';
+            closeBtn.setAttribute('aria-label', 'Close logo');
+            closeBtn.onclick = closeAsciiLogo;
+
+            // Create logo element
             const logoElement = document.createElement('pre');
             logoElement.className = 'ascii-logo';
             logoElement.textContent = '';
-            container.appendChild(logoElement);
+
+            wrapper.appendChild(logoElement);
+            wrapper.appendChild(closeBtn);
+            container.appendChild(wrapper);
+
+            // Show the container
+            container.classList.add('visible');
 
             // Type out the logo character by character
             typeAsciiLogo(logoElement, logoText, 0);
@@ -790,6 +827,15 @@
             }
         }
 
+        function closeAsciiLogo() {
+            const container = document.getElementById('asciiLogoContainer');
+            container.classList.remove('visible');
+            // Clear content after hiding
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 300);
+        }
+
         // ========================================
         // The Matrix Animation
         // ========================================
@@ -803,6 +849,7 @@
             // Set canvas to full screen
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            canvas.classList.remove('fade-out');
             canvas.classList.add('active');
 
             const fontSize = 14;
@@ -814,10 +861,10 @@
                 ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Green text
-                ctx.fillStyle = '#33FF33';
+                // Green text - updated to #34ff35
+                ctx.fillStyle = '#34ff35';
                 ctx.font = fontSize + 'px VT323, monospace';
-                ctx.shadowColor = 'rgba(51, 255, 51, 0.5)';
+                ctx.shadowColor = 'rgba(52, 255, 53, 0.5)';
                 ctx.shadowBlur = 4;
 
                 for (let i = 0; i < drops.length; i++) {
@@ -838,11 +885,17 @@
 
             setTimeout(() => {
                 clearInterval(interval);
-                canvas.classList.remove('active');
-                state.matrixActive = false;
 
-                // Clear canvas
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                // Start 1.5s fade-out transition
+                canvas.classList.add('fade-out');
+
+                // After fade-out completes, clean up
+                setTimeout(() => {
+                    canvas.classList.remove('active', 'fade-out');
+                    state.matrixActive = false;
+                    // Clear canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }, 1500);
             }, 5000);
         }
 

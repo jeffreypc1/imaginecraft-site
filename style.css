@@ -557,12 +557,11 @@ section p {
 .explore-page {
     min-height: 100vh;
     background-color: #000000;
-    color: #33FF33;
+    color: #34ff35;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 0;
+    padding: 2rem;
     position: relative;
 }
 
@@ -573,7 +572,7 @@ section p {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
+    text-align: center;
 }
 
 /* Question Area */
@@ -589,15 +588,15 @@ section p {
 
 .explore-question {
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 400;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.1em;
     line-height: 1.2;
-    color: #33FF33;
+    color: #34ff35;
     text-transform: uppercase;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     transition: opacity 0.3s ease;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 /* Cursor Line */
@@ -612,12 +611,12 @@ section p {
 
 .explore-cursor {
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
-    color: #33FF33;
+    font-size: 2rem;
+    color: #34ff35;
     animation: cursor-blink 1s step-end infinite;
     opacity: 0;
     transition: opacity 0.3s ease;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 .explore-cursor.visible {
@@ -639,15 +638,15 @@ section p {
     background: transparent;
     border: none;
     outline: none;
-    color: #33FF33;
+    color: #34ff35;
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 400;
     padding: 0;
     width: 0;
     opacity: 0;
     transition: opacity 0.3s ease, width 0.3s ease;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 .explore-input.active,
@@ -657,7 +656,7 @@ section p {
 }
 
 .explore-input::placeholder {
-    color: rgba(51, 255, 51, 0.3);
+    color: rgba(52, 255, 53, 0.3);
 }
 
 /* Thought Container - now inline with cursor */
@@ -676,9 +675,9 @@ section p {
     border: none;
     padding: 0;
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 400;
-    color: #33FF33;
+    color: #34ff35;
     text-align: center;
     cursor: pointer;
     opacity: 0;
@@ -689,7 +688,7 @@ section p {
     vertical-align: middle;
     text-decoration: none;
     letter-spacing: 0.08em;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 .explore-thought.visible {
@@ -709,14 +708,14 @@ section p {
     opacity: 1;
     outline: none;
     transform: scale(1.02);
-    text-shadow: 0 0 12px rgba(51, 255, 51, 0.8), 0 0 24px rgba(51, 255, 51, 0.5);
+    text-shadow: 0 0 12px rgba(52, 255, 53, 0.8), 0 0 24px rgba(52, 255, 53, 0.5);
 }
 
 .explore-thought.selected {
     opacity: 1;
     cursor: default;
     transform: scale(1);
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 /* Response Panels */
@@ -749,25 +748,25 @@ section p {
 
 .explore-panel h2 {
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 400;
     letter-spacing: 0.05em;
     margin-bottom: 1.25rem;
-    color: #33FF33;
+    color: #34ff35;
     outline: none;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 .explore-panel p {
     font-family: 'VT323', monospace;
-    font-size: 1.25rem;
+    font-size: 2rem;
     font-weight: 400;
     line-height: 1.5;
-    opacity: 0.85;
+    opacity: 1;
     margin-bottom: 1rem;
     max-width: none;
-    color: #33FF33;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
+    color: #34ff35;
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 .explore-panel p:last-of-type {
@@ -779,6 +778,7 @@ section p {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
     gap: 1.5rem;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -788,64 +788,59 @@ section p {
     opacity: 1;
 }
 
-.explore-panel-actions .cta-button {
-    padding: 0.875rem 1.75rem;
-    font-family: 'VT323', monospace;
-    font-size: 1.25rem;
-    background-color: transparent;
-    border: 1px solid #33FF33;
-    color: #33FF33;
-    letter-spacing: 0.05em;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
-}
-
-.explore-panel-actions .cta-button:hover {
-    background-color: rgba(51, 255, 51, 0.1);
-    border-color: #33FF33;
-    box-shadow: 0 0 16px rgba(51, 255, 51, 0.3);
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
-}
-
-.explore-reset {
+/* High-Tech Button Base Styles */
+.explore-reset,
+.explore-link,
+.explore-action-link {
     background: transparent;
-    border: none;
-    color: #33FF33;
+    border: 1px solid #34ff35;
+    border-radius: 3px;
+    color: #34ff35;
     font-family: 'VT323', monospace;
-    font-size: 1.25rem;
+    font-size: 2rem;
     font-weight: 400;
-    opacity: 0.7;
+    opacity: 0.5;
     cursor: default;
     pointer-events: none;
-    padding: 0.25rem 0.5rem;
-    transition: opacity 0.2s ease, text-shadow 0.3s ease;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s ease;
     text-decoration: none;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
-.explore-reset.ready {
+.explore-reset.ready,
+.explore-link.ready,
+.explore-action-link.ready {
     opacity: 1;
     cursor: pointer;
     pointer-events: auto;
 }
 
 .explore-reset.ready:hover,
-.explore-reset.ready:focus {
+.explore-reset.ready:focus,
+.explore-link.ready:hover,
+.explore-link.ready:focus,
+.explore-action-link.ready:hover,
+.explore-action-link.ready:focus {
     outline: none;
-    text-shadow: 0 0 12px rgba(51, 255, 51, 1), 0 0 24px rgba(51, 255, 51, 0.8), 0 0 36px rgba(51, 255, 51, 0.5);
+    background-color: #34ff35;
+    color: #000000;
+    text-shadow: none;
+    box-shadow: 0 0 20px rgba(52, 255, 53, 0.6), 0 0 40px rgba(52, 255, 53, 0.3);
 }
 
 /* Panel Response - styled like main questions */
 .panel-response {
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 400;
     letter-spacing: 0.08em;
     line-height: 1.4;
-    color: #33FF33;
+    color: #34ff35;
     margin-bottom: 2rem;
     max-width: none;
     opacity: 1;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     outline: none;
 }
 
@@ -856,36 +851,9 @@ section p {
 /* Single typing cursor used throughout the flow */
 .typing-cursor {
     display: inline;
-    color: #33FF33;
+    color: #34ff35;
     animation: cursor-blink 1s step-end infinite;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
-}
-
-/* Enter Main Site link */
-.explore-link {
-    color: #33FF33;
-    font-family: 'VT323', monospace;
-    font-size: 1.25rem;
-    font-weight: 400;
-    opacity: 0.7;
-    cursor: default;
-    pointer-events: none;
-    padding: 0.25rem 0.5rem;
-    transition: opacity 0.2s ease, text-shadow 0.3s ease;
-    text-decoration: none;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
-}
-
-.explore-link.ready {
-    opacity: 1;
-    cursor: pointer;
-    pointer-events: auto;
-}
-
-.explore-link.ready:hover,
-.explore-link.ready:focus {
-    outline: none;
-    text-shadow: 0 0 12px rgba(51, 255, 51, 1), 0 0 24px rgba(51, 255, 51, 0.8), 0 0 36px rgba(51, 255, 51, 0.5);
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 
@@ -991,102 +959,78 @@ section p {
 
 .explore-page .modal-content {
     background: rgba(0, 0, 0, 0.95);
-    border: 1px solid rgba(51, 255, 51, 0.3);
+    border: 1px solid rgba(52, 255, 53, 0.3);
 }
 
 .explore-page .modal-content h2 {
     font-family: 'VT323', monospace;
-    color: #33FF33;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    color: #34ff35;
+    font-size: 2rem;
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
 .explore-page .modal-close {
-    color: #33FF33;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
+    color: #34ff35;
+    text-shadow: 0 0 4px rgba(52, 255, 53, 0.4);
 }
 
 .explore-page .modal-close:hover {
-    color: #33FF33;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.8);
+    color: #34ff35;
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.8);
 }
 
 .explore-page .form-group label {
     font-family: 'VT323', monospace;
-    color: #33FF33;
-    font-size: 1.1rem;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
+    color: #34ff35;
+    font-size: 1.5rem;
+    text-shadow: 0 0 4px rgba(52, 255, 53, 0.3);
 }
 
 .explore-page .modal-form .form-group input,
 .explore-page .modal-form .form-group textarea {
     font-family: 'VT323', monospace;
-    background: rgba(51, 255, 51, 0.05);
-    border: 1px solid rgba(51, 255, 51, 0.3);
-    color: #33FF33;
-    font-size: 1.1rem;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.3);
+    background: rgba(52, 255, 53, 0.05);
+    border: 1px solid rgba(52, 255, 53, 0.3);
+    color: #34ff35;
+    font-size: 1.5rem;
+    text-shadow: 0 0 4px rgba(52, 255, 53, 0.3);
 }
 
 .explore-page .modal-form .form-group input::placeholder,
 .explore-page .modal-form .form-group textarea::placeholder {
-    color: rgba(51, 255, 51, 0.4);
+    color: rgba(52, 255, 53, 0.4);
 }
 
 .explore-page .modal-form .form-group input:focus,
 .explore-page .modal-form .form-group textarea:focus {
-    border-color: rgba(51, 255, 51, 0.6);
-    background: rgba(51, 255, 51, 0.1);
+    border-color: rgba(52, 255, 53, 0.6);
+    background: rgba(52, 255, 53, 0.1);
 }
 
 .explore-page .modal-form .cta-button {
     font-family: 'VT323', monospace;
     background-color: transparent;
-    border: 1px solid #33FF33;
-    color: #33FF33;
-    font-size: 1.2rem;
-    text-shadow: 0 0 4px rgba(51, 255, 51, 0.4);
+    border: 1px solid #34ff35;
+    border-radius: 3px;
+    color: #34ff35;
+    font-size: 1.5rem;
+    text-shadow: 0 0 4px rgba(52, 255, 53, 0.4);
+    transition: all 0.3s ease;
 }
 
 .explore-page .modal-form .cta-button:hover {
-    background-color: rgba(51, 255, 51, 0.1);
-    box-shadow: 0 0 16px rgba(51, 255, 51, 0.3);
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+    background-color: #34ff35;
+    color: #000000;
+    text-shadow: none;
+    box-shadow: 0 0 20px rgba(52, 255, 53, 0.6), 0 0 40px rgba(52, 255, 53, 0.3);
 }
 
 /* ========================================
-   Explore Page - Action Link Button
+   Explore Page - Action Link Button (hidden state)
    ======================================== */
-
-.explore-action-link {
-    background: transparent;
-    border: none;
-    color: #33FF33;
-    font-family: 'VT323', monospace;
-    font-size: 1.25rem;
-    font-weight: 400;
-    opacity: 0.7;
-    cursor: default;
-    pointer-events: none;
-    padding: 0.25rem 0.5rem;
-    transition: opacity 0.2s ease, text-shadow 0.3s ease;
-    text-decoration: none;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
-}
 
 .explore-action-link.hidden {
     display: none;
-}
-
-.explore-action-link.ready {
-    opacity: 1;
-    cursor: pointer;
-    pointer-events: auto;
-}
-
-.explore-action-link.ready:hover,
-.explore-action-link.ready:focus {
-    outline: none;
-    text-shadow: 0 0 12px rgba(51, 255, 51, 1), 0 0 24px rgba(51, 255, 51, 0.8), 0 0 36px rgba(51, 255, 51, 0.5);
 }
 
 /* ========================================
@@ -1098,7 +1042,7 @@ section p {
     width: 90%;
     padding: 1rem;
     background: rgba(0, 0, 0, 0.95);
-    border: 1px solid rgba(51, 255, 51, 0.3);
+    border: 1px solid rgba(52, 255, 53, 0.3);
 }
 
 .multimedia-container {
@@ -1135,11 +1079,17 @@ section p {
     pointer-events: none;
     z-index: 500;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 1.5s ease;
 }
 
 .matrix-canvas.active {
     opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.matrix-canvas.fade-out {
+    opacity: 0;
+    transition: opacity 1.5s ease;
 }
 
 /* ========================================
@@ -1148,30 +1098,66 @@ section p {
 
 .ascii-logo-container {
     position: fixed;
-    bottom: 2rem;
+    top: 1rem;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 50;
-    display: flex;
+    z-index: 100;
+    display: none;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    pointer-events: none;
+    gap: 0;
+    pointer-events: auto;
+}
+
+.ascii-logo-container.visible {
+    display: flex;
+}
+
+.ascii-logo-wrapper {
+    position: relative;
+    display: inline-block;
 }
 
 .ascii-logo {
     font-family: 'VT323', 'Courier New', monospace;
-    font-size: 0.8rem;
-    line-height: 1.2;
-    color: #33FF33;
-    text-shadow: 0 0 8px rgba(51, 255, 51, 0.6), 0 0 16px rgba(51, 255, 51, 0.3);
+    font-size: 0.7rem;
+    line-height: 1.1;
+    color: #34ff35;
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     white-space: pre;
     text-align: center;
     margin: 0;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.8);
-    border: 1px solid rgba(51, 255, 51, 0.3);
-    border-radius: 8px;
+    padding: 1rem 2rem 1rem 1rem;
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(52, 255, 53, 0.3);
+    border-radius: 4px;
+}
+
+.ascii-logo-close {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    background: transparent;
+    border: 1px solid #34ff35;
+    border-radius: 2px;
+    color: #34ff35;
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 4px rgba(52, 255, 53, 0.4);
+    line-height: 1;
+}
+
+.ascii-logo-close:hover {
+    background-color: #34ff35;
+    color: #000000;
+    text-shadow: none;
 }
 
 /* ========================================
@@ -1185,15 +1171,30 @@ section p {
     }
 
     .ascii-logo-container {
-        bottom: 1rem;
-        left: 1rem;
-        right: 1rem;
+        top: 0.5rem;
+        left: 0.5rem;
+        right: 0.5rem;
         transform: none;
+        max-width: calc(100% - 1rem);
     }
 
     .ascii-logo {
-        font-size: 0.6rem;
-        padding: 0.5rem;
+        font-size: 0.5rem;
+        padding: 0.75rem 1.5rem 0.75rem 0.75rem;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    .explore-reset,
+    .explore-link,
+    .explore-action-link {
+        font-size: 1.5rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .explore-panel-actions {
+        flex-direction: column;
+        gap: 1rem;
     }
 }
 
@@ -1203,7 +1204,27 @@ section p {
     }
 
     .ascii-logo {
-        font-size: 0.5rem;
+        font-size: 0.4rem;
+    }
+
+    .explore-question {
+        font-size: 1.5rem;
+    }
+
+    .explore-thought,
+    .explore-cursor,
+    .explore-input,
+    .panel-response,
+    .explore-panel p {
+        font-size: 1.5rem;
+    }
+
+    .explore-reset,
+    .explore-link,
+    .explore-action-link {
+        font-size: 1.25rem;
+        width: 100%;
+        text-align: center;
     }
 }
 
