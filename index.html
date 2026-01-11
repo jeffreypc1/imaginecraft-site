@@ -202,6 +202,17 @@
     <!-- ASCII Logo Container (for permanent terminal logos) -->
     <div id="asciiLogoContainer" class="ascii-logo-container"></div>
 
+    <!-- Earthquake Transition Overlay -->
+    <div id="earthquakeTransitionOverlay" class="earthquake-transition-overlay">
+        <div class="crack-half crack-half-left"></div>
+        <div class="crack-half crack-half-right"></div>
+    </div>
+
+    <!-- Main Site Reveal (preloaded content) -->
+    <div id="mainSiteReveal" class="main-site-reveal">
+        <iframe id="mainSiteFrame" src="" title="Main Site"></iframe>
+    </div>
+
     <!-- Contact Modal (reused from main site) -->
     <div class="modal-overlay" id="contactModal" onclick="closeModalOnOverlay(event)">
         <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -1138,6 +1149,85 @@
         });
 
         // ========================================
+        // Earthquake Transition
+        // ========================================
+        function loadEarthquakeSettingFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_earthquake_enabled');
+                if (stored !== null) {
+                    return stored === 'true';
+                }
+            } catch (e) {
+                console.warn('Failed to load earthquake setting from localStorage:', e);
+            }
+            return true; // Default to enabled
+        }
+
+        const earthquakeEnabled = loadEarthquakeSettingFromStorage();
+
+        // Preload main.html content when earthquake is enabled
+        function preloadMainSite() {
+            if (earthquakeEnabled) {
+                const iframe = document.getElementById('mainSiteFrame');
+                if (iframe && !iframe.src) {
+                    iframe.src = 'main.html';
+                }
+            }
+        }
+
+        // Execute earthquake transition
+        function triggerEarthquakeTransition(event) {
+            if (!earthquakeEnabled) {
+                // Normal navigation
+                return true;
+            }
+
+            // Prevent default navigation
+            event.preventDefault();
+
+            const container = document.querySelector('.explore-container');
+            const overlay = document.getElementById('earthquakeTransitionOverlay');
+            const reveal = document.getElementById('mainSiteReveal');
+            const iframe = document.getElementById('mainSiteFrame');
+
+            // Ensure iframe is loaded
+            if (!iframe.src) {
+                iframe.src = 'main.html';
+            }
+
+            // Phase 1: Earthquake shake (1.5 seconds)
+            container.classList.add('earthquake-shake');
+
+            // After shake, trigger the crack
+            setTimeout(() => {
+                // Phase 2: Show overlay and start cracking
+                overlay.classList.add('active');
+
+                // Small delay for the overlay to appear, then crack
+                setTimeout(() => {
+                    overlay.classList.add('cracking');
+                    reveal.classList.add('active');
+
+                    // Phase 3: After crack animation (0.8s), navigate to main.html
+                    setTimeout(() => {
+                        window.location.href = 'main.html';
+                    }, 800);
+                }, 100);
+            }, 1500);
+
+            return false;
+        }
+
+        // Attach earthquake transition to all Main Site links
+        function attachEarthquakeHandlers() {
+            // Get all "Enter Main Site" links
+            const mainSiteLinks = document.querySelectorAll('.explore-link');
+            mainSiteLinks.forEach(link => {
+                link.addEventListener('click', triggerEarthquakeTransition);
+            });
+        }
+
+        // ========================================
         // Initialize
         // ========================================
         document.addEventListener('DOMContentLoaded', () => {
@@ -1153,6 +1243,10 @@
                 timing.fadeOut = 0;
                 timing.linger = 5000;
             }
+
+            // Initialize earthquake transition
+            attachEarthquakeHandlers();
+            preloadMainSite();
 
             startCycling();
         });
