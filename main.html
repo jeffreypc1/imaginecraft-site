@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImagineCraft Studios</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">ImagineCraft Studios</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#work">Work</a></li>
+                <li><a href="#" onclick="openContactModal(); return false;">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1 class="hero-headline">If you can imagine it, you can build it.</h1>
+            <p class="hero-subtext">We turn creative visions into digital reality.</p>
+            <a href="#contact" class="cta-button">Get Started</a>
+        </section>
+
+        <section id="about" class="about">
+            <div class="section-content">
+                <h2>About Us</h2>
+                <p>At ImagineCraft Studios, we believe in the power of imagination. Our team of designers and developers work together to craft digital experiences that inspire, engage, and deliver results.</p>
+            </div>
+        </section>
+
+        <section id="work" class="work">
+            <div class="section-content">
+                <h2>Our Work</h2>
+                <div class="bento-grid">
+                    <div class="bento-card bento-hero">
+                        <h3>Brand Identity</h3>
+                        <p>Crafting memorable visual identities that resonate with your audience.</p>
+                    </div>
+                    <div class="bento-card">
+                        <h3>Web Design</h3>
+                        <p>Building beautiful, responsive websites that convert visitors into customers.</p>
+                    </div>
+                    <div class="bento-card">
+                        <h3>Digital Strategy</h3>
+                        <p>Developing data-driven strategies to grow your digital presence.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact">
+            <div class="section-content">
+                <h2>Let's Create Together</h2>
+                <p>Ready to bring your ideas to life? We'd love to hear from you.</p>
+                <button class="cta-button say-hello-btn" onclick="openContactModal()">Say Hello</button>
+            </div>
+        </section>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeContactModal()" aria-label="Close modal">&times;</button>
+            <h2>Get in Touch</h2>
+            <form class="modal-form" action="mailto:jeffrey@obrienimmigration.com" method="GET" enctype="text/plain">
+                <div class="form-group">
+                    <label for="modal-name">Name</label>
+                    <input type="text" id="modal-name" name="name" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-email">Email</label>
+                    <input type="email" id="modal-email" name="email" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-message">Message</label>
+                    <textarea id="modal-message" name="message" placeholder="Tell us about your project..." required></textarea>
+                </div>
+                <button type="submit" class="cta-button">Send Message</button>
+            </form>
+        </div>
+    </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 ImagineCraft Studios. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function openContactModal() {
+            document.getElementById('contactModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            document.getElementById('contactModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target === document.getElementById('contactModal')) {
+                closeContactModal();
+            }
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeContactModal();
+            }
+        });
+    </script>
+</body>
+</html>

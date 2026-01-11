@@ -4,97 +4,414 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ImagineCraft Studios</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="header">
-        <nav class="nav">
-            <div class="logo">ImagineCraft Studios</div>
-            <ul class="nav-links">
-                <li><a href="#about">About</a></li>
-                <li><a href="#work">Work</a></li>
-                <li><a href="#" onclick="openContactModal(); return false;">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <section class="hero">
-            <h1 class="hero-headline">If you can imagine it, you can build it.</h1>
-            <p class="hero-subtext">We turn creative visions into digital reality.</p>
-            <a href="#contact" class="cta-button">Get Started</a>
-        </section>
-
-        <section id="about" class="about">
-            <div class="section-content">
-                <h2>About Us</h2>
-                <p>At ImagineCraft Studios, we believe in the power of imagination. Our team of designers and developers work together to craft digital experiences that inspire, engage, and deliver results.</p>
-            </div>
-        </section>
-
-        <section id="work" class="work">
-            <div class="section-content">
-                <h2>Our Work</h2>
-                <div class="bento-grid">
-                    <div class="bento-card bento-hero">
-                        <h3>Brand Identity</h3>
-                        <p>Crafting memorable visual identities that resonate with your audience.</p>
+    <main class="explore-page" role="main">
+        <div class="explore-container">
+            <!-- Question and cursor area -->
+            <div class="explore-question-area">
+                <h1 class="explore-question" id="exploreQuestion">Why are you here?</h1>
+                <!-- Cursor and thoughts inline together -->
+                <div class="explore-cursor-line">
+                    <span class="explore-cursor" id="exploreCursor" aria-hidden="true"></span>
+                    <div class="explore-thought-container" aria-live="polite" aria-atomic="true">
+                        <button
+                            class="explore-thought"
+                            id="currentThought"
+                            tabindex="0"
+                            aria-label="Click to select this thought"
+                        ></button>
                     </div>
-                    <div class="bento-card">
-                        <h3>Web Design</h3>
-                        <p>Building beautiful, responsive websites that convert visitors into customers.</p>
-                    </div>
-                    <div class="bento-card">
-                        <h3>Digital Strategy</h3>
-                        <p>Developing data-driven strategies to grow your digital presence.</p>
-                    </div>
+                    <!-- Optional: text input appears here when user starts typing -->
+                    <input
+                        type="text"
+                        class="explore-input"
+                        id="exploreInput"
+                        placeholder=""
+                        aria-label="Type your own response"
+                        autocomplete="off"
+                    >
                 </div>
             </div>
-        </section>
 
-        <section id="contact" class="contact">
-            <div class="section-content">
-                <h2>Let's Create Together</h2>
-                <p>Ready to bring your ideas to life? We'd love to hear from you.</p>
-                <button class="cta-button say-hello-btn" onclick="openContactModal()">Say Hello</button>
+            <!-- Response panels (hidden by default) -->
+            <div class="explore-panels" id="explorePanels" aria-live="polite">
+                <!-- Panel 1: I have ideas -->
+                <article class="explore-panel" data-thought="0" hidden>
+                    <h2>Let's give those ideas shape.</h2>
+                    <p>Ideas are the starting point. We work alongside you to explore, refine, and validate concepts before a single line of code is written. Through structured conversations and rapid prototyping, we help you see what's possible and what's practical.</p>
+                    <p>No pitch decks required. Just bring what's on your mind.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Book a short call</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
+
+                <!-- Panel 2: I don't know where to start -->
+                <article class="explore-panel" data-thought="1" hidden>
+                    <h2>Starting is the hardest part.</h2>
+                    <p>You don't need a detailed specification or a clear roadmap to begin. We've helped teams move from "we should probably build something" to working software in weeks, not months.</p>
+                    <p>We'll figure out the first step together.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Let's talk it through</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
+
+                <!-- Panel 3: Our tools don't fit us -->
+                <article class="explore-panel" data-thought="2" hidden>
+                    <h2>Off-the-shelf rarely fits.</h2>
+                    <p>Generic software forces your team to adapt to its limitations. We build tools that work the way you already think, using modern approaches that make custom software faster and more affordable than ever.</p>
+                    <p>Software should bend to you, not the other way around.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Show me what's possible</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
+
+                <!-- Panel 4: I want software that matches how we work -->
+                <article class="explore-panel" data-thought="3" hidden>
+                    <h2>Built around your workflow.</h2>
+                    <p>We spend time understanding how your team actually operates, the informal processes, the workarounds, the things that make you efficient. Then we build software that amplifies what already works.</p>
+                    <p>No learning curve. Just tools that feel like they've always been there.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Tell us how you work</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
+
+                <!-- Panel 5: Help us think this through -->
+                <article class="explore-panel" data-thought="4" hidden>
+                    <h2>Thinking partners, not just builders.</h2>
+                    <p>Sometimes you need someone to challenge assumptions, ask the right questions, and help you see around corners. We bring experience from dozens of projects across industries, without imposing a one-size-fits-all approach.</p>
+                    <p>Clarity first. Then we decide what to build.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Schedule a working session</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
+
+                <!-- Panel 6: Who are you? -->
+                <article class="explore-panel" data-thought="5" hidden>
+                    <h2>We build software for people with vision.</h2>
+                    <p>We're a small studio of designers and engineers who believe software should feel inevitable—like it was always meant to exist. We work closely with founders, teams, and organizations who have something worth building.</p>
+                    <p>If you've found your way here, we'd like to know more about you too.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Introduce yourself</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
+
+                <!-- Generic panel for typed input -->
+                <article class="explore-panel" data-thought="custom" hidden>
+                    <h2>Let's explore that together.</h2>
+                    <p>Every project starts with a conversation. Whatever brought you here, we're curious to hear more about it.</p>
+                    <p>Reach out and we'll find a time to talk.</p>
+                    <div class="explore-panel-actions">
+                        <a href="#" class="cta-button" onclick="openContactModal(); return false;">Start the conversation</a>
+                        <button class="explore-reset" onclick="resetExplore()">Change direction</button>
+                    </div>
+                </article>
             </div>
-        </section>
+        </div>
 
-    <!-- Contact Modal -->
-    <div id="contactModal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
-        <div class="modal-content">
+        <!-- Main Site link -->
+        <a href="./main.html" class="explore-back-link">Main Site</a>
+    </main>
+
+    <!-- Contact Modal (reused from main site) -->
+    <div class="modal-overlay" id="contactModal" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <button class="modal-close" onclick="closeContactModal()" aria-label="Close modal">&times;</button>
-            <h2>Get in Touch</h2>
-            <form class="modal-form" action="mailto:jeffrey@obrienimmigration.com" method="GET" enctype="text/plain">
+            <h2 id="modalTitle">Get in Touch</h2>
+            <form class="modal-form" action="mailto:hello@imaginecraft.studio" method="GET" enctype="text/plain">
                 <div class="form-group">
-                    <label for="modal-name">Name</label>
-                    <input type="text" id="modal-name" name="name" placeholder="Your name" required>
+                    <label for="modalName">Name</label>
+                    <input type="text" id="modalName" name="name" placeholder="Your name" required>
                 </div>
                 <div class="form-group">
-                    <label for="modal-email">Email</label>
-                    <input type="email" id="modal-email" name="email" placeholder="your@email.com" required>
+                    <label for="modalEmail">Email</label>
+                    <input type="email" id="modalEmail" name="email" placeholder="you@example.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="modal-message">Message</label>
-                    <textarea id="modal-message" name="message" placeholder="Tell us about your project..." required></textarea>
+                    <label for="modalMessage">Message</label>
+                    <textarea id="modalMessage" name="body" placeholder="Tell us about your project..." required></textarea>
                 </div>
                 <button type="submit" class="cta-button">Send Message</button>
             </form>
         </div>
     </div>
-    </main>
-
-    <footer class="footer">
-        <p>&copy; 2026 ImagineCraft Studios. All rights reserved.</p>
-    </footer>
 
     <script>
+        // ========================================
+        // State Management
+        // ========================================
+        const thoughts = [
+            "I have ideas.",
+            "I don't know where to start.",
+            "Our tools don't fit us.",
+            "I want software that matches how we work.",
+            "Help us think this through.",
+            "Who are you?"
+        ];
+
+        let state = {
+            currentIndex: 0,
+            isUserTyping: false,
+            isSelected: false,
+            selectedIndex: null,
+            cycleTimeout: null,
+            animationTimeout: null,
+            isAnimating: false,
+            currentText: '',
+            targetText: ''
+        };
+
+        // Timing configuration (in ms)
+        const timing = {
+            initialDelay: 3000,
+            typeSpeed: 50,
+            backspaceSpeed: 30,
+            linger: 3000
+        };
+
+        // Check for reduced motion preference
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // ========================================
+        // DOM Elements
+        // ========================================
+        const thoughtElement = document.getElementById('currentThought');
+        const inputElement = document.getElementById('exploreInput');
+        const panelsContainer = document.getElementById('explorePanels');
+        const cursorElement = document.getElementById('exploreCursor');
+
+        // ========================================
+        // Typing Animation
+        // ========================================
+        function typeCharacter(text, index, callback) {
+            if (state.isUserTyping || state.isSelected) return;
+
+            if (index <= text.length) {
+                state.currentText = text.substring(0, index);
+                thoughtElement.textContent = state.currentText;
+
+                state.animationTimeout = setTimeout(() => {
+                    typeCharacter(text, index + 1, callback);
+                }, prefersReducedMotion ? 0 : timing.typeSpeed);
+            } else {
+                if (callback) callback();
+            }
+        }
+
+        function backspaceCharacter(callback) {
+            if (state.isUserTyping || state.isSelected) return;
+
+            if (state.currentText.length > 0) {
+                state.currentText = state.currentText.substring(0, state.currentText.length - 1);
+                thoughtElement.textContent = state.currentText;
+
+                state.animationTimeout = setTimeout(() => {
+                    backspaceCharacter(callback);
+                }, prefersReducedMotion ? 0 : timing.backspaceSpeed);
+            } else {
+                if (callback) callback();
+            }
+        }
+
+        function showThought(index) {
+            if (state.isUserTyping || state.isSelected || state.isAnimating) return;
+
+            state.isAnimating = true;
+            const thought = thoughts[index];
+            state.targetText = thought;
+            thoughtElement.dataset.index = index;
+
+            // Make thought visible and start typing
+            thoughtElement.classList.remove('fade-out');
+            thoughtElement.classList.add('visible', 'fade-in');
+
+            // Type out the thought character by character
+            typeCharacter(thought, 0, () => {
+                // Linger for 3 seconds after fully typed
+                state.cycleTimeout = setTimeout(() => {
+                    if (!state.isUserTyping && !state.isSelected) {
+                        // Backspace the thought
+                        backspaceCharacter(() => {
+                            state.isAnimating = false;
+                            // Move to next thought
+                            state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                            showThought(state.currentIndex);
+                        });
+                    }
+                }, timing.linger);
+            });
+        }
+
+        function startCycling() {
+            // Show cursor after initial delay, then start cycling thoughts
+            state.cycleTimeout = setTimeout(() => {
+                cursorElement.classList.add('visible');
+                showThought(state.currentIndex);
+            }, timing.initialDelay);
+        }
+
+        function stopCycling() {
+            clearTimeout(state.cycleTimeout);
+            clearTimeout(state.animationTimeout);
+            state.isAnimating = false;
+        }
+
+        // ========================================
+        // Thought Selection
+        // ========================================
+        function selectThought(index) {
+            state.isSelected = true;
+            state.selectedIndex = index;
+            stopCycling();
+
+            // If we're selecting a cycling thought, show the full text
+            if (typeof index === 'number' && thoughts[index]) {
+                thoughtElement.textContent = thoughts[index];
+                state.currentText = thoughts[index];
+            }
+
+            // Lock the thought in place
+            thoughtElement.classList.add('selected');
+            thoughtElement.classList.remove('fade-out', 'fade-in');
+            thoughtElement.setAttribute('aria-pressed', 'true');
+
+            // Hide cursor
+            cursorElement.classList.remove('visible');
+
+            // Show the corresponding panel
+            showPanel(index);
+        }
+
+        function showPanel(index) {
+            const panels = panelsContainer.querySelectorAll('.explore-panel');
+
+            panels.forEach(panel => {
+                if (panel.dataset.thought === String(index)) {
+                    panel.hidden = false;
+                    panel.classList.add('visible');
+
+                    // Focus the panel for accessibility
+                    setTimeout(() => {
+                        panel.querySelector('h2').focus();
+                    }, 100);
+                } else {
+                    panel.hidden = true;
+                    panel.classList.remove('visible');
+                }
+            });
+
+            panelsContainer.classList.add('visible');
+        }
+
+        function resetExplore() {
+            state.isSelected = false;
+            state.isUserTyping = false;
+            state.isAnimating = false;
+            state.selectedIndex = null;
+            state.currentIndex = 0;
+            state.currentText = '';
+            state.targetText = '';
+
+            // Reset thought element
+            thoughtElement.classList.remove('selected', 'visible', 'fade-in', 'fade-out');
+            thoughtElement.textContent = '';
+            thoughtElement.removeAttribute('aria-pressed');
+
+            // Hide cursor initially (will be shown after delay when cycling restarts)
+            cursorElement.classList.remove('visible');
+
+            // Hide all panels
+            const panels = panelsContainer.querySelectorAll('.explore-panel');
+            panels.forEach(panel => {
+                panel.hidden = true;
+                panel.classList.remove('visible');
+            });
+            panelsContainer.classList.remove('visible');
+
+            // Clear input
+            inputElement.value = '';
+            inputElement.classList.remove('active');
+
+            // Restart cycling
+            startCycling();
+        }
+
+        // ========================================
+        // Input Handling
+        // ========================================
+        function handleInputChange() {
+            const hasValue = inputElement.value.trim().length > 0;
+
+            if (hasValue && !state.isUserTyping) {
+                state.isUserTyping = true;
+                stopCycling();
+                thoughtElement.classList.remove('visible', 'fade-in', 'fade-out');
+                thoughtElement.textContent = '';
+                state.currentText = '';
+                inputElement.classList.add('active');
+            } else if (!hasValue && state.isUserTyping) {
+                state.isUserTyping = false;
+                inputElement.classList.remove('active');
+                if (!state.isSelected) {
+                    startCycling();
+                }
+            }
+        }
+
+        function handleInputKeydown(event) {
+            if (event.key === 'Enter' && inputElement.value.trim()) {
+                event.preventDefault();
+                selectThought('custom');
+            }
+        }
+
+        // ========================================
+        // Event Listeners
+        // ========================================
+        thoughtElement.addEventListener('click', () => {
+            if (thoughtElement.classList.contains('visible') && !state.isSelected) {
+                const index = parseInt(thoughtElement.dataset.index, 10);
+                selectThought(index);
+            }
+        });
+
+        thoughtElement.addEventListener('keydown', (event) => {
+            if ((event.key === 'Enter' || event.key === ' ') &&
+                thoughtElement.classList.contains('visible') &&
+                !state.isSelected) {
+                event.preventDefault();
+                const index = parseInt(thoughtElement.dataset.index, 10);
+                selectThought(index);
+            }
+        });
+
+        inputElement.addEventListener('input', handleInputChange);
+        inputElement.addEventListener('keydown', handleInputKeydown);
+
+        // Focus input when clicking anywhere in question area
+        document.querySelector('.explore-question-area').addEventListener('click', (event) => {
+            if (!event.target.closest('.explore-thought') && !state.isSelected) {
+                inputElement.focus();
+            }
+        });
+
+        // ========================================
+        // Contact Modal (reused)
+        // ========================================
         function openContactModal() {
             document.getElementById('contactModal').classList.add('active');
             document.body.style.overflow = 'hidden';
+            document.getElementById('modalName').focus();
         }
 
         function closeContactModal() {
@@ -103,16 +420,29 @@
         }
 
         function closeModalOnOverlay(event) {
-            if (event.target === document.getElementById('contactModal')) {
+            if (event.target === event.currentTarget) {
                 closeContactModal();
             }
         }
 
-        // Close modal on Escape key
-        document.addEventListener('keydown', function(event) {
+        document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 closeContactModal();
             }
+        });
+
+        // ========================================
+        // Initialize
+        // ========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Apply reduced motion adjustments
+            if (prefersReducedMotion) {
+                timing.fadeIn = 0;
+                timing.fadeOut = 0;
+                timing.linger = 5000;
+            }
+
+            startCycling();
         });
     </script>
 </body>
