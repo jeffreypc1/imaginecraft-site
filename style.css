@@ -570,6 +570,7 @@ section p {
     align-items: center;
     padding: 2rem;
     position: relative;
+    z-index: 2;
 }
 
 .explore-container {
@@ -1303,40 +1304,112 @@ section p {
 }
 
 /* ========================================
-   Earthquake Transition Effect
+   Earthquake Transition Effect - Superman Reveal
    ======================================== */
 
-/* Earthquake shake animation */
+/* CSS variable for dynamic earthquake duration */
+.explore-page {
+    --earthquake-duration: 1.5s;
+}
+
+/* Violent earthquake shake animation */
 @keyframes earthquake {
     0% { transform: translate(0, 0) rotate(0deg); }
-    5% { transform: translate(-8px, 4px) rotate(-0.5deg); }
-    10% { transform: translate(6px, -6px) rotate(0.8deg); }
-    15% { transform: translate(-10px, 2px) rotate(-1deg); }
-    20% { transform: translate(4px, 8px) rotate(0.5deg); }
-    25% { transform: translate(-6px, -4px) rotate(-0.8deg); }
-    30% { transform: translate(10px, 6px) rotate(1.2deg); }
-    35% { transform: translate(-4px, -8px) rotate(-0.5deg); }
-    40% { transform: translate(8px, 4px) rotate(0.8deg); }
-    45% { transform: translate(-10px, -2px) rotate(-1.2deg); }
-    50% { transform: translate(6px, 6px) rotate(1deg); }
-    55% { transform: translate(-8px, -6px) rotate(-0.8deg); }
-    60% { transform: translate(10px, 2px) rotate(0.5deg); }
-    65% { transform: translate(-6px, 8px) rotate(-1deg); }
-    70% { transform: translate(4px, -4px) rotate(1.2deg); }
-    75% { transform: translate(-10px, 6px) rotate(-0.5deg); }
-    80% { transform: translate(8px, -8px) rotate(0.8deg); }
-    85% { transform: translate(-4px, 4px) rotate(-1.2deg); }
-    90% { transform: translate(6px, -2px) rotate(1deg); }
-    95% { transform: translate(-8px, 8px) rotate(-0.8deg); }
+    2% { transform: translate(-12px, 6px) rotate(-0.8deg); }
+    4% { transform: translate(10px, -10px) rotate(1.2deg); }
+    6% { transform: translate(-14px, 4px) rotate(-1.5deg); }
+    8% { transform: translate(8px, 12px) rotate(0.8deg); }
+    10% { transform: translate(-10px, -8px) rotate(-1.2deg); }
+    12% { transform: translate(14px, 10px) rotate(1.8deg); }
+    14% { transform: translate(-8px, -12px) rotate(-0.8deg); }
+    16% { transform: translate(12px, 8px) rotate(1.2deg); }
+    18% { transform: translate(-14px, -6px) rotate(-1.8deg); }
+    20% { transform: translate(10px, 10px) rotate(1.5deg); }
+    22% { transform: translate(-12px, -10px) rotate(-1.2deg); }
+    24% { transform: translate(14px, 6px) rotate(0.8deg); }
+    26% { transform: translate(-10px, 12px) rotate(-1.5deg); }
+    28% { transform: translate(8px, -8px) rotate(1.8deg); }
+    30% { transform: translate(-14px, 10px) rotate(-0.8deg); }
+    32% { transform: translate(12px, -12px) rotate(1.2deg); }
+    34% { transform: translate(-8px, 8px) rotate(-1.8deg); }
+    36% { transform: translate(10px, -6px) rotate(1.5deg); }
+    38% { transform: translate(-12px, 12px) rotate(-1.2deg); }
+    40% { transform: translate(14px, -10px) rotate(0.8deg); }
+    42% { transform: translate(-10px, 6px) rotate(-1.5deg); }
+    44% { transform: translate(8px, -8px) rotate(1.8deg); }
+    46% { transform: translate(-14px, 10px) rotate(-0.8deg); }
+    48% { transform: translate(12px, -12px) rotate(1.2deg); }
+    50% { transform: translate(-8px, 8px) rotate(-1.8deg); }
+    52% { transform: translate(10px, -6px) rotate(1.5deg); }
+    54% { transform: translate(-12px, 12px) rotate(-1.2deg); }
+    56% { transform: translate(14px, -10px) rotate(0.8deg); }
+    58% { transform: translate(-10px, 6px) rotate(-1.5deg); }
+    60% { transform: translate(8px, -8px) rotate(1.8deg); }
+    62% { transform: translate(-14px, 10px) rotate(-0.8deg); }
+    64% { transform: translate(12px, -12px) rotate(1.2deg); }
+    66% { transform: translate(-8px, 8px) rotate(-1.8deg); }
+    68% { transform: translate(10px, -6px) rotate(1.5deg); }
+    70% { transform: translate(-12px, 12px) rotate(-1.2deg); }
+    72% { transform: translate(14px, -10px) rotate(0.8deg); }
+    74% { transform: translate(-10px, 6px) rotate(-1.5deg); }
+    76% { transform: translate(8px, -8px) rotate(1.8deg); }
+    78% { transform: translate(-14px, 10px) rotate(-0.8deg); }
+    80% { transform: translate(12px, -12px) rotate(1.2deg); }
+    82% { transform: translate(-8px, 8px) rotate(-1.8deg); }
+    84% { transform: translate(10px, -6px) rotate(1.5deg); }
+    86% { transform: translate(-12px, 12px) rotate(-1.2deg); }
+    88% { transform: translate(14px, -10px) rotate(0.8deg); }
+    90% { transform: translate(-10px, 6px) rotate(-1.5deg); }
+    92% { transform: translate(8px, -8px) rotate(1.8deg); }
+    94% { transform: translate(-6px, 6px) rotate(-1.2deg); }
+    96% { transform: translate(4px, -4px) rotate(0.8deg); }
+    98% { transform: translate(-2px, 2px) rotate(-0.4deg); }
     100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-.explore-container.earthquake-shake {
-    animation: earthquake 1.5s ease-in-out;
+/* Earthquake shake applied to the explore page (terminal layer) */
+.explore-page.earthquake-shake {
+    animation: earthquake var(--earthquake-duration) ease-in-out;
 }
 
-/* Transition overlay container */
-.earthquake-transition-overlay {
+/* ========================================
+   Main Site Background Layer (z-index: 1)
+   ======================================== */
+
+.main-site-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.main-site-background.preloaded {
+    /* Preloaded but not yet visible */
+    opacity: 0;
+    visibility: hidden;
+}
+
+.main-site-background.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.main-site-background iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ========================================
+   Terminal Overlay Layer (z-index: 2)
+   Splits during earthquake transition
+   ======================================== */
+
+.terminal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -1348,160 +1421,137 @@ section p {
     visibility: hidden;
 }
 
-.earthquake-transition-overlay.active {
+.terminal-overlay.active {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
 }
 
-/* Left and right crack halves */
-.crack-half {
+/* Terminal halves that split apart */
+.terminal-half {
     position: absolute;
     top: 0;
     width: 50%;
     height: 100%;
     background-color: #000000;
-    transition: none;
     overflow: hidden;
 }
 
-.crack-half-left {
+.terminal-half-left {
     left: 0;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
-.crack-half-right {
+.terminal-half-right {
     right: 0;
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
-/* Crack line effect (jagged edge) */
-.crack-half-left::after,
-.crack-half-right::before {
+/* Green lightning crack effect along the split edge */
+.terminal-half-left::after,
+.terminal-half-right::before {
     content: '';
     position: absolute;
     top: 0;
-    width: 20px;
+    width: 30px;
     height: 100%;
     background: linear-gradient(
         to bottom,
-        #000000 0%,
-        #34ff35 2%,
-        #000000 4%,
-        #34ff35 6%,
-        #000000 8%,
-        #34ff35 10%,
-        #000000 12%,
-        #34ff35 15%,
-        #000000 18%,
-        #34ff35 22%,
-        #000000 26%,
-        #34ff35 30%,
-        #000000 35%,
-        #34ff35 40%,
-        #000000 45%,
-        #34ff35 50%,
-        #000000 55%,
-        #34ff35 60%,
-        #000000 65%,
-        #34ff35 70%,
-        #000000 75%,
-        #34ff35 80%,
-        #000000 85%,
-        #34ff35 90%,
-        #000000 95%,
-        #34ff35 100%
+        transparent 0%,
+        #34ff35 1%,
+        transparent 2%,
+        #34ff35 4%,
+        transparent 6%,
+        #34ff35 8%,
+        transparent 10%,
+        #34ff35 13%,
+        transparent 16%,
+        #34ff35 20%,
+        transparent 24%,
+        #34ff35 28%,
+        transparent 33%,
+        #34ff35 38%,
+        transparent 43%,
+        #34ff35 48%,
+        transparent 53%,
+        #34ff35 58%,
+        transparent 63%,
+        #34ff35 68%,
+        transparent 73%,
+        #34ff35 78%,
+        transparent 83%,
+        #34ff35 88%,
+        transparent 93%,
+        #34ff35 98%,
+        transparent 100%
     );
     opacity: 0;
-    transition: opacity 0.2s ease;
-    box-shadow: 0 0 20px rgba(52, 255, 53, 0.8), 0 0 40px rgba(52, 255, 53, 0.4);
+    transition: opacity 0.15s ease;
+    box-shadow: 0 0 30px rgba(52, 255, 53, 1), 0 0 60px rgba(52, 255, 53, 0.6), 0 0 100px rgba(52, 255, 53, 0.3);
+    filter: blur(1px);
 }
 
-.crack-half-left::after {
-    right: -10px;
+.terminal-half-left::after {
+    right: -15px;
 }
 
-.crack-half-right::before {
-    left: -10px;
+.terminal-half-right::before {
+    left: -15px;
 }
 
-/* Show crack lines when cracking */
-.earthquake-transition-overlay.cracking .crack-half-left::after,
-.earthquake-transition-overlay.cracking .crack-half-right::before {
+/* Show lightning crack when splitting */
+.terminal-overlay.splitting .terminal-half-left::after,
+.terminal-overlay.splitting .terminal-half-right::before {
     opacity: 1;
 }
 
-/* Slide animation for crack halves */
-.earthquake-transition-overlay.cracking .crack-half-left {
-    animation: slideOutLeft 0.8s ease-in forwards;
+/* Split slide animation for terminal halves */
+.terminal-overlay.splitting .terminal-half-left {
+    animation: terminalSlideLeft 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-.earthquake-transition-overlay.cracking .crack-half-right {
-    animation: slideOutRight 0.8s ease-in forwards;
+.terminal-overlay.splitting .terminal-half-right {
+    animation: terminalSlideRight 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-@keyframes slideOutLeft {
+@keyframes terminalSlideLeft {
     0% {
         transform: translateX(0);
         clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
     }
-    20% {
+    10% {
         transform: translateX(0);
-        clip-path: polygon(0 0, 100% 0, 98% 15%, 100% 30%, 97% 45%, 100% 60%, 98% 75%, 100% 90%, 100% 100%, 0 100%);
+        clip-path: polygon(0 0, 100% 0, 102% 8%, 98% 16%, 103% 24%, 97% 32%, 102% 40%, 98% 48%, 103% 56%, 97% 64%, 102% 72%, 98% 80%, 103% 88%, 100% 100%, 0 100%);
     }
     100% {
-        transform: translateX(-110%);
-        clip-path: polygon(0 0, 100% 0, 98% 15%, 100% 30%, 97% 45%, 100% 60%, 98% 75%, 100% 90%, 100% 100%, 0 100%);
+        transform: translateX(-105%);
+        clip-path: polygon(0 0, 100% 0, 102% 8%, 98% 16%, 103% 24%, 97% 32%, 102% 40%, 98% 48%, 103% 56%, 97% 64%, 102% 72%, 98% 80%, 103% 88%, 100% 100%, 0 100%);
     }
 }
 
-@keyframes slideOutRight {
+@keyframes terminalSlideRight {
     0% {
         transform: translateX(0);
         clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
     }
-    20% {
+    10% {
         transform: translateX(0);
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 2% 90%, 0% 75%, 3% 60%, 0% 45%, 2% 30%, 0% 15%);
+        clip-path: polygon(-2% 8%, 2% 16%, -3% 24%, 3% 32%, -2% 40%, 2% 48%, -3% 56%, 3% 64%, -2% 72%, 2% 80%, -3% 88%, 0 100%, 100% 100%, 100% 0, 0 0);
     }
     100% {
-        transform: translateX(110%);
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 2% 90%, 0% 75%, 3% 60%, 0% 45%, 2% 30%, 0% 15%);
+        transform: translateX(105%);
+        clip-path: polygon(-2% 8%, 2% 16%, -3% 24%, 3% 32%, -2% 40%, 2% 48%, -3% 56%, 3% 64%, -2% 72%, 2% 80%, -3% 88%, 0 100%, 100% 100%, 100% 0, 0 0);
     }
-}
-
-/* Main site reveal container */
-.main-site-reveal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9998;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease;
-}
-
-.main-site-reveal.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.main-site-reveal iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
 }
 
 /* Reduced motion support for earthquake */
 @media (prefers-reduced-motion: reduce) {
-    .explore-container.earthquake-shake {
+    .explore-page.earthquake-shake {
         animation: none;
     }
 
-    .earthquake-transition-overlay.cracking .crack-half-left,
-    .earthquake-transition-overlay.cracking .crack-half-right {
+    .terminal-overlay.splitting .terminal-half-left,
+    .terminal-overlay.splitting .terminal-half-right {
         animation-duration: 0.3s;
     }
 }
