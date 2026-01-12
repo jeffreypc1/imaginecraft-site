@@ -526,6 +526,218 @@
 
         const systemMood = loadSystemMoodFromStorage();
 
+        // ========================================
+        // Secret Commands System
+        // ========================================
+
+        // Default secret commands
+        const defaultSecretCommands = [
+            { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
+            { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
+            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' }
+        ];
+
+        // Load secret commands from localStorage
+        function loadSecretCommandsFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_secret_commands');
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+            } catch (e) {
+                console.warn('Failed to load secret commands from localStorage:', e);
+            }
+            return [...defaultSecretCommands];
+        }
+
+        const secretCommands = loadSecretCommandsFromStorage();
+
+        // Keystroke buffer for command detection
+        let keystrokeBuffer = '';
+        const maxBufferSize = 20; // Maximum characters to track
+        let matrixToggleState = false; // Track matrix toggle state
+
+        // Secret command visual feedback
+        function showCommandFeedback() {
+            const explorePage = document.querySelector('.explore-page');
+            if (explorePage) {
+                explorePage.classList.add('secret-command-activated');
+                // Remove the class after animation completes
+                setTimeout(() => {
+                    explorePage.classList.remove('secret-command-activated');
+                }, 600);
+            }
+        }
+
+        // Execute secret command action
+        function executeSecretCommand(command) {
+            showCommandFeedback();
+
+            switch (command.action) {
+                case 'earthquake':
+                    triggerSecretEarthquake();
+                    break;
+                case 'matrix':
+                    toggleMatrixAnimation();
+                    break;
+                case 'redirect':
+                    if (command.url) {
+                        setTimeout(() => {
+                            window.location.href = command.url;
+                        }, 400);
+                    }
+                    break;
+                case 'custom':
+                    // For future custom actions
+                    if (command.customFunction) {
+                        try {
+                            eval(command.customFunction);
+                        } catch (e) {
+                            console.warn('Failed to execute custom command:', e);
+                        }
+                    }
+                    break;
+            }
+        }
+
+        // Trigger earthquake without navigation (for secret command)
+        function triggerSecretEarthquake() {
+            const explorePage = document.querySelector('.explore-page');
+            const terminalOverlay = document.getElementById('terminalOverlay');
+            const background = document.getElementById('mainSiteBackground');
+            const iframe = document.getElementById('mainSiteFrame');
+
+            // Load main site if not already loaded
+            if (iframe && !iframe.src) {
+                iframe.src = 'main.html';
+            }
+
+            // Show background
+            if (background) {
+                background.classList.add('active');
+            }
+
+            // Apply quake time
+            const actualQuakeTime = applyQuakeTimeVariable();
+            const durationMs = actualQuakeTime * 1000;
+
+            // Phase 1: Earthquake shake
+            explorePage.classList.add('earthquake-shake');
+
+            // After shake, split the terminal
+            setTimeout(() => {
+                terminalOverlay.classList.add('active');
+                explorePage.style.visibility = 'hidden';
+
+                setTimeout(() => {
+                    terminalOverlay.classList.add('splitting');
+
+                    // Navigate after split
+                    setTimeout(() => {
+                        window.location.href = 'main.html';
+                    }, 800);
+                }, 50);
+            }, durationMs);
+        }
+
+        // Toggle matrix animation on/off
+        function toggleMatrixAnimation() {
+            if (state.matrixActive) {
+                // Matrix is running - stop it
+                const canvas = document.getElementById('matrixCanvas');
+                if (canvas) {
+                    canvas.classList.add('fade-out');
+                    setTimeout(() => {
+                        canvas.classList.remove('active', 'fade-out');
+                        state.matrixActive = false;
+                        const ctx = canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }, 500);
+                }
+            } else {
+                // Start infinite matrix (not timed)
+                triggerInfiniteMatrix();
+            }
+        }
+
+        // Trigger matrix animation that runs until toggled off
+        function triggerInfiniteMatrix() {
+            if (state.matrixActive) return;
+
+            state.matrixActive = true;
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            canvas.classList.remove('fade-out');
+            canvas.classList.add('active');
+
+            const fontSize = 14;
+            const columns = Math.floor(canvas.width / fontSize);
+            const drops = Array(columns).fill(1);
+
+            function draw() {
+                if (!state.matrixActive) return;
+
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#34ff35';
+                ctx.font = fontSize + 'px VT323, monospace';
+                ctx.shadowColor = 'rgba(52, 255, 53, 0.5)';
+                ctx.shadowBlur = 4;
+
+                for (let i = 0; i < drops.length; i++) {
+                    const char = Math.random() > 0.5 ? '1' : '0';
+                    ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+
+                state.matrixAnimationId = requestAnimationFrame(draw);
+            }
+
+            draw();
+        }
+
+        // Check keystroke buffer for matching commands
+        function checkSecretCommands() {
+            const buffer = keystrokeBuffer.toUpperCase();
+
+            for (const command of secretCommands) {
+                if (!command.enabled) continue;
+
+                const keyword = command.keyword.toUpperCase();
+                if (buffer.endsWith(keyword)) {
+                    // Command matched! Clear buffer and execute
+                    keystrokeBuffer = '';
+                    executeSecretCommand(command);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // Global keydown listener for secret commands
+        document.addEventListener('keydown', (event) => {
+            // Only track printable characters
+            if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+                keystrokeBuffer += event.key;
+
+                // Trim buffer if too long
+                if (keystrokeBuffer.length > maxBufferSize) {
+                    keystrokeBuffer = keystrokeBuffer.slice(-maxBufferSize);
+                }
+
+                // Check for command matches
+                checkSecretCommands();
+            }
+        });
+
         // Fisher-Yates shuffle algorithm
         function shuffleArray(array) {
             const shuffled = [...array];

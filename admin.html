@@ -816,6 +816,170 @@
             100% { transform: translate(0); filter: hue-rotate(0deg); }
         }
 
+        /* Secret Commands Section */
+        .secret-commands-section {
+            background: white;
+            border: 1px solid var(--off-white-dark);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .secret-commands-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .secret-commands-section > p {
+            font-size: 0.9rem;
+            color: rgba(31, 31, 31, 0.6);
+            margin-bottom: 1.5rem;
+        }
+
+        .secret-commands-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .secret-command-card {
+            background: var(--background);
+            border: 1px solid var(--off-white-dark);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .secret-command-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-color: var(--accent);
+        }
+
+        .secret-command-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .secret-command-keyword {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .keyword-badge {
+            background: linear-gradient(135deg, #1F1F1F, #2a2a2a);
+            color: #34ff35;
+            font-family: 'VT323', monospace;
+            font-size: 1.25rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 8px rgba(52, 255, 53, 0.4);
+            box-shadow: inset 0 0 10px rgba(52, 255, 53, 0.1);
+        }
+
+        .secret-command-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .secret-command-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .secret-command-body .form-group {
+            margin-bottom: 0;
+        }
+
+        .secret-command-body label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(31, 31, 31, 0.6);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .secret-command-body input,
+        .secret-command-body select {
+            width: 100%;
+            padding: 0.6rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.9rem;
+            color: var(--primary);
+            background: white;
+            border: 1px solid var(--off-white-dark);
+            border-radius: 6px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .secret-command-body input:focus,
+        .secret-command-body select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
+        }
+
+        .secret-command-body .url-field {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 600px) {
+            .secret-command-body .url-field {
+                grid-column: span 1;
+            }
+        }
+
+        .delete-command-btn {
+            background: transparent;
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .delete-command-btn:hover {
+            background: var(--error);
+            color: white;
+        }
+
+        .add-command-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: transparent;
+            border: 2px dashed var(--accent);
+            color: var(--accent);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .add-command-btn:hover {
+            background: rgba(91, 95, 234, 0.1);
+            border-style: solid;
+        }
+
+        .add-command-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -1001,6 +1165,23 @@
             </div>
         </div>
 
+        <!-- Managed Secret Commands Section -->
+        <div class="secret-commands-section">
+            <h2>Managed Secret Commands</h2>
+            <p>Configure hidden keywords that trigger special actions when typed anywhere on the terminal. Users can type these keywords to activate hidden features.</p>
+
+            <div class="secret-commands-list" id="secretCommandsList">
+                <!-- Command cards will be generated by JavaScript -->
+            </div>
+
+            <button type="button" class="add-command-btn" onclick="addNewSecretCommand()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Command
+            </button>
+        </div>
+
         <!-- Questions Section with Randomize Toggle -->
         <div class="questions-header-section">
             <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0; color: var(--primary);">Cycling Thoughts & Responses</h2>
@@ -1072,6 +1253,20 @@
             { value: 'contact', label: 'Contact Us Form' }
         ];
 
+        // Secret command action types
+        const SECRET_ACTION_TYPES = [
+            { value: 'earthquake', label: 'Trigger Earthquake & Split' },
+            { value: 'matrix', label: 'Toggle Matrix Animation' },
+            { value: 'redirect', label: 'Redirect to URL' }
+        ];
+
+        // Default secret commands
+        const defaultSecretCommands = [
+            { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
+            { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
+            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' }
+        ];
+
         // Current data
         let currentThoughts = [];
         let currentResponses = [];
@@ -1086,6 +1281,7 @@
         let currentEarthquakeEnabled = true; // Default earthquake transition enabled
         let currentBootSequenceEnabled = true; // Default boot sequence enabled
         let currentSystemMood = 'stable'; // Default system mood
+        let currentSecretCommands = [...defaultSecretCommands]; // Secret commands
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1113,6 +1309,7 @@
                 const storedEarthquakeEnabled = localStorage.getItem('imaginecraft_earthquake_enabled');
                 const storedBootSequenceEnabled = localStorage.getItem('imaginecraft_boot_sequence_enabled');
                 const storedSystemMood = localStorage.getItem('imaginecraft_system_mood');
+                const storedSecretCommands = localStorage.getItem('imaginecraft_secret_commands');
 
                 currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
                 currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
@@ -1127,6 +1324,7 @@
                 currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : true;
                 currentBootSequenceEnabled = storedBootSequenceEnabled !== null ? storedBootSequenceEnabled === 'true' : true;
                 currentSystemMood = storedSystemMood || 'stable';
+                currentSecretCommands = storedSecretCommands ? JSON.parse(storedSecretCommands) : [...defaultSecretCommands];
 
                 // Ensure all 12 actions exist
                 while (currentActions.length < 12) {
@@ -1151,6 +1349,7 @@
                 currentEarthquakeEnabled = true;
                 currentBootSequenceEnabled = true;
                 currentSystemMood = 'stable';
+                currentSecretCommands = [...defaultSecretCommands];
             }
         }
 
@@ -1170,6 +1369,7 @@
                 localStorage.setItem('imaginecraft_earthquake_enabled', currentEarthquakeEnabled.toString());
                 localStorage.setItem('imaginecraft_boot_sequence_enabled', currentBootSequenceEnabled.toString());
                 localStorage.setItem('imaginecraft_system_mood', currentSystemMood);
+                localStorage.setItem('imaginecraft_secret_commands', JSON.stringify(currentSecretCommands));
                 return true;
             } catch (e) {
                 console.error('Failed to save to localStorage:', e);
@@ -1317,6 +1517,164 @@
             }
 
             renderThoughtCards();
+            renderSecretCommands();
+        }
+
+        // Render secret commands list
+        function renderSecretCommands() {
+            const list = document.getElementById('secretCommandsList');
+            if (!list) return;
+
+            list.innerHTML = '';
+
+            currentSecretCommands.forEach((command, index) => {
+                const card = document.createElement('div');
+                card.className = 'secret-command-card';
+                card.id = `secret-command-${index}`;
+
+                const showUrlField = command.action === 'redirect';
+
+                card.innerHTML = `
+                    <div class="secret-command-header">
+                        <div class="secret-command-keyword">
+                            <span class="keyword-badge">${escapeHtml(command.keyword)}</span>
+                        </div>
+                        <div class="secret-command-controls">
+                            <div class="active-toggle-container">
+                                <input type="checkbox" id="cmd-enabled-${index}" class="active-checkbox" ${command.enabled ? 'checked' : ''} onchange="handleCommandEnabledChange(${index})">
+                                <label for="cmd-enabled-${index}" class="active-label">Enabled</label>
+                            </div>
+                            <button type="button" class="delete-command-btn" onclick="deleteSecretCommand(${index})">Delete</button>
+                        </div>
+                    </div>
+                    <div class="secret-command-body">
+                        <div class="form-group">
+                            <label>Keyword</label>
+                            <input type="text" id="cmd-keyword-${index}" value="${escapeHtml(command.keyword)}" placeholder="e.g., FOREST" onchange="updateCommandKeyword(${index})" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Action Type</label>
+                            <select id="cmd-action-${index}" onchange="handleCommandActionChange(${index})">
+                                ${SECRET_ACTION_TYPES.map(type => `
+                                    <option value="${type.value}" ${command.action === type.value ? 'selected' : ''}>
+                                        ${type.label}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group url-field" id="cmd-url-group-${index}" style="${showUrlField ? '' : 'display: none;'}">
+                            <label>Redirect URL</label>
+                            <input type="text" id="cmd-url-${index}" value="${escapeHtml(command.url || '')}" placeholder="e.g., admin.html or https://..." onchange="updateCommandUrl(${index})">
+                        </div>
+                        <div class="form-group" style="grid-column: ${showUrlField ? '1' : '1 / -1'};">
+                            <label>Description (optional)</label>
+                            <input type="text" id="cmd-desc-${index}" value="${escapeHtml(command.description || '')}" placeholder="Describe what this command does" onchange="updateCommandDescription(${index})">
+                        </div>
+                    </div>
+                `;
+
+                list.appendChild(card);
+            });
+        }
+
+        // Handle command enabled checkbox change
+        function handleCommandEnabledChange(index) {
+            const checkbox = document.getElementById(`cmd-enabled-${index}`);
+            if (checkbox) {
+                currentSecretCommands[index].enabled = checkbox.checked;
+            }
+        }
+
+        // Handle command action type change
+        function handleCommandActionChange(index) {
+            const select = document.getElementById(`cmd-action-${index}`);
+            const urlGroup = document.getElementById(`cmd-url-group-${index}`);
+
+            if (select) {
+                currentSecretCommands[index].action = select.value;
+
+                // Show/hide URL field based on action type
+                if (urlGroup) {
+                    urlGroup.style.display = select.value === 'redirect' ? '' : 'none';
+                }
+
+                // Update the keyword badge display
+                const keywordInput = document.getElementById(`cmd-keyword-${index}`);
+                if (keywordInput) {
+                    const badge = document.querySelector(`#secret-command-${index} .keyword-badge`);
+                    if (badge) {
+                        badge.textContent = keywordInput.value.toUpperCase();
+                    }
+                }
+            }
+        }
+
+        // Update command keyword
+        function updateCommandKeyword(index) {
+            const input = document.getElementById(`cmd-keyword-${index}`);
+            if (input) {
+                const keyword = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                input.value = keyword;
+                currentSecretCommands[index].keyword = keyword;
+
+                // Update the badge
+                const badge = document.querySelector(`#secret-command-${index} .keyword-badge`);
+                if (badge) {
+                    badge.textContent = keyword;
+                }
+            }
+        }
+
+        // Update command URL
+        function updateCommandUrl(index) {
+            const input = document.getElementById(`cmd-url-${index}`);
+            if (input) {
+                currentSecretCommands[index].url = input.value;
+            }
+        }
+
+        // Update command description
+        function updateCommandDescription(index) {
+            const input = document.getElementById(`cmd-desc-${index}`);
+            if (input) {
+                currentSecretCommands[index].description = input.value;
+            }
+        }
+
+        // Add new secret command
+        function addNewSecretCommand() {
+            const newCommand = {
+                keyword: 'NEWCMD',
+                action: 'redirect',
+                url: '',
+                enabled: true,
+                description: ''
+            };
+
+            currentSecretCommands.push(newCommand);
+            renderSecretCommands();
+
+            // Scroll to new command and focus keyword input
+            setTimeout(() => {
+                const newIndex = currentSecretCommands.length - 1;
+                const newCard = document.getElementById(`secret-command-${newIndex}`);
+                if (newCard) {
+                    newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const keywordInput = document.getElementById(`cmd-keyword-${newIndex}`);
+                    if (keywordInput) {
+                        keywordInput.focus();
+                        keywordInput.select();
+                    }
+                }
+            }, 100);
+        }
+
+        // Delete secret command
+        function deleteSecretCommand(index) {
+            if (confirm('Are you sure you want to delete this secret command?')) {
+                currentSecretCommands.splice(index, 1);
+                renderSecretCommands();
+            }
         }
 
         // Update mood preview
@@ -1523,6 +1881,31 @@
             const systemMoodSelect = document.getElementById('systemMoodSelect');
             if (systemMoodSelect) {
                 currentSystemMood = systemMoodSelect.value;
+            }
+
+            // Save secret commands
+            for (let i = 0; i < currentSecretCommands.length; i++) {
+                const keywordInput = document.getElementById(`cmd-keyword-${i}`);
+                const actionSelect = document.getElementById(`cmd-action-${i}`);
+                const urlInput = document.getElementById(`cmd-url-${i}`);
+                const descInput = document.getElementById(`cmd-desc-${i}`);
+                const enabledCheckbox = document.getElementById(`cmd-enabled-${i}`);
+
+                if (keywordInput) {
+                    currentSecretCommands[i].keyword = keywordInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                }
+                if (actionSelect) {
+                    currentSecretCommands[i].action = actionSelect.value;
+                }
+                if (urlInput) {
+                    currentSecretCommands[i].url = urlInput.value;
+                }
+                if (descInput) {
+                    currentSecretCommands[i].description = descInput.value;
+                }
+                if (enabledCheckbox) {
+                    currentSecretCommands[i].enabled = enabledCheckbox.checked;
+                }
             }
 
             // Save thoughts, responses, actions, and active states
