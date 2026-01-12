@@ -904,6 +904,19 @@
             </div>
         </div>
 
+        <!-- Boot Sequence Section -->
+        <div class="typing-speed-section">
+            <h2>Enable Boot Sequence</h2>
+            <p>When enabled, the site will display a "Power Up" boot sequence with system diagnostics and a progress bar on first load. The sequence only plays once per browser session.</p>
+            <div class="toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="bootSequenceToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label" id="bootSequenceToggleLabel">Enabled</span>
+            </div>
+        </div>
+
         <!-- Questions Section with Randomize Toggle -->
         <div class="questions-header-section">
             <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0; color: var(--primary);">Cycling Thoughts & Responses</h2>
@@ -987,6 +1000,7 @@
         let currentMatrixFadeDuration = 1.5; // Default matrix fade duration in seconds
         let currentEarthquakeDuration = 1.5; // Default earthquake duration in seconds
         let currentEarthquakeEnabled = true; // Default earthquake transition enabled
+        let currentBootSequenceEnabled = true; // Default boot sequence enabled
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1012,6 +1026,7 @@
                 const storedMatrixFadeDuration = localStorage.getItem('imaginecraft_matrix_fade_duration');
                 const storedEarthquakeDuration = localStorage.getItem('imaginecraft_earthquake_duration');
                 const storedEarthquakeEnabled = localStorage.getItem('imaginecraft_earthquake_enabled');
+                const storedBootSequenceEnabled = localStorage.getItem('imaginecraft_boot_sequence_enabled');
 
                 currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
                 currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
@@ -1024,6 +1039,7 @@
                 currentMatrixFadeDuration = storedMatrixFadeDuration ? parseFloat(storedMatrixFadeDuration) : 1.5;
                 currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : 1.5;
                 currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : true;
+                currentBootSequenceEnabled = storedBootSequenceEnabled !== null ? storedBootSequenceEnabled === 'true' : true;
 
                 // Ensure all 12 actions exist
                 while (currentActions.length < 12) {
@@ -1046,6 +1062,7 @@
                 currentMatrixFadeDuration = 1.5;
                 currentEarthquakeDuration = 1.5;
                 currentEarthquakeEnabled = true;
+                currentBootSequenceEnabled = true;
             }
         }
 
@@ -1063,6 +1080,7 @@
                 localStorage.setItem('imaginecraft_matrix_fade_duration', currentMatrixFadeDuration.toString());
                 localStorage.setItem('imaginecraft_earthquake_duration', currentEarthquakeDuration.toString());
                 localStorage.setItem('imaginecraft_earthquake_enabled', currentEarthquakeEnabled.toString());
+                localStorage.setItem('imaginecraft_boot_sequence_enabled', currentBootSequenceEnabled.toString());
                 return true;
             } catch (e) {
                 console.error('Failed to save to localStorage:', e);
@@ -1181,6 +1199,19 @@
             const randomizeToggle = document.getElementById('randomizeToggle');
             if (randomizeToggle) {
                 randomizeToggle.checked = currentRandomizeEnabled;
+            }
+
+            // Update boot sequence toggle
+            const bootSequenceToggle = document.getElementById('bootSequenceToggle');
+            const bootSequenceToggleLabel = document.getElementById('bootSequenceToggleLabel');
+            if (bootSequenceToggle && bootSequenceToggleLabel) {
+                bootSequenceToggle.checked = currentBootSequenceEnabled;
+                bootSequenceToggleLabel.textContent = currentBootSequenceEnabled ? 'Enabled' : 'Disabled';
+
+                // Add event listener for real-time label update
+                bootSequenceToggle.addEventListener('change', function() {
+                    bootSequenceToggleLabel.textContent = this.checked ? 'Enabled' : 'Disabled';
+                });
             }
 
             renderThoughtCards();
@@ -1366,6 +1397,12 @@
             const randomizeToggle = document.getElementById('randomizeToggle');
             if (randomizeToggle) {
                 currentRandomizeEnabled = randomizeToggle.checked;
+            }
+
+            // Save boot sequence setting
+            const bootSequenceToggle = document.getElementById('bootSequenceToggle');
+            if (bootSequenceToggle) {
+                currentBootSequenceEnabled = bootSequenceToggle.checked;
             }
 
             // Save thoughts, responses, actions, and active states
