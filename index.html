@@ -1142,22 +1142,31 @@
 
         const earthquakeEnabled = loadEarthquakeSettingFromStorage();
 
+        // Apply --quake-time CSS variable from localStorage immediately
+        function applyQuakeTimeVariable() {
+            const quakeTime = earthquakeDuration; // Already loaded from localStorage
+            document.documentElement.style.setProperty('--quake-time', `${quakeTime}s`);
+        }
+
         // Preload main.html content as background layer when earthquake is enabled
+        // Superman Logic: Main site is ALWAYS rendered behind terminal
         function preloadMainSite() {
+            const iframe = document.getElementById('mainSiteFrame');
+            const background = document.getElementById('mainSiteBackground');
+
             if (earthquakeEnabled) {
-                const iframe = document.getElementById('mainSiteFrame');
-                const background = document.getElementById('mainSiteBackground');
+                // Load main site immediately so it's ready behind the terminal
                 if (iframe && !iframe.src) {
                     iframe.src = 'main.html';
                 }
-                // Show background layer immediately (it's behind everything)
+                // Mark as preloaded (main site is now rendering behind terminal)
                 if (background) {
                     background.classList.add('preloaded');
                 }
             }
         }
 
-        // Execute earthquake transition - Superman reveal style
+        // Execute earthquake transition - True Superman reveal style
         function triggerEarthquakeTransition(event) {
             if (!earthquakeEnabled) {
                 // Normal navigation
@@ -1172,34 +1181,41 @@
             const background = document.getElementById('mainSiteBackground');
             const iframe = document.getElementById('mainSiteFrame');
 
-            // Ensure iframe is loaded
+            // Ensure iframe is loaded (should already be preloaded)
             if (!iframe.src) {
                 iframe.src = 'main.html';
             }
 
-            // Show background layer (main site) - it stays static
+            // The main site background is ALREADY visible (z-index: 1)
+            // The terminal (explore-page) covers it (z-index: 2)
+            // Mark background as active to ensure visibility
             if (background) {
                 background.classList.add('active');
             }
 
-            // Apply dynamic earthquake duration
+            // Apply --quake-time variable before animation starts
+            applyQuakeTimeVariable();
             const durationMs = earthquakeDuration * 1000;
-            explorePage.style.setProperty('--earthquake-duration', `${earthquakeDuration}s`);
 
-            // Phase 1: Earthquake shake on the explore page (terminal layer)
+            // Phase 1: Earthquake shake on the explore page (terminal layer only)
+            // The main site stays static behind it
             explorePage.classList.add('earthquake-shake');
 
-            // After shake, trigger the terminal split
+            // After shake completes, trigger the terminal split
             setTimeout(() => {
-                // Phase 2: Activate terminal overlay and start splitting
-                // Copy terminal appearance to the split halves
+                // Phase 2: Activate terminal overlay (the shell that splits)
+                // This overlay sits at z-index: 3, above the terminal content
                 terminalOverlay.classList.add('active');
 
-                // Small delay then crack/split
+                // Hide the explore page content so only the overlay shows
+                explorePage.style.visibility = 'hidden';
+
+                // Small delay then crack/split the terminal shell
                 setTimeout(() => {
                     terminalOverlay.classList.add('splitting');
 
                     // Phase 3: After split animation (0.8s), navigate to main.html
+                    // The main site is already visible through the cracks
                     setTimeout(() => {
                         window.location.href = 'main.html';
                     }, 800);
@@ -1234,6 +1250,9 @@
                 timing.fadeOut = 0;
                 timing.linger = 5000;
             }
+
+            // Apply --quake-time CSS variable from localStorage on page load
+            applyQuakeTimeVariable();
 
             // Initialize earthquake transition
             attachEarthquakeHandlers();
