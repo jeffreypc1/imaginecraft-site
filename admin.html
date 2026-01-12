@@ -6,7 +6,7 @@
     <title>Admin Dashboard - ImagineCraft Studios</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1F1F1F;
@@ -748,6 +748,74 @@
             font-style: italic;
         }
 
+        /* Mood Selector Styles */
+        .mood-selector-container {
+            max-width: 500px;
+        }
+
+        .mood-select {
+            width: 100%;
+            padding: 0.75rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.95rem;
+            color: var(--primary);
+            background: var(--background);
+            border: 1px solid var(--off-white-dark);
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231F1F1F' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+
+        .mood-select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
+        }
+
+        .mood-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #000000;
+            border-radius: 8px;
+            font-family: 'VT323', 'Courier New', monospace;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .mood-preview-text {
+            display: inline-block;
+        }
+
+        .mood-preview.stable {
+            color: #34ff35;
+            text-shadow: 0 0 8px rgba(52, 255, 53, 0.6);
+        }
+
+        .mood-preview.glitchy {
+            color: #34ff35;
+            text-shadow: 0 0 8px rgba(52, 255, 53, 0.6);
+            animation: glitchPreview 0.5s infinite;
+        }
+
+        .mood-preview.urgent {
+            color: #ff3434;
+            text-shadow: 0 0 8px rgba(255, 52, 52, 0.6);
+        }
+
+        @keyframes glitchPreview {
+            0% { transform: translate(0); filter: hue-rotate(0deg); }
+            20% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+            40% { transform: translate(1px, -1px); filter: hue-rotate(180deg); }
+            60% { transform: translate(-1px, 0); filter: hue-rotate(270deg); }
+            80% { transform: translate(2px, 1px); filter: hue-rotate(360deg); }
+            100% { transform: translate(0); filter: hue-rotate(0deg); }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -917,6 +985,22 @@
             </div>
         </div>
 
+        <!-- AI System Mood Section -->
+        <div class="typing-speed-section">
+            <h2>AI System Mood</h2>
+            <p>Change the visual aesthetic of the terminal. Each mood affects text color, animations, and typing rhythm.</p>
+            <div class="mood-selector-container">
+                <select id="systemMoodSelect" class="mood-select">
+                    <option value="stable">Stable (Default) - Solid green, steady rhythm</option>
+                    <option value="glitchy">Glitchy - Flickering text, irregular typing</option>
+                    <option value="urgent">Urgent - High-alert red, fast typing</option>
+                </select>
+                <div class="mood-preview" id="moodPreview">
+                    <span class="mood-preview-text">Preview text appearance</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Questions Section with Randomize Toggle -->
         <div class="questions-header-section">
             <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0; color: var(--primary);">Cycling Thoughts & Responses</h2>
@@ -1001,6 +1085,7 @@
         let currentEarthquakeDuration = 1.5; // Default earthquake duration in seconds
         let currentEarthquakeEnabled = true; // Default earthquake transition enabled
         let currentBootSequenceEnabled = true; // Default boot sequence enabled
+        let currentSystemMood = 'stable'; // Default system mood
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1027,6 +1112,7 @@
                 const storedEarthquakeDuration = localStorage.getItem('imaginecraft_earthquake_duration');
                 const storedEarthquakeEnabled = localStorage.getItem('imaginecraft_earthquake_enabled');
                 const storedBootSequenceEnabled = localStorage.getItem('imaginecraft_boot_sequence_enabled');
+                const storedSystemMood = localStorage.getItem('imaginecraft_system_mood');
 
                 currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
                 currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
@@ -1040,6 +1126,7 @@
                 currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : 1.5;
                 currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : true;
                 currentBootSequenceEnabled = storedBootSequenceEnabled !== null ? storedBootSequenceEnabled === 'true' : true;
+                currentSystemMood = storedSystemMood || 'stable';
 
                 // Ensure all 12 actions exist
                 while (currentActions.length < 12) {
@@ -1063,6 +1150,7 @@
                 currentEarthquakeDuration = 1.5;
                 currentEarthquakeEnabled = true;
                 currentBootSequenceEnabled = true;
+                currentSystemMood = 'stable';
             }
         }
 
@@ -1081,6 +1169,7 @@
                 localStorage.setItem('imaginecraft_earthquake_duration', currentEarthquakeDuration.toString());
                 localStorage.setItem('imaginecraft_earthquake_enabled', currentEarthquakeEnabled.toString());
                 localStorage.setItem('imaginecraft_boot_sequence_enabled', currentBootSequenceEnabled.toString());
+                localStorage.setItem('imaginecraft_system_mood', currentSystemMood);
                 return true;
             } catch (e) {
                 console.error('Failed to save to localStorage:', e);
@@ -1214,7 +1303,32 @@
                 });
             }
 
+            // Update system mood selector
+            const systemMoodSelect = document.getElementById('systemMoodSelect');
+            const moodPreview = document.getElementById('moodPreview');
+            if (systemMoodSelect && moodPreview) {
+                systemMoodSelect.value = currentSystemMood;
+                updateMoodPreview(currentSystemMood);
+
+                // Add event listener for real-time preview update
+                systemMoodSelect.addEventListener('change', function() {
+                    updateMoodPreview(this.value);
+                });
+            }
+
             renderThoughtCards();
+        }
+
+        // Update mood preview
+        function updateMoodPreview(mood) {
+            const moodPreview = document.getElementById('moodPreview');
+            if (!moodPreview) return;
+
+            // Remove all mood classes
+            moodPreview.classList.remove('stable', 'glitchy', 'urgent');
+
+            // Add the selected mood class
+            moodPreview.classList.add(mood);
         }
 
         // Render thought cards
@@ -1403,6 +1517,12 @@
             const bootSequenceToggle = document.getElementById('bootSequenceToggle');
             if (bootSequenceToggle) {
                 currentBootSequenceEnabled = bootSequenceToggle.checked;
+            }
+
+            // Save system mood setting
+            const systemMoodSelect = document.getElementById('systemMoodSelect');
+            if (systemMoodSelect) {
+                currentSystemMood = systemMoodSelect.value;
             }
 
             // Save thoughts, responses, actions, and active states

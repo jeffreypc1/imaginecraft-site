@@ -511,6 +511,21 @@
 
         const bootSequenceEnabled = loadBootSequenceEnabledFromStorage();
 
+        // Load system mood from localStorage (admin configurable)
+        function loadSystemMoodFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_system_mood');
+                if (stored && ['stable', 'glitchy', 'urgent'].includes(stored)) {
+                    return stored;
+                }
+            } catch (e) {
+                console.warn('Failed to load system mood from localStorage:', e);
+            }
+            return 'stable'; // Default: stable mood
+        }
+
+        const systemMood = loadSystemMoodFromStorage();
+
         // Fisher-Yates shuffle algorithm
         function shuffleArray(array) {
             const shuffled = [...array];
@@ -630,15 +645,48 @@
         const baseTypingSpeed = loadTypingSpeedFromStorage();
 
         // Timing configuration (in ms) - uses admin-configurable base speed
-        const timing = {
-            initialDelay: 3000,
-            typeSpeedMin: Math.max(50, baseTypingSpeed - 50),
-            typeSpeedMax: baseTypingSpeed + 100,
-            punctuationPause: 500,
-            backspaceSpeedMin: 50,
-            backspaceSpeedMax: 100,
-            linger: 4000
-        };
+        // Adjusted based on system mood
+        function getTimingConfig() {
+            const base = {
+                initialDelay: 3000,
+                typeSpeedMin: Math.max(50, baseTypingSpeed - 50),
+                typeSpeedMax: baseTypingSpeed + 100,
+                punctuationPause: 500,
+                backspaceSpeedMin: 50,
+                backspaceSpeedMax: 100,
+                linger: 4000
+            };
+
+            switch (systemMood) {
+                case 'glitchy':
+                    // Glitchy: More irregular, stuttered rhythm with wider variance
+                    return {
+                        ...base,
+                        typeSpeedMin: Math.max(30, baseTypingSpeed - 100),
+                        typeSpeedMax: baseTypingSpeed + 200, // Wider range for irregular feel
+                        punctuationPause: Math.random() > 0.5 ? 800 : 200, // Random pauses
+                        backspaceSpeedMin: 30,
+                        backspaceSpeedMax: 150,
+                        linger: 3000
+                    };
+                case 'urgent':
+                    // Urgent: Much faster typing
+                    return {
+                        ...base,
+                        initialDelay: 1500, // Faster start
+                        typeSpeedMin: Math.max(20, Math.floor(baseTypingSpeed * 0.3)),
+                        typeSpeedMax: Math.floor(baseTypingSpeed * 0.5),
+                        punctuationPause: 150, // Minimal pause
+                        backspaceSpeedMin: 20,
+                        backspaceSpeedMax: 50,
+                        linger: 2000 // Shorter linger
+                    };
+                default: // 'stable'
+                    return base;
+            }
+        }
+
+        const timing = getTimingConfig();
 
         // Helper function for random delay between min and max
         function randomDelay(min, max) {
@@ -664,6 +712,26 @@
         // ========================================
         // Typing Animation
         // ========================================
+
+        // Glitchy mode typing helper - occasionally repeats or stutters
+        function getGlitchyDelay(baseMin, baseMax) {
+            // 15% chance of a glitch effect
+            if (Math.random() < 0.15) {
+                const glitchType = Math.random();
+                if (glitchType < 0.3) {
+                    // Very fast burst
+                    return randomDelay(10, 30);
+                } else if (glitchType < 0.6) {
+                    // Long stutter pause
+                    return randomDelay(300, 600);
+                } else {
+                    // Normal with jitter
+                    return randomDelay(baseMin, baseMax) + (Math.random() > 0.5 ? 100 : -30);
+                }
+            }
+            return randomDelay(baseMin, baseMax);
+        }
+
         function typeCharacter(text, index, callback) {
             if (state.isUserTyping || state.isSelected) return;
 
@@ -676,9 +744,15 @@
                 if (!prefersReducedMotion) {
                     const lastChar = text.charAt(index - 1);
                     if (isPunctuation(lastChar)) {
-                        delay = timing.punctuationPause;
+                        // Glitchy mood has random punctuation pauses
+                        delay = systemMood === 'glitchy'
+                            ? (Math.random() > 0.5 ? timing.punctuationPause * 1.5 : timing.punctuationPause * 0.3)
+                            : timing.punctuationPause;
                     } else {
-                        delay = randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
+                        // Use glitchy delay for glitchy mood
+                        delay = systemMood === 'glitchy'
+                            ? getGlitchyDelay(timing.typeSpeedMin, timing.typeSpeedMax)
+                            : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
                     }
                 }
 
@@ -877,9 +951,15 @@
                 if (!prefersReducedMotion) {
                     const lastChar = text.charAt(charIndex - 1);
                     if (isPunctuation(lastChar)) {
-                        delay = timing.punctuationPause;
+                        // Glitchy mood has random punctuation pauses
+                        delay = systemMood === 'glitchy'
+                            ? (Math.random() > 0.5 ? timing.punctuationPause * 1.5 : timing.punctuationPause * 0.3)
+                            : timing.punctuationPause;
                     } else {
-                        delay = randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
+                        // Use glitchy delay for glitchy mood
+                        delay = systemMood === 'glitchy'
+                            ? getGlitchyDelay(timing.typeSpeedMin, timing.typeSpeedMax)
+                            : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
                     }
                 }
 
@@ -1403,9 +1483,17 @@
         const earthquakeEnabled = loadEarthquakeSettingFromStorage();
 
         // Apply --quake-time CSS variable from localStorage immediately
+        // Urgent mood increases earthquake duration by 50% for more dramatic effect
         function applyQuakeTimeVariable() {
-            const quakeTime = earthquakeDuration; // Already loaded from localStorage
+            let quakeTime = earthquakeDuration; // Already loaded from localStorage
+
+            // Urgent mood gets 50% longer and more intense earthquake
+            if (systemMood === 'urgent') {
+                quakeTime = quakeTime * 1.5;
+            }
+
             document.documentElement.style.setProperty('--quake-time', `${quakeTime}s`);
+            return quakeTime;
         }
 
         // Preload main.html content as background layer when earthquake is enabled
@@ -1454,8 +1542,9 @@
             }
 
             // Apply --quake-time variable before animation starts
-            applyQuakeTimeVariable();
-            const durationMs = earthquakeDuration * 1000;
+            // Returns the actual quake time (may be modified for urgent mood)
+            const actualQuakeTime = applyQuakeTimeVariable();
+            const durationMs = actualQuakeTime * 1000;
 
             // Phase 1: Earthquake shake on the explore page (terminal layer only)
             // The main site stays static behind it
@@ -1615,6 +1704,12 @@
         // Initialize
         // ========================================
         document.addEventListener('DOMContentLoaded', () => {
+            // Apply system mood CSS class to explore page
+            const explorePage = document.querySelector('.explore-page');
+            if (explorePage && systemMood !== 'stable') {
+                explorePage.classList.add(`mood-${systemMood}`);
+            }
+
             // Set hero text from localStorage
             const heroElement = document.getElementById('exploreQuestion');
             if (heroElement && heroText) {
