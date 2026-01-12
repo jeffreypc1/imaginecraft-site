@@ -570,7 +570,7 @@ section p {
     align-items: center;
     padding: 2rem;
     position: relative;
-    z-index: 2;
+    z-index: 2; /* Terminal layer: above main site (z:1), below split overlay (z:3) */
 }
 
 .explore-container {
@@ -1307,73 +1307,45 @@ section p {
    Earthquake Transition Effect - Superman Reveal
    ======================================== */
 
-/* CSS variable for dynamic earthquake duration */
-.explore-page {
-    --earthquake-duration: 1.5s;
+/* CSS variable for dynamic earthquake duration (set from localStorage via JS) */
+:root {
+    --quake-time: 1.5s;
 }
 
-/* Violent earthquake shake animation */
+/* Heavy rumble earthquake animation - slower, more deliberate movements */
 @keyframes earthquake {
     0% { transform: translate(0, 0) rotate(0deg); }
-    2% { transform: translate(-12px, 6px) rotate(-0.8deg); }
-    4% { transform: translate(10px, -10px) rotate(1.2deg); }
-    6% { transform: translate(-14px, 4px) rotate(-1.5deg); }
-    8% { transform: translate(8px, 12px) rotate(0.8deg); }
-    10% { transform: translate(-10px, -8px) rotate(-1.2deg); }
-    12% { transform: translate(14px, 10px) rotate(1.8deg); }
-    14% { transform: translate(-8px, -12px) rotate(-0.8deg); }
-    16% { transform: translate(12px, 8px) rotate(1.2deg); }
-    18% { transform: translate(-14px, -6px) rotate(-1.8deg); }
-    20% { transform: translate(10px, 10px) rotate(1.5deg); }
-    22% { transform: translate(-12px, -10px) rotate(-1.2deg); }
-    24% { transform: translate(14px, 6px) rotate(0.8deg); }
-    26% { transform: translate(-10px, 12px) rotate(-1.5deg); }
-    28% { transform: translate(8px, -8px) rotate(1.8deg); }
-    30% { transform: translate(-14px, 10px) rotate(-0.8deg); }
-    32% { transform: translate(12px, -12px) rotate(1.2deg); }
-    34% { transform: translate(-8px, 8px) rotate(-1.8deg); }
-    36% { transform: translate(10px, -6px) rotate(1.5deg); }
-    38% { transform: translate(-12px, 12px) rotate(-1.2deg); }
-    40% { transform: translate(14px, -10px) rotate(0.8deg); }
-    42% { transform: translate(-10px, 6px) rotate(-1.5deg); }
-    44% { transform: translate(8px, -8px) rotate(1.8deg); }
-    46% { transform: translate(-14px, 10px) rotate(-0.8deg); }
-    48% { transform: translate(12px, -12px) rotate(1.2deg); }
-    50% { transform: translate(-8px, 8px) rotate(-1.8deg); }
-    52% { transform: translate(10px, -6px) rotate(1.5deg); }
-    54% { transform: translate(-12px, 12px) rotate(-1.2deg); }
-    56% { transform: translate(14px, -10px) rotate(0.8deg); }
-    58% { transform: translate(-10px, 6px) rotate(-1.5deg); }
-    60% { transform: translate(8px, -8px) rotate(1.8deg); }
-    62% { transform: translate(-14px, 10px) rotate(-0.8deg); }
-    64% { transform: translate(12px, -12px) rotate(1.2deg); }
-    66% { transform: translate(-8px, 8px) rotate(-1.8deg); }
-    68% { transform: translate(10px, -6px) rotate(1.5deg); }
-    70% { transform: translate(-12px, 12px) rotate(-1.2deg); }
-    72% { transform: translate(14px, -10px) rotate(0.8deg); }
-    74% { transform: translate(-10px, 6px) rotate(-1.5deg); }
-    76% { transform: translate(8px, -8px) rotate(1.8deg); }
-    78% { transform: translate(-14px, 10px) rotate(-0.8deg); }
-    80% { transform: translate(12px, -12px) rotate(1.2deg); }
-    82% { transform: translate(-8px, 8px) rotate(-1.8deg); }
-    84% { transform: translate(10px, -6px) rotate(1.5deg); }
-    86% { transform: translate(-12px, 12px) rotate(-1.2deg); }
-    88% { transform: translate(14px, -10px) rotate(0.8deg); }
-    90% { transform: translate(-10px, 6px) rotate(-1.5deg); }
-    92% { transform: translate(8px, -8px) rotate(1.8deg); }
-    94% { transform: translate(-6px, 6px) rotate(-1.2deg); }
-    96% { transform: translate(4px, -4px) rotate(0.8deg); }
-    98% { transform: translate(-2px, 2px) rotate(-0.4deg); }
+    5% { transform: translate(-4px, 2px) rotate(-0.3deg); }
+    10% { transform: translate(3px, -3px) rotate(0.4deg); }
+    15% { transform: translate(-5px, 1px) rotate(-0.5deg); }
+    20% { transform: translate(2px, 4px) rotate(0.3deg); }
+    25% { transform: translate(-3px, -2px) rotate(-0.4deg); }
+    30% { transform: translate(5px, 3px) rotate(0.6deg); }
+    35% { transform: translate(-2px, -4px) rotate(-0.3deg); }
+    40% { transform: translate(4px, 2px) rotate(0.4deg); }
+    45% { transform: translate(-5px, -1px) rotate(-0.6deg); }
+    50% { transform: translate(3px, 3px) rotate(0.5deg); }
+    55% { transform: translate(-4px, -3px) rotate(-0.4deg); }
+    60% { transform: translate(5px, 1px) rotate(0.3deg); }
+    65% { transform: translate(-3px, 4px) rotate(-0.5deg); }
+    70% { transform: translate(2px, -2px) rotate(0.6deg); }
+    75% { transform: translate(-5px, 3px) rotate(-0.3deg); }
+    80% { transform: translate(4px, -4px) rotate(0.4deg); }
+    85% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+    90% { transform: translate(3px, -1px) rotate(0.3deg); }
+    95% { transform: translate(-1px, 1px) rotate(-0.2deg); }
     100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 /* Earthquake shake applied to the explore page (terminal layer) */
 .explore-page.earthquake-shake {
-    animation: earthquake var(--earthquake-duration) ease-in-out;
+    animation: earthquake var(--quake-time) ease-in-out;
 }
 
 /* ========================================
    Main Site Background Layer (z-index: 1)
+   Superman reveal: Main site is ALWAYS rendered behind everything
+   The terminal (z:2) covers it with solid black background
    ======================================== */
 
 .main-site-background {
@@ -1383,17 +1355,20 @@ section p {
     width: 100%;
     height: 100%;
     z-index: 1;
+    /* Hidden by default until earthquake is enabled */
     opacity: 0;
     visibility: hidden;
 }
 
 .main-site-background.preloaded {
-    /* Preloaded but not yet visible */
-    opacity: 0;
-    visibility: hidden;
+    /* Preloaded and VISIBLE - the terminal's solid background covers it
+       This ensures the main site is fully rendered before the reveal */
+    opacity: 1;
+    visibility: visible;
 }
 
 .main-site-background.active {
+    /* Active during earthquake transition */
     opacity: 1;
     visibility: visible;
 }
@@ -1405,8 +1380,9 @@ section p {
 }
 
 /* ========================================
-   Terminal Overlay Layer (z-index: 2)
-   Splits during earthquake transition
+   Terminal Overlay Layer (z-index: 3)
+   This is the "shell" that splits during earthquake transition
+   It captures the terminal appearance and slides away to reveal main site
    ======================================== */
 
 .terminal-overlay {
@@ -1415,7 +1391,7 @@ section p {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 9999;
+    z-index: 3;
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
