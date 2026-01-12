@@ -802,6 +802,22 @@
             </div>
         </div>
 
+        <!-- Earthquake Duration Section -->
+        <div class="typing-speed-section">
+            <h2>Earthquake Duration</h2>
+            <p>Adjust how many seconds the screen shakes before the terminal splits and reveals the main site. Longer durations create more dramatic tension.</p>
+            <div class="slider-container">
+                <div class="slider-labels">
+                    <span>Quick (0.5s)</span>
+                    <span>Long (5s)</span>
+                </div>
+                <input type="range" id="earthquakeDurationSlider" min="0.5" max="5" step="0.1" value="1.5" class="speed-slider">
+                <div class="slider-value">
+                    <span id="earthquakeDurationValue">1.5</span>s shake duration
+                </div>
+            </div>
+        </div>
+
         <!-- Earthquake Transition Section -->
         <div class="typing-speed-section">
             <h2>Earthquake Transition</h2>
@@ -886,6 +902,7 @@
         let currentActions = [];
         let currentTypingSpeed = 150; // Default typing speed
         let currentMatrixFadeDuration = 1.5; // Default matrix fade duration in seconds
+        let currentEarthquakeDuration = 1.5; // Default earthquake duration in seconds
         let currentEarthquakeEnabled = true; // Default earthquake transition enabled
 
         // Initialize default actions
@@ -908,6 +925,7 @@
                 const storedActions = localStorage.getItem('imaginecraft_actions');
                 const storedTypingSpeed = localStorage.getItem('imaginecraft_typing_speed');
                 const storedMatrixFadeDuration = localStorage.getItem('imaginecraft_matrix_fade_duration');
+                const storedEarthquakeDuration = localStorage.getItem('imaginecraft_earthquake_duration');
                 const storedEarthquakeEnabled = localStorage.getItem('imaginecraft_earthquake_enabled');
 
                 currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
@@ -917,6 +935,7 @@
                 currentActions = storedActions ? JSON.parse(storedActions) : initDefaultActions();
                 currentTypingSpeed = storedTypingSpeed ? parseInt(storedTypingSpeed, 10) : 150;
                 currentMatrixFadeDuration = storedMatrixFadeDuration ? parseFloat(storedMatrixFadeDuration) : 1.5;
+                currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : 1.5;
                 currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : true;
 
                 // Ensure all 12 actions exist
@@ -932,6 +951,7 @@
                 currentActions = initDefaultActions();
                 currentTypingSpeed = 150;
                 currentMatrixFadeDuration = 1.5;
+                currentEarthquakeDuration = 1.5;
                 currentEarthquakeEnabled = true;
             }
         }
@@ -946,6 +966,7 @@
                 localStorage.setItem('imaginecraft_actions', JSON.stringify(currentActions));
                 localStorage.setItem('imaginecraft_typing_speed', currentTypingSpeed.toString());
                 localStorage.setItem('imaginecraft_matrix_fade_duration', currentMatrixFadeDuration.toString());
+                localStorage.setItem('imaginecraft_earthquake_duration', currentEarthquakeDuration.toString());
                 localStorage.setItem('imaginecraft_earthquake_enabled', currentEarthquakeEnabled.toString());
                 return true;
             } catch (e) {
@@ -1032,6 +1053,19 @@
                 // Add event listener for real-time value update
                 matrixFadeSlider.addEventListener('input', function() {
                     matrixFadeValue.textContent = this.value;
+                });
+            }
+
+            // Update earthquake duration slider
+            const earthquakeDurationSlider = document.getElementById('earthquakeDurationSlider');
+            const earthquakeDurationValue = document.getElementById('earthquakeDurationValue');
+            if (earthquakeDurationSlider && earthquakeDurationValue) {
+                earthquakeDurationSlider.value = currentEarthquakeDuration;
+                earthquakeDurationValue.textContent = currentEarthquakeDuration;
+
+                // Add event listener for real-time value update
+                earthquakeDurationSlider.addEventListener('input', function() {
+                    earthquakeDurationValue.textContent = this.value;
                 });
             }
 
@@ -1190,6 +1224,12 @@
             const matrixFadeSlider = document.getElementById('matrixFadeSlider');
             if (matrixFadeSlider) {
                 currentMatrixFadeDuration = parseFloat(matrixFadeSlider.value) || 1.5;
+            }
+
+            // Save earthquake duration
+            const earthquakeDurationSlider = document.getElementById('earthquakeDurationSlider');
+            if (earthquakeDurationSlider) {
+                currentEarthquakeDuration = parseFloat(earthquakeDurationSlider.value) || 1.5;
             }
 
             // Save earthquake transition setting

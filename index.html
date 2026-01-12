@@ -189,15 +189,15 @@
     <!-- ASCII Logo Container (for permanent terminal logos) -->
     <div id="asciiLogoContainer" class="ascii-logo-container"></div>
 
-    <!-- Earthquake Transition Overlay -->
-    <div id="earthquakeTransitionOverlay" class="earthquake-transition-overlay">
-        <div class="crack-half crack-half-left"></div>
-        <div class="crack-half crack-half-right"></div>
+    <!-- Main Site Background Layer (z-index: 1) - Always loaded behind terminal -->
+    <div id="mainSiteBackground" class="main-site-background">
+        <iframe id="mainSiteFrame" src="" title="Main Site"></iframe>
     </div>
 
-    <!-- Main Site Reveal (preloaded content) -->
-    <div id="mainSiteReveal" class="main-site-reveal">
-        <iframe id="mainSiteFrame" src="" title="Main Site"></iframe>
+    <!-- Terminal Overlay Shell (z-index: 2) - Splits during earthquake transition -->
+    <div id="terminalOverlay" class="terminal-overlay">
+        <div class="terminal-half terminal-half-left"></div>
+        <div class="terminal-half terminal-half-right"></div>
     </div>
 
     <!-- Contact Modal (reused from main site) -->
@@ -347,6 +347,21 @@
         }
 
         const matrixFadeDuration = loadMatrixFadeDurationFromStorage();
+
+        // Load Earthquake duration from localStorage (admin configurable)
+        function loadEarthquakeDurationFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_earthquake_duration');
+                if (stored) {
+                    return parseFloat(stored);
+                }
+            } catch (e) {
+                console.warn('Failed to load earthquake duration from localStorage:', e);
+            }
+            return 1.5; // Default earthquake duration in seconds
+        }
+
+        const earthquakeDuration = loadEarthquakeDurationFromStorage();
 
         let state = {
             currentIndex: 0,
@@ -1127,17 +1142,22 @@
 
         const earthquakeEnabled = loadEarthquakeSettingFromStorage();
 
-        // Preload main.html content when earthquake is enabled
+        // Preload main.html content as background layer when earthquake is enabled
         function preloadMainSite() {
             if (earthquakeEnabled) {
                 const iframe = document.getElementById('mainSiteFrame');
+                const background = document.getElementById('mainSiteBackground');
                 if (iframe && !iframe.src) {
                     iframe.src = 'main.html';
+                }
+                // Show background layer immediately (it's behind everything)
+                if (background) {
+                    background.classList.add('preloaded');
                 }
             }
         }
 
-        // Execute earthquake transition
+        // Execute earthquake transition - Superman reveal style
         function triggerEarthquakeTransition(event) {
             if (!earthquakeEnabled) {
                 // Normal navigation
@@ -1147,9 +1167,9 @@
             // Prevent default navigation
             event.preventDefault();
 
-            const container = document.querySelector('.explore-container');
-            const overlay = document.getElementById('earthquakeTransitionOverlay');
-            const reveal = document.getElementById('mainSiteReveal');
+            const explorePage = document.querySelector('.explore-page');
+            const terminalOverlay = document.getElementById('terminalOverlay');
+            const background = document.getElementById('mainSiteBackground');
             const iframe = document.getElementById('mainSiteFrame');
 
             // Ensure iframe is loaded
@@ -1157,25 +1177,34 @@
                 iframe.src = 'main.html';
             }
 
-            // Phase 1: Earthquake shake (1.5 seconds)
-            container.classList.add('earthquake-shake');
+            // Show background layer (main site) - it stays static
+            if (background) {
+                background.classList.add('active');
+            }
 
-            // After shake, trigger the crack
+            // Apply dynamic earthquake duration
+            const durationMs = earthquakeDuration * 1000;
+            explorePage.style.setProperty('--earthquake-duration', `${earthquakeDuration}s`);
+
+            // Phase 1: Earthquake shake on the explore page (terminal layer)
+            explorePage.classList.add('earthquake-shake');
+
+            // After shake, trigger the terminal split
             setTimeout(() => {
-                // Phase 2: Show overlay and start cracking
-                overlay.classList.add('active');
+                // Phase 2: Activate terminal overlay and start splitting
+                // Copy terminal appearance to the split halves
+                terminalOverlay.classList.add('active');
 
-                // Small delay for the overlay to appear, then crack
+                // Small delay then crack/split
                 setTimeout(() => {
-                    overlay.classList.add('cracking');
-                    reveal.classList.add('active');
+                    terminalOverlay.classList.add('splitting');
 
-                    // Phase 3: After crack animation (0.8s), navigate to main.html
+                    // Phase 3: After split animation (0.8s), navigate to main.html
                     setTimeout(() => {
                         window.location.href = 'main.html';
                     }, 800);
-                }, 100);
-            }, 1500);
+                }, 50);
+            }, durationMs);
 
             return false;
         }
