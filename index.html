@@ -327,11 +327,38 @@
             return [];
         }
 
-        const thoughts = loadThoughtsFromStorage();
-        const responses = loadResponsesFromStorage();
+        function loadActiveStatesFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_active_states');
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+            } catch (e) {
+                console.warn('Failed to load active states from localStorage:', e);
+            }
+            // Default: all questions are active
+            return Array(12).fill(true);
+        }
+
+        const allThoughts = loadThoughtsFromStorage();
+        const allResponses = loadResponsesFromStorage();
         const heroText = loadHeroTextFromStorage();
         const navLinks = loadNavLinksFromStorage();
         const actions = loadActionsFromStorage();
+        const activeStates = loadActiveStatesFromStorage();
+
+        // Filter to only include active thoughts and track their original indices
+        const activeIndices = [];
+        const thoughts = [];
+        const responses = [];
+        for (let i = 0; i < allThoughts.length; i++) {
+            // Default to active if no state is set
+            if (activeStates[i] !== false) {
+                activeIndices.push(i);
+                thoughts.push(allThoughts[i]);
+                responses.push(allResponses[i]);
+            }
+        }
 
         // Load Matrix fade duration from localStorage (admin configurable)
         function loadMatrixFadeDurationFromStorage() {
@@ -501,6 +528,15 @@
         }
 
         function startCycling() {
+            // Check if there are any active thoughts to cycle
+            if (thoughts.length === 0) {
+                // No active thoughts - show cursor but display fallback message
+                cursorElement.classList.add('visible');
+                thoughtElement.textContent = 'No questions available';
+                thoughtElement.classList.add('visible', 'fade-in');
+                return;
+            }
+
             // Show cursor after initial delay, then start cycling thoughts
             state.cycleTimeout = setTimeout(() => {
                 cursorElement.classList.add('visible');
@@ -517,6 +553,14 @@
         // ========================================
         // Thought Selection
         // ========================================
+        // Helper to get original index from filtered index
+        function getOriginalIndex(filteredIndex) {
+            if (typeof filteredIndex === 'number' && activeIndices[filteredIndex] !== undefined) {
+                return activeIndices[filteredIndex];
+            }
+            return filteredIndex; // Return as-is for 'custom' or invalid
+        }
+
         function selectThought(index) {
             state.isSelected = true;
             state.selectedIndex = index;
@@ -540,15 +584,20 @@
             // Hide cursor from thought line (it will appear in response)
             cursorElement.classList.remove('visible');
 
-            // Show the corresponding panel
-            showPanel(index);
+            // Get the original index for panel lookup
+            const originalIndex = getOriginalIndex(index);
+
+            // Show the corresponding panel using original index
+            showPanel(index, originalIndex);
         }
 
-        function showPanel(index) {
+        function showPanel(filteredIndex, originalIndex) {
             const panels = panelsContainer.querySelectorAll('.explore-panel');
+            // Use original index for panel data-thought lookup, filtered index for responses array
+            const panelId = typeof originalIndex === 'number' ? originalIndex : filteredIndex;
 
             panels.forEach(panel => {
-                if (panel.dataset.thought === String(index)) {
+                if (panel.dataset.thought === String(panelId)) {
                     panel.hidden = false;
                     panel.classList.add('visible');
 
@@ -561,9 +610,9 @@
                     const enterBtn = panel.querySelector('.explore-link');
 
                     if (responseEl && textEl) {
-                        // Get response from responses array, or use a default for custom input
-                        const fullResponse = (typeof index === 'number' && responses[index])
-                            ? responses[index]
+                        // Get response from filtered responses array
+                        const fullResponse = (typeof filteredIndex === 'number' && responses[filteredIndex])
+                            ? responses[filteredIndex]
                             : "Every project starts with a conversation. Let's start ours.";
                         textEl.textContent = '';
 
@@ -586,7 +635,8 @@
                         if (actionsEl) actionsEl.classList.remove('visible');
 
                         // Start sequential typing: response -> actions
-                        typePanelResponse(textEl, actionsEl, resetBtn, actionBtn, enterBtn, fullResponse, 0, index);
+                        // Pass original index for action lookup
+                        typePanelResponse(textEl, actionsEl, resetBtn, actionBtn, enterBtn, fullResponse, 0, originalIndex);
                     }
 
                     // Focus the panel for accessibility

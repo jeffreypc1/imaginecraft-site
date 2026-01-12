@@ -675,6 +675,38 @@
             color: var(--primary);
         }
 
+        /* Active Checkbox for Thought Cards */
+        .active-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .active-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .active-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .thought-card.inactive {
+            opacity: 0.6;
+            border-color: var(--off-white-dark);
+        }
+
+        .thought-card.inactive .card-number {
+            background: var(--off-white-dark);
+            color: rgba(31, 31, 31, 0.5);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -900,6 +932,7 @@
         let currentHeroText = defaultHeroText;
         let currentNavLinks = { ...defaultNavLinks };
         let currentActions = [];
+        let currentActiveStates = []; // Track which questions are active
         let currentTypingSpeed = 150; // Default typing speed
         let currentMatrixFadeDuration = 1.5; // Default matrix fade duration in seconds
         let currentEarthquakeDuration = 1.5; // Default earthquake duration in seconds
@@ -923,6 +956,7 @@
                 const storedHeroText = localStorage.getItem('imaginecraft_hero_text');
                 const storedNavLinks = localStorage.getItem('imaginecraft_nav_links');
                 const storedActions = localStorage.getItem('imaginecraft_actions');
+                const storedActiveStates = localStorage.getItem('imaginecraft_active_states');
                 const storedTypingSpeed = localStorage.getItem('imaginecraft_typing_speed');
                 const storedMatrixFadeDuration = localStorage.getItem('imaginecraft_matrix_fade_duration');
                 const storedEarthquakeDuration = localStorage.getItem('imaginecraft_earthquake_duration');
@@ -933,6 +967,7 @@
                 currentHeroText = storedHeroText || defaultHeroText;
                 currentNavLinks = storedNavLinks ? JSON.parse(storedNavLinks) : { ...defaultNavLinks };
                 currentActions = storedActions ? JSON.parse(storedActions) : initDefaultActions();
+                currentActiveStates = storedActiveStates ? JSON.parse(storedActiveStates) : Array(12).fill(true);
                 currentTypingSpeed = storedTypingSpeed ? parseInt(storedTypingSpeed, 10) : 150;
                 currentMatrixFadeDuration = storedMatrixFadeDuration ? parseFloat(storedMatrixFadeDuration) : 1.5;
                 currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : 1.5;
@@ -942,6 +977,10 @@
                 while (currentActions.length < 12) {
                     currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
                 }
+                // Ensure all 12 active states exist (default to true)
+                while (currentActiveStates.length < 12) {
+                    currentActiveStates.push(true);
+                }
             } catch (e) {
                 console.warn('Failed to load from localStorage:', e);
                 currentThoughts = [...defaultThoughts];
@@ -949,6 +988,7 @@
                 currentHeroText = defaultHeroText;
                 currentNavLinks = { ...defaultNavLinks };
                 currentActions = initDefaultActions();
+                currentActiveStates = Array(12).fill(true);
                 currentTypingSpeed = 150;
                 currentMatrixFadeDuration = 1.5;
                 currentEarthquakeDuration = 1.5;
@@ -964,6 +1004,7 @@
                 localStorage.setItem('imaginecraft_hero_text', currentHeroText);
                 localStorage.setItem('imaginecraft_nav_links', JSON.stringify(currentNavLinks));
                 localStorage.setItem('imaginecraft_actions', JSON.stringify(currentActions));
+                localStorage.setItem('imaginecraft_active_states', JSON.stringify(currentActiveStates));
                 localStorage.setItem('imaginecraft_typing_speed', currentTypingSpeed.toString());
                 localStorage.setItem('imaginecraft_matrix_fade_duration', currentMatrixFadeDuration.toString());
                 localStorage.setItem('imaginecraft_earthquake_duration', currentEarthquakeDuration.toString());
@@ -1092,11 +1133,17 @@
 
             for (let i = 0; i < 12; i++) {
                 const action = currentActions[i] || { type: 'none', url: '', logo: '', linkText: 'Click here' };
+                const isActive = currentActiveStates[i] !== false; // Default to true
                 const card = document.createElement('div');
-                card.className = 'thought-card';
+                card.className = 'thought-card' + (isActive ? '' : ' inactive');
+                card.id = `thought-card-${i}`;
                 card.innerHTML = `
                     <div class="card-header">
                         <span class="card-number">${i + 1}</span>
+                        <div class="active-toggle-container">
+                            <input type="checkbox" id="active-${i}" class="active-checkbox" ${isActive ? 'checked' : ''} onchange="handleActiveChange(${i})">
+                            <label for="active-${i}" class="active-label">Active</label>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Thought</label>
@@ -1121,6 +1168,23 @@
                     </div>
                 `;
                 grid.appendChild(card);
+            }
+        }
+
+        // Handle active checkbox change
+        function handleActiveChange(index) {
+            const checkbox = document.getElementById(`active-${index}`);
+            const card = document.getElementById(`thought-card-${index}`);
+
+            if (checkbox && card) {
+                const isActive = checkbox.checked;
+                currentActiveStates[index] = isActive;
+
+                if (isActive) {
+                    card.classList.remove('inactive');
+                } else {
+                    card.classList.add('inactive');
+                }
             }
         }
 
@@ -1238,10 +1302,16 @@
                 currentEarthquakeEnabled = earthquakeToggle.checked;
             }
 
-            // Save thoughts, responses, and actions
+            // Save thoughts, responses, actions, and active states
             for (let i = 0; i < 12; i++) {
                 currentThoughts[i] = document.getElementById(`thought-${i}`).value;
                 currentResponses[i] = document.getElementById(`response-${i}`).value;
+
+                // Save active state
+                const activeCheckbox = document.getElementById(`active-${i}`);
+                if (activeCheckbox) {
+                    currentActiveStates[i] = activeCheckbox.checked;
+                }
 
                 const actionType = document.getElementById(`action-type-${i}`).value;
                 if (!currentActions[i]) {
