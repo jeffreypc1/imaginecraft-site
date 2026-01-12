@@ -340,17 +340,40 @@
             return Array(12).fill(true);
         }
 
+        function loadRandomizeEnabledFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_randomize_enabled');
+                if (stored !== null) {
+                    return stored === 'true';
+                }
+            } catch (e) {
+                console.warn('Failed to load randomize setting from localStorage:', e);
+            }
+            return false; // Default: randomize disabled
+        }
+
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
         const allThoughts = loadThoughtsFromStorage();
         const allResponses = loadResponsesFromStorage();
         const heroText = loadHeroTextFromStorage();
         const navLinks = loadNavLinksFromStorage();
         const actions = loadActionsFromStorage();
         const activeStates = loadActiveStatesFromStorage();
+        const randomizeEnabled = loadRandomizeEnabledFromStorage();
 
         // Filter to only include active thoughts and track their original indices
-        const activeIndices = [];
-        const thoughts = [];
-        const responses = [];
+        let activeIndices = [];
+        let thoughts = [];
+        let responses = [];
         for (let i = 0; i < allThoughts.length; i++) {
             // Default to active if no state is set
             if (activeStates[i] !== false) {
@@ -358,6 +381,34 @@
                 thoughts.push(allThoughts[i]);
                 responses.push(allResponses[i]);
             }
+        }
+
+        // Apply randomization if enabled
+        if (randomizeEnabled && activeIndices.length > 0) {
+            // Create array of indices into the active arrays
+            const indices = activeIndices.map((_, idx) => idx);
+
+            // Shuffle the indices
+            const shuffledIndices = shuffleArray(indices);
+
+            // Take up to 3 (or fewer if not enough active questions)
+            const selectedCount = Math.min(3, shuffledIndices.length);
+            const selectedIndices = shuffledIndices.slice(0, selectedCount);
+
+            // Rebuild arrays with only the selected items
+            const newActiveIndices = [];
+            const newThoughts = [];
+            const newResponses = [];
+
+            for (const idx of selectedIndices) {
+                newActiveIndices.push(activeIndices[idx]);
+                newThoughts.push(thoughts[idx]);
+                newResponses.push(responses[idx]);
+            }
+
+            activeIndices = newActiveIndices;
+            thoughts = newThoughts;
+            responses = newResponses;
         }
 
         // Load Matrix fade duration from localStorage (admin configurable)
