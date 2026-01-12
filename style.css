@@ -1342,6 +1342,66 @@ section p {
     animation: earthquake var(--quake-time) ease-in-out;
 }
 
+/* Intense earthquake animation for Urgent mood - higher intensity */
+@keyframes earthquakeIntense {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    2% { transform: translate(-8px, 4px) rotate(-0.8deg); }
+    4% { transform: translate(7px, -6px) rotate(1deg); }
+    6% { transform: translate(-10px, 3px) rotate(-1.2deg); }
+    8% { transform: translate(5px, 8px) rotate(0.8deg); }
+    10% { transform: translate(-7px, -5px) rotate(-1deg); }
+    12% { transform: translate(10px, 6px) rotate(1.4deg); }
+    14% { transform: translate(-5px, -8px) rotate(-0.8deg); }
+    16% { transform: translate(8px, 4px) rotate(1deg); }
+    18% { transform: translate(-10px, -3px) rotate(-1.4deg); }
+    20% { transform: translate(6px, 7px) rotate(1.2deg); }
+    22% { transform: translate(-8px, -6px) rotate(-1deg); }
+    24% { transform: translate(10px, 3px) rotate(0.8deg); }
+    26% { transform: translate(-6px, 8px) rotate(-1.2deg); }
+    28% { transform: translate(5px, -5px) rotate(1.4deg); }
+    30% { transform: translate(-10px, 6px) rotate(-0.8deg); }
+    32% { transform: translate(8px, -8px) rotate(1deg); }
+    34% { transform: translate(-5px, 4px) rotate(-1.2deg); }
+    36% { transform: translate(7px, -3px) rotate(0.8deg); }
+    38% { transform: translate(-8px, 6px) rotate(-1deg); }
+    40% { transform: translate(10px, -5px) rotate(1.4deg); }
+    42% { transform: translate(-6px, 8px) rotate(-0.8deg); }
+    44% { transform: translate(5px, -6px) rotate(1.2deg); }
+    46% { transform: translate(-10px, 4px) rotate(-1deg); }
+    48% { transform: translate(8px, -8px) rotate(0.8deg); }
+    50% { transform: translate(-7px, 6px) rotate(-1.4deg); }
+    52% { transform: translate(10px, -4px) rotate(1deg); }
+    54% { transform: translate(-5px, 8px) rotate(-0.8deg); }
+    56% { transform: translate(6px, -6px) rotate(1.2deg); }
+    58% { transform: translate(-8px, 4px) rotate(-1deg); }
+    60% { transform: translate(10px, -3px) rotate(1.4deg); }
+    62% { transform: translate(-6px, 7px) rotate(-0.8deg); }
+    64% { transform: translate(8px, -5px) rotate(1deg); }
+    66% { transform: translate(-10px, 6px) rotate(-1.2deg); }
+    68% { transform: translate(5px, -8px) rotate(0.8deg); }
+    70% { transform: translate(-7px, 4px) rotate(-1deg); }
+    72% { transform: translate(8px, -6px) rotate(1.4deg); }
+    74% { transform: translate(-5px, 7px) rotate(-0.8deg); }
+    76% { transform: translate(10px, -4px) rotate(1.2deg); }
+    78% { transform: translate(-8px, 6px) rotate(-1deg); }
+    80% { transform: translate(6px, -8px) rotate(0.8deg); }
+    82% { transform: translate(-5px, 4px) rotate(-1.2deg); }
+    84% { transform: translate(7px, -3px) rotate(1deg); }
+    86% { transform: translate(-4px, 5px) rotate(-0.8deg); }
+    88% { transform: translate(5px, -4px) rotate(0.6deg); }
+    90% { transform: translate(-3px, 3px) rotate(-0.4deg); }
+    92% { transform: translate(2px, -2px) rotate(0.3deg); }
+    94% { transform: translate(-2px, 2px) rotate(-0.2deg); }
+    96% { transform: translate(1px, -1px) rotate(0.1deg); }
+    98% { transform: translate(-1px, 1px) rotate(-0.1deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Urgent mood gets intense earthquake animation */
+.explore-page.mood-urgent.earthquake-shake {
+    animation: earthquakeIntense var(--quake-time) ease-in-out;
+}
+
 /* ========================================
    Main Site Background Layer (z-index: 1)
    Superman reveal: Main site is ALWAYS rendered behind everything
@@ -1529,6 +1589,372 @@ section p {
     .terminal-overlay.splitting .terminal-half-left,
     .terminal-overlay.splitting .terminal-half-right {
         animation-duration: 0.3s;
+    }
+}
+
+/* ========================================
+   System Mood Visual Styles
+   ======================================== */
+
+/* Stable Mood (Default) - Already defined in base styles */
+/* Standard solid green #34ff35 text and steady typing rhythm */
+
+/* ========================================
+   Glitchy Mood - Flickering and Chromatic Aberration
+   ======================================== */
+
+/* Chromatic aberration animation */
+@keyframes chromaticAberration {
+    0% {
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+    2% {
+        text-shadow: -2px 0 #ff0000, 2px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    4% {
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+    30% {
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+    32% {
+        text-shadow: 3px 0 #ff0000, -3px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    33% {
+        text-shadow: -1px 0 #ff0000, 1px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    35% {
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+    60% {
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+    61% {
+        text-shadow: 2px 1px #ff0000, -2px -1px #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    62% {
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+    100% {
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+}
+
+/* Flicker animation */
+@keyframes glitchFlicker {
+    0% { opacity: 1; }
+    3% { opacity: 0.4; }
+    6% { opacity: 1; }
+    7% { opacity: 0.8; }
+    8% { opacity: 1; }
+    25% { opacity: 1; }
+    26% { opacity: 0.2; }
+    27% { opacity: 1; }
+    50% { opacity: 1; }
+    51% { opacity: 0.6; }
+    52% { opacity: 0.9; }
+    53% { opacity: 1; }
+    75% { opacity: 1; }
+    76% { opacity: 0.3; }
+    77% { opacity: 0.7; }
+    78% { opacity: 1; }
+    100% { opacity: 1; }
+}
+
+/* Text jitter animation */
+@keyframes glitchJitter {
+    0% { transform: translate(0, 0); }
+    2% { transform: translate(-1px, 0); }
+    4% { transform: translate(1px, 0); }
+    6% { transform: translate(0, 0); }
+    30% { transform: translate(0, 0); }
+    31% { transform: translate(2px, -1px); }
+    32% { transform: translate(-1px, 1px); }
+    33% { transform: translate(0, 0); }
+    60% { transform: translate(0, 0); }
+    61% { transform: translate(-2px, 0); }
+    62% { transform: translate(0, 0); }
+    100% { transform: translate(0, 0); }
+}
+
+/* Apply glitchy mood to explore page */
+.explore-page.mood-glitchy .explore-question,
+.explore-page.mood-glitchy .explore-thought,
+.explore-page.mood-glitchy .panel-response,
+.explore-page.mood-glitchy .explore-panel p {
+    animation: chromaticAberration 4s infinite, glitchFlicker 6s infinite;
+}
+
+.explore-page.mood-glitchy .explore-cursor,
+.explore-page.mood-glitchy .typing-cursor {
+    animation: cursor-blink 1s step-end infinite, glitchFlicker 6s infinite;
+}
+
+.explore-page.mood-glitchy .explore-container {
+    animation: glitchJitter 4s infinite;
+}
+
+/* Scanline effect for glitchy mood */
+.explore-page.mood-glitchy::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1) 0px,
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 1000;
+    animation: scanlineMove 0.1s linear infinite;
+}
+
+@keyframes scanlineMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(3px); }
+}
+
+/* ========================================
+   Urgent Mood - High-Alert Red and Fast Typing
+   ======================================== */
+
+/* CSS variables for urgent mood colors */
+.explore-page.mood-urgent {
+    --urgent-color: #ff3434;
+    --urgent-glow: rgba(255, 52, 52, 0.6);
+    --urgent-glow-light: rgba(255, 52, 52, 0.3);
+}
+
+/* Override all green elements with red for urgent mood */
+.explore-page.mood-urgent .explore-question {
+    color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .explore-thought {
+    color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .explore-thought.visible:hover,
+.explore-page.mood-urgent .explore-thought.visible:focus {
+    text-shadow: 0 0 12px rgba(255, 52, 52, 0.8), 0 0 24px rgba(255, 52, 52, 0.5);
+}
+
+.explore-page.mood-urgent .explore-cursor,
+.explore-page.mood-urgent .typing-cursor {
+    color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .explore-input {
+    color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .explore-input::placeholder {
+    color: rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .panel-response,
+.explore-page.mood-urgent .explore-panel p,
+.explore-page.mood-urgent .explore-panel h2 {
+    color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .explore-reset,
+.explore-page.mood-urgent .explore-link,
+.explore-page.mood-urgent .explore-action-link,
+.explore-page.mood-urgent .explore-admin-link {
+    color: #ff3434;
+    border-color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .explore-reset.ready:hover,
+.explore-page.mood-urgent .explore-reset.ready:focus,
+.explore-page.mood-urgent .explore-link.ready:hover,
+.explore-page.mood-urgent .explore-link.ready:focus,
+.explore-page.mood-urgent .explore-action-link.ready:hover,
+.explore-page.mood-urgent .explore-action-link.ready:focus,
+.explore-page.mood-urgent .explore-admin-link.ready:hover,
+.explore-page.mood-urgent .explore-admin-link.ready:focus {
+    background-color: #ff3434;
+    color: #000000;
+    text-shadow: none;
+    box-shadow: 0 0 20px rgba(255, 52, 52, 0.6), 0 0 40px rgba(255, 52, 52, 0.3);
+}
+
+/* Boot sequence in urgent mode */
+.explore-page.mood-urgent ~ #bootSequenceOverlay .boot-line,
+.explore-page.mood-urgent ~ #bootSequenceOverlay .boot-progress-bar {
+    color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6);
+}
+
+.explore-page.mood-urgent ~ #bootSequenceOverlay .boot-line .status {
+    color: #ff3434;
+}
+
+/* ASCII logo in urgent mode */
+.explore-page.mood-urgent ~ .ascii-logo-container .ascii-logo {
+    color: #ff3434;
+    border-color: rgba(255, 52, 52, 0.4);
+    text-shadow: 0 0 10px rgba(255, 52, 52, 0.7), 0 0 20px rgba(255, 52, 52, 0.4);
+}
+
+.explore-page.mood-urgent ~ .ascii-logo-container .ascii-logo-home-link:hover .ascii-logo {
+    border-color: rgba(255, 52, 52, 0.6);
+    box-shadow: 0 0 20px rgba(255, 52, 52, 0.4);
+}
+
+.explore-page.mood-urgent ~ .ascii-logo-container .ascii-logo-close {
+    color: #ff3434;
+    border-color: #ff3434;
+    text-shadow: 0 0 6px rgba(255, 52, 52, 0.5);
+}
+
+.explore-page.mood-urgent ~ .ascii-logo-container .ascii-logo-close:hover {
+    background-color: #ff3434;
+    color: #000000;
+    text-shadow: none;
+    box-shadow: 0 0 15px rgba(255, 52, 52, 0.6);
+}
+
+/* Matrix canvas in urgent mode - red rain */
+.explore-page.mood-urgent ~ .matrix-canvas {
+    filter: hue-rotate(300deg);
+}
+
+/* Terminal split crack color in urgent mode */
+.explore-page.mood-urgent ~ .terminal-overlay .terminal-half-left::after,
+.explore-page.mood-urgent ~ .terminal-overlay .terminal-half-right::before {
+    background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        #ff3434 1%,
+        transparent 2%,
+        #ff3434 4%,
+        transparent 6%,
+        #ff3434 8%,
+        transparent 10%,
+        #ff3434 13%,
+        transparent 16%,
+        #ff3434 20%,
+        transparent 24%,
+        #ff3434 28%,
+        transparent 33%,
+        #ff3434 38%,
+        transparent 43%,
+        #ff3434 48%,
+        transparent 53%,
+        #ff3434 58%,
+        transparent 63%,
+        #ff3434 68%,
+        transparent 73%,
+        #ff3434 78%,
+        transparent 83%,
+        #ff3434 88%,
+        transparent 93%,
+        #ff3434 98%,
+        transparent 100%
+    );
+    box-shadow: 0 0 30px rgba(255, 52, 52, 1), 0 0 60px rgba(255, 52, 52, 0.6), 0 0 100px rgba(255, 52, 52, 0.3);
+}
+
+/* Contact modal in urgent mode */
+.explore-page.mood-urgent .modal-content h2 {
+    color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .modal-close {
+    color: #ff3434;
+    text-shadow: 0 0 4px rgba(255, 52, 52, 0.4);
+}
+
+.explore-page.mood-urgent .modal-close:hover {
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.8);
+}
+
+.explore-page.mood-urgent .modal-content {
+    border-color: rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .form-group label {
+    color: #ff3434;
+    text-shadow: 0 0 4px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .modal-form .form-group input,
+.explore-page.mood-urgent .modal-form .form-group textarea {
+    background: rgba(255, 52, 52, 0.05);
+    border-color: rgba(255, 52, 52, 0.3);
+    color: #ff3434;
+    text-shadow: 0 0 4px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .modal-form .form-group input::placeholder,
+.explore-page.mood-urgent .modal-form .form-group textarea::placeholder {
+    color: rgba(255, 52, 52, 0.4);
+}
+
+.explore-page.mood-urgent .modal-form .form-group input:focus,
+.explore-page.mood-urgent .modal-form .form-group textarea:focus {
+    border-color: rgba(255, 52, 52, 0.6);
+    background: rgba(255, 52, 52, 0.1);
+}
+
+.explore-page.mood-urgent .modal-form .cta-button {
+    border-color: #ff3434;
+    color: #ff3434;
+    text-shadow: 0 0 4px rgba(255, 52, 52, 0.4);
+}
+
+.explore-page.mood-urgent .modal-form .cta-button:hover {
+    background-color: #ff3434;
+    color: #000000;
+    text-shadow: none;
+    box-shadow: 0 0 20px rgba(255, 52, 52, 0.6), 0 0 40px rgba(255, 52, 52, 0.3);
+}
+
+/* Pulsing effect for urgent mood - adds tension */
+@keyframes urgentPulse {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.15); }
+    100% { filter: brightness(1); }
+}
+
+.explore-page.mood-urgent .explore-question,
+.explore-page.mood-urgent .panel-response {
+    animation: urgentPulse 2s ease-in-out infinite;
+}
+
+/* Reduced motion support for mood effects */
+@media (prefers-reduced-motion: reduce) {
+    .explore-page.mood-glitchy .explore-question,
+    .explore-page.mood-glitchy .explore-thought,
+    .explore-page.mood-glitchy .panel-response,
+    .explore-page.mood-glitchy .explore-panel p,
+    .explore-page.mood-glitchy .explore-container,
+    .explore-page.mood-glitchy .explore-cursor,
+    .explore-page.mood-glitchy .typing-cursor {
+        animation: none;
+    }
+
+    .explore-page.mood-glitchy::before {
+        animation: none;
+    }
+
+    .explore-page.mood-urgent .explore-question,
+    .explore-page.mood-urgent .panel-response {
+        animation: none;
     }
 }
 
