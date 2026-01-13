@@ -928,19 +928,19 @@ section p {
 
 .choice-btn-no {
     background: transparent;
-    color: rgba(255, 255, 255, 0.7);
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    color: #34ff35;
+    border: 1.5px solid rgba(52, 255, 53, 0.5);
 }
 
 .choice-btn-no:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(52, 255, 53, 0.15);
+    border-color: #34ff35;
+    box-shadow: 0 0 12px rgba(52, 255, 53, 0.3);
 }
 
 .choice-btn-no:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 0 2px rgba(52, 255, 53, 0.4);
 }
 
 /* Persistent selection states for choice buttons */
@@ -960,14 +960,21 @@ section p {
 }
 
 .choice-btn-no.selected {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.6);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(52, 255, 53, 0.25);
+    border-color: #34ff35;
+    box-shadow: 0 0 12px rgba(52, 255, 53, 0.4);
 }
 
 /* Dim unselected button when selection is made */
 .choice-buttons-container.selection-made .choice-btn:not(.selected) {
     opacity: 0.3;
+}
+
+/* Disabled state for choice buttons - reduces opacity but keeps visible */
+.choice-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: default;
 }
 
 /* New Question Button - appears in panel actions and question area */
@@ -1006,43 +1013,57 @@ section p {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
-/* New Question button in panel actions - styled to match terminal aesthetic */
+/* New Question button in panel actions - styled to match Action Button */
 .explore-panel-actions .new-question-btn {
     font-family: 'VT323', monospace;
-    font-size: 1.5rem;
-    padding: 0.4rem 1rem;
+    font-size: 2.25rem;
+    padding: 0.75rem 2rem;
     border-radius: 3px;
-    color: rgba(52, 255, 53, 0.5);
-    border-color: rgba(52, 255, 53, 0.3);
-    margin-top: 1.5rem;
+    border: 2px solid #34ff35;
+    color: #34ff35;
+    background: transparent;
+    text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3.5rem;
+    line-height: 1;
+    box-sizing: border-box;
+    margin-top: 0;
+    opacity: 0;
+    pointer-events: none;
+    cursor: default;
+    transform: none;
 }
 
 .explore-panel-actions .new-question-btn.visible {
-    color: rgba(52, 255, 53, 0.7);
-    border-color: rgba(52, 255, 53, 0.4);
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
 }
 
 .explore-panel-actions .new-question-btn:hover {
-    background: rgba(52, 255, 53, 0.1);
-    border-color: rgba(52, 255, 53, 0.6);
-    color: #34ff35;
+    background-color: #34ff35;
+    color: #000000;
+    text-shadow: none;
 }
 
-/* Urgent mood styling for new question button */
-.explore-page.mood-urgent .new-question-btn {
-    color: rgba(255, 52, 52, 0.5);
-    border-color: rgba(255, 52, 52, 0.3);
-}
-
-.explore-page.mood-urgent .new-question-btn.visible {
-    color: rgba(255, 52, 52, 0.7);
-    border-color: rgba(255, 52, 52, 0.4);
-}
-
-.explore-page.mood-urgent .new-question-btn:hover {
-    background: rgba(255, 52, 52, 0.1);
-    border-color: rgba(255, 52, 52, 0.6);
+/* Urgent mood styling for new question button in panel actions */
+.explore-page.mood-urgent .explore-panel-actions .new-question-btn {
     color: #ff3434;
+    border-color: #ff3434;
+    text-shadow: 0 0 8px rgba(255, 52, 52, 0.6), 0 0 16px rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .explore-panel-actions .new-question-btn.visible {
+    color: #ff3434;
+    border-color: #ff3434;
+}
+
+.explore-page.mood-urgent .explore-panel-actions .new-question-btn:hover {
+    background-color: #ff3434;
+    color: #000000;
+    text-shadow: none;
 }
 
 /* ========================================
@@ -1580,6 +1601,12 @@ section p {
         height: 2.5rem;
     }
 
+    .explore-panel-actions .new-question-btn {
+        font-size: 1.5rem;
+        padding: 0.4rem 1rem;
+        height: 2.5rem;
+    }
+
     .explore-panel-actions {
         flex-direction: column;
         gap: 1rem;
@@ -1623,6 +1650,13 @@ section p {
 
     .explore-action-btn,
     .explore-admin-link {
+        font-size: 1.25rem;
+        width: 100%;
+        text-align: center;
+        height: 2.25rem;
+    }
+
+    .explore-panel-actions .new-question-btn {
         font-size: 1.25rem;
         width: 100%;
         text-align: center;
