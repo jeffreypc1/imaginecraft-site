@@ -1636,8 +1636,21 @@
             clearTimeout(state.idleTimeout);
             state.idleTimeout = null;
 
-            // Add flash feedback effect only for user clicks (not timeout)
-            if (!isTimeout) {
+            if (isTimeout) {
+                // Timeout: opportunity has passed - hide buttons immediately without selection
+                hideChoiceButtons();
+
+                // Backspace the current thought and move to next
+                backspaceCharacter(() => {
+                    state.isAnimating = false;
+                    // Reset buttons for next thought
+                    resetChoiceButtons();
+                    // Move to next thought
+                    state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                    showThought(state.currentIndex);
+                });
+            } else {
+                // User clicked "No": show flash feedback and mark selection (buttons stay visible)
                 const noBtn = document.getElementById('choiceBtnNo');
                 if (noBtn) {
                     noBtn.classList.add('btn-active');
@@ -1645,18 +1658,18 @@
                         noBtn.classList.remove('btn-active');
                     }, 150);
                 }
+
+                // Mark selection made - keeps buttons visible as history of choice
+                markChoiceSelection('no');
+
+                // Backspace the current thought and move to next
+                backspaceCharacter(() => {
+                    state.isAnimating = false;
+                    // Move to next thought
+                    state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                    showThought(state.currentIndex);
+                });
             }
-
-            // Mark selection made - keeps buttons visible but dimmed
-            markChoiceSelection('no');
-
-            // Backspace the current thought and move to next
-            backspaceCharacter(() => {
-                state.isAnimating = false;
-                // Move to next thought
-                state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                showThought(state.currentIndex);
-            });
         }
 
         // Handle No button click - backspace and move to next thought
