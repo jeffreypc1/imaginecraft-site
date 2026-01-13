@@ -1090,22 +1090,6 @@
             <input type="text" id="heroText" placeholder="Enter hero heading..." value="WHY ARE YOU HERE?">
         </div>
 
-        <!-- Navigation Links Section -->
-        <div class="nav-links-section">
-            <h2>Navigation Link Text</h2>
-            <p>Customize the text for the navigation links shown after each response.</p>
-            <div class="nav-links-grid">
-                <div class="form-group">
-                    <label>Change Directions Link</label>
-                    <input type="text" id="changeDirectionsText" placeholder="Change direction" value="Change direction">
-                </div>
-                <div class="form-group">
-                    <label>Main Site Link</label>
-                    <input type="text" id="mainSiteText" placeholder="Enter Main Site" value="Enter Main Site">
-                </div>
-            </div>
-        </div>
-
         <!-- Typing Speed Section -->
         <div class="typing-speed-section">
             <h2>Typing Animation Speed</h2>
@@ -1304,10 +1288,6 @@
 
         // Default settings
         const defaultHeroText = 'WHY ARE YOU HERE?';
-        const defaultNavLinks = {
-            changeDirections: 'Change direction',
-            mainSite: 'Enter Main Site'
-        };
 
         // Action types
         const ACTION_TYPES = [
@@ -1341,7 +1321,6 @@
         let currentThoughts = [];
         let currentResponses = [];
         let currentHeroText = defaultHeroText;
-        let currentNavLinks = { ...defaultNavLinks };
         let currentActions = [];
         let currentActiveStates = []; // Track which questions are active
         let currentRandomizeEnabled = false; // Track randomize mode
@@ -1371,7 +1350,6 @@
                 const storedThoughts = localStorage.getItem('imaginecraft_thoughts');
                 const storedResponses = localStorage.getItem('imaginecraft_responses');
                 const storedHeroText = localStorage.getItem('imaginecraft_hero_text');
-                const storedNavLinks = localStorage.getItem('imaginecraft_nav_links');
                 const storedActions = localStorage.getItem('imaginecraft_actions');
                 const storedActiveStates = localStorage.getItem('imaginecraft_active_states');
                 const storedRandomizeEnabled = localStorage.getItem('imaginecraft_randomize_enabled');
@@ -1388,7 +1366,6 @@
                 currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
                 currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
                 currentHeroText = storedHeroText || defaultHeroText;
-                currentNavLinks = storedNavLinks ? JSON.parse(storedNavLinks) : { ...defaultNavLinks };
                 currentActions = storedActions ? JSON.parse(storedActions) : initDefaultActions();
                 currentActiveStates = storedActiveStates ? JSON.parse(storedActiveStates) : Array(12).fill(true);
                 currentRandomizeEnabled = storedRandomizeEnabled === 'true';
@@ -1415,7 +1392,6 @@
                 currentThoughts = [...defaultThoughts];
                 currentResponses = [...defaultResponses];
                 currentHeroText = defaultHeroText;
-                currentNavLinks = { ...defaultNavLinks };
                 currentActions = initDefaultActions();
                 currentActiveStates = Array(12).fill(true);
                 currentRandomizeEnabled = false;
@@ -1437,7 +1413,6 @@
                 localStorage.setItem('imaginecraft_thoughts', JSON.stringify(currentThoughts));
                 localStorage.setItem('imaginecraft_responses', JSON.stringify(currentResponses));
                 localStorage.setItem('imaginecraft_hero_text', currentHeroText);
-                localStorage.setItem('imaginecraft_nav_links', JSON.stringify(currentNavLinks));
                 localStorage.setItem('imaginecraft_actions', JSON.stringify(currentActions));
                 localStorage.setItem('imaginecraft_active_states', JSON.stringify(currentActiveStates));
                 localStorage.setItem('imaginecraft_randomize_enabled', currentRandomizeEnabled.toString());
@@ -1500,16 +1475,6 @@
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
                 heroInput.value = currentHeroText;
-            }
-
-            // Update navigation link fields
-            const changeDirectionsInput = document.getElementById('changeDirectionsText');
-            const mainSiteInput = document.getElementById('mainSiteText');
-            if (changeDirectionsInput) {
-                changeDirectionsInput.value = currentNavLinks.changeDirections || defaultNavLinks.changeDirections;
-            }
-            if (mainSiteInput) {
-                mainSiteInput.value = currentNavLinks.mainSite || defaultNavLinks.mainSite;
             }
 
             // Update typing speed slider
@@ -1930,16 +1895,6 @@
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
                 currentHeroText = heroInput.value || defaultHeroText;
-            }
-
-            // Save navigation link text
-            const changeDirectionsInput = document.getElementById('changeDirectionsText');
-            const mainSiteInput = document.getElementById('mainSiteText');
-            if (changeDirectionsInput) {
-                currentNavLinks.changeDirections = changeDirectionsInput.value || defaultNavLinks.changeDirections;
-            }
-            if (mainSiteInput) {
-                currentNavLinks.mainSite = mainSiteInput.value || defaultNavLinks.mainSite;
             }
 
             // Save typing speed
