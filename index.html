@@ -1542,21 +1542,47 @@
         function resetChoiceButtons() {
             if (!choiceButtonsContainer) return;
 
-            // Remove selection state
-            choiceButtonsContainer.classList.remove('selection-made', 'visible');
+            // Remove all state classes from container
+            choiceButtonsContainer.classList.remove('selection-made', 'visible', 'fading-out');
             choiceButtonsContainer.hidden = true;
 
-            // Remove selected class from buttons
+            // Remove all state classes from buttons
             const yesBtn = document.getElementById('choiceBtnYes');
             const noBtn = document.getElementById('choiceBtnNo');
-            if (yesBtn) yesBtn.classList.remove('selected');
-            if (noBtn) noBtn.classList.remove('selected');
+            if (yesBtn) {
+                yesBtn.classList.remove('selected', 'disabled', 'btn-active');
+            }
+            if (noBtn) {
+                noBtn.classList.remove('selected', 'disabled', 'btn-active');
+            }
 
             // Hide the New Question button in choice area
             hideNewQuestionButton('choice');
         }
 
-        // Show New Question button
+        // Type out New Question button text character by character
+        function typeNewQuestionText(btn, text, index, callback) {
+            if (!btn) {
+                if (callback) callback();
+                return;
+            }
+
+            if (index <= text.length) {
+                // Show cursor after text
+                btn.innerHTML = text.substring(0, index) + '<span class="typing-cursor">█</span>';
+
+                const delay = prefersReducedMotion ? 0 : randomDelay(50, 100);
+                setTimeout(() => {
+                    typeNewQuestionText(btn, text, index + 1, callback);
+                }, delay);
+            } else {
+                // Typing complete - show final text without cursor
+                btn.textContent = text;
+                if (callback) callback();
+            }
+        }
+
+        // Show New Question button with typing animation
         function showNewQuestionButton(location) {
             let btn;
             if (location === 'choice') {
@@ -1566,9 +1592,20 @@
             }
 
             if (btn) {
+                const buttonText = 'New Question';
+                // Clear initial text for typing
+                btn.textContent = '';
+                // Make visible but not interactive during typing
+                btn.classList.add('visible');
+                btn.style.pointerEvents = 'none';
+
+                // Type out the button text
                 setTimeout(() => {
-                    btn.classList.add('visible');
-                }, 100);
+                    typeNewQuestionText(btn, buttonText, 0, () => {
+                        // Enable interaction after typing completes
+                        btn.style.pointerEvents = 'auto';
+                    });
+                }, 200);
             }
         }
 
@@ -1583,17 +1620,28 @@
 
             if (btn) {
                 btn.classList.remove('visible');
+                btn.style.pointerEvents = '';
+                btn.textContent = 'New Question';
             }
         }
 
         // Hide all New Question buttons
         function hideAllNewQuestionButtons() {
             const choiceBtn = document.getElementById('newQuestionBtnChoice');
-            if (choiceBtn) choiceBtn.classList.remove('visible');
+            if (choiceBtn) {
+                choiceBtn.classList.remove('visible');
+                choiceBtn.style.pointerEvents = '';
+                choiceBtn.textContent = 'New Question';
+            }
 
-            for (let i = 0; i < 5; i++) {
+            // Loop through all possible panel buttons (up to 50 for dynamic thoughts)
+            for (let i = 0; i < 50; i++) {
                 const panelBtn = document.getElementById('newQuestionBtn' + i);
-                if (panelBtn) panelBtn.classList.remove('visible');
+                if (panelBtn) {
+                    panelBtn.classList.remove('visible');
+                    panelBtn.style.pointerEvents = '';
+                    panelBtn.textContent = 'New Question';
+                }
             }
         }
 
@@ -1636,39 +1684,60 @@
             clearTimeout(state.idleTimeout);
             state.idleTimeout = null;
 
-            if (isTimeout) {
-                // Timeout: opportunity has passed - hide buttons immediately without selection
-                hideChoiceButtons();
+            const container = document.getElementById('choiceButtonsContainer');
 
-                // Backspace the current thought and move to next
-                backspaceCharacter(() => {
-                    state.isAnimating = false;
-                    // Reset buttons for next thought
-                    resetChoiceButtons();
-                    // Move to next thought
-                    state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                    showThought(state.currentIndex);
-                });
+            if (isTimeout) {
+                // Timeout: fade out buttons smoothly, then backspace
+                if (container) {
+                    container.classList.add('fading-out');
+                }
+
+                // Wait for fade animation to complete before backspacing
+                setTimeout(() => {
+                    hideChoiceButtons();
+                    if (container) {
+                        container.classList.remove('fading-out');
+                    }
+
+                    // Backspace the current thought and move to next
+                    backspaceCharacter(() => {
+                        state.isAnimating = false;
+                        // Reset buttons for next thought
+                        resetChoiceButtons();
+                        // Move to next thought
+                        state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                        showThought(state.currentIndex);
+                    });
+                }, 500); // Match the CSS fade-out transition duration
             } else {
-                // User clicked "No": show flash feedback and mark selection (buttons stay visible)
+                // User clicked "No": show flash feedback, keep visible but disabled
                 const noBtn = document.getElementById('choiceBtnNo');
+                const yesBtn = document.getElementById('choiceBtnYes');
+
                 if (noBtn) {
+                    // Flash effect
                     noBtn.classList.add('btn-active');
                     setTimeout(() => {
                         noBtn.classList.remove('btn-active');
-                    }, 150);
+                    }, 180);
                 }
 
-                // Mark selection made - keeps buttons visible as history of choice
+                // Mark selection and disable buttons (they stay visible)
                 markChoiceSelection('no');
 
-                // Backspace the current thought and move to next
-                backspaceCharacter(() => {
-                    state.isAnimating = false;
-                    // Move to next thought
-                    state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                    showThought(state.currentIndex);
-                });
+                // Disable both buttons visually
+                if (noBtn) noBtn.classList.add('disabled');
+                if (yesBtn) yesBtn.classList.add('disabled');
+
+                // Immediately start backspace animation after flash
+                setTimeout(() => {
+                    backspaceCharacter(() => {
+                        state.isAnimating = false;
+                        // Move to next thought
+                        state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                        showThought(state.currentIndex);
+                    });
+                }, 200);
             }
         }
 
