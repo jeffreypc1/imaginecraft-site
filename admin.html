@@ -1122,6 +1122,19 @@
             </div>
         </div>
 
+        <!-- Enable Choice Buttons Section -->
+        <div class="typing-speed-section">
+            <h2>Enable Choice Buttons</h2>
+            <p>When enabled, Yes/No buttons appear after each thought finishes typing. "Yes" shows the response, "No" skips to the next thought. When disabled, thoughts auto-cycle after a linger period.</p>
+            <div class="toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="choiceButtonsToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label" id="choiceButtonsToggleLabel">Disabled</span>
+            </div>
+        </div>
+
         <!-- Matrix Fade Duration Section -->
         <div class="typing-speed-section">
             <h2>Matrix Fade Duration</h2>
@@ -1333,6 +1346,7 @@
         let currentActiveStates = []; // Track which questions are active
         let currentRandomizeEnabled = false; // Track randomize mode
         let currentTypingSpeed = 150; // Default typing speed
+        let currentChoiceButtonsEnabled = false; // Default choice buttons disabled
         let currentMatrixFadeDuration = 1.5; // Default matrix fade duration in seconds
         let currentEarthquakeDuration = 1.5; // Default earthquake duration in seconds
         let currentEarthquakeEnabled = true; // Default earthquake transition enabled
@@ -1362,6 +1376,7 @@
                 const storedActiveStates = localStorage.getItem('imaginecraft_active_states');
                 const storedRandomizeEnabled = localStorage.getItem('imaginecraft_randomize_enabled');
                 const storedTypingSpeed = localStorage.getItem('imaginecraft_typing_speed');
+                const storedChoiceButtonsEnabled = localStorage.getItem('imaginecraft_choice_buttons_enabled');
                 const storedMatrixFadeDuration = localStorage.getItem('imaginecraft_matrix_fade_duration');
                 const storedEarthquakeDuration = localStorage.getItem('imaginecraft_earthquake_duration');
                 const storedEarthquakeEnabled = localStorage.getItem('imaginecraft_earthquake_enabled');
@@ -1378,6 +1393,7 @@
                 currentActiveStates = storedActiveStates ? JSON.parse(storedActiveStates) : Array(12).fill(true);
                 currentRandomizeEnabled = storedRandomizeEnabled === 'true';
                 currentTypingSpeed = storedTypingSpeed ? parseInt(storedTypingSpeed, 10) : 150;
+                currentChoiceButtonsEnabled = storedChoiceButtonsEnabled === 'true';
                 currentMatrixFadeDuration = storedMatrixFadeDuration ? parseFloat(storedMatrixFadeDuration) : 1.5;
                 currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : 1.5;
                 currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : true;
@@ -1404,6 +1420,7 @@
                 currentActiveStates = Array(12).fill(true);
                 currentRandomizeEnabled = false;
                 currentTypingSpeed = 150;
+                currentChoiceButtonsEnabled = false;
                 currentMatrixFadeDuration = 1.5;
                 currentEarthquakeDuration = 1.5;
                 currentEarthquakeEnabled = true;
@@ -1425,6 +1442,7 @@
                 localStorage.setItem('imaginecraft_active_states', JSON.stringify(currentActiveStates));
                 localStorage.setItem('imaginecraft_randomize_enabled', currentRandomizeEnabled.toString());
                 localStorage.setItem('imaginecraft_typing_speed', currentTypingSpeed.toString());
+                localStorage.setItem('imaginecraft_choice_buttons_enabled', currentChoiceButtonsEnabled.toString());
                 localStorage.setItem('imaginecraft_matrix_fade_duration', currentMatrixFadeDuration.toString());
                 localStorage.setItem('imaginecraft_earthquake_duration', currentEarthquakeDuration.toString());
                 localStorage.setItem('imaginecraft_earthquake_enabled', currentEarthquakeEnabled.toString());
@@ -1504,6 +1522,19 @@
                 // Add event listener for real-time value update
                 typingSpeedSlider.addEventListener('input', function() {
                     typingSpeedValue.textContent = this.value;
+                });
+            }
+
+            // Update choice buttons toggle
+            const choiceButtonsToggle = document.getElementById('choiceButtonsToggle');
+            const choiceButtonsToggleLabel = document.getElementById('choiceButtonsToggleLabel');
+            if (choiceButtonsToggle && choiceButtonsToggleLabel) {
+                choiceButtonsToggle.checked = currentChoiceButtonsEnabled;
+                choiceButtonsToggleLabel.textContent = currentChoiceButtonsEnabled ? 'Enabled' : 'Disabled';
+
+                // Add event listener for real-time label update
+                choiceButtonsToggle.addEventListener('change', function() {
+                    choiceButtonsToggleLabel.textContent = this.checked ? 'Enabled' : 'Disabled';
                 });
             }
 
@@ -1915,6 +1946,12 @@
             const typingSpeedSlider = document.getElementById('typingSpeedSlider');
             if (typingSpeedSlider) {
                 currentTypingSpeed = parseInt(typingSpeedSlider.value, 10) || 150;
+            }
+
+            // Save choice buttons setting
+            const choiceButtonsToggle = document.getElementById('choiceButtonsToggle');
+            if (choiceButtonsToggle) {
+                currentChoiceButtonsEnabled = choiceButtonsToggle.checked;
             }
 
             // Save matrix fade duration
