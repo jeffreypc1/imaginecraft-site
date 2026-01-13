@@ -534,7 +534,8 @@
         const defaultSecretCommands = [
             { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
             { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
-            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' }
+            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
+            { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' }
         ];
 
         // Load secret commands from localStorage
@@ -579,6 +580,9 @@
                     break;
                 case 'matrix':
                     toggleMatrixAnimation();
+                    break;
+                case 'warp':
+                    triggerWarpAnimation();
                     break;
                 case 'redirect':
                     if (command.url) {
@@ -702,6 +706,150 @@
             }
 
             draw();
+        }
+
+        // Trigger Star Wars style warp/hyperspace animation
+        function triggerWarpAnimation() {
+            // Create warp container
+            const warpContainer = document.createElement('div');
+            warpContainer.id = 'warpContainer';
+            warpContainer.className = 'warp-container';
+            document.body.appendChild(warpContainer);
+
+            // Create canvas for starfield
+            const canvas = document.createElement('canvas');
+            canvas.id = 'warpCanvas';
+            canvas.className = 'warp-canvas';
+            warpContainer.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Star properties
+            const stars = [];
+            const numStars = 400;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Initialize stars at random positions
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width - centerX,
+                    y: Math.random() * canvas.height - centerY,
+                    z: Math.random() * 1500 + 500,
+                    speed: Math.random() * 2 + 1
+                });
+            }
+
+            let animationId;
+            let startTime = Date.now();
+            const warpDuration = 3000; // 3 seconds of warping
+
+            function drawStars() {
+                const elapsed = Date.now() - startTime;
+
+                // Clear with fade trail effect
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Calculate warp intensity (accelerates over time)
+                const progress = Math.min(elapsed / warpDuration, 1);
+                const warpSpeed = 20 + (progress * 80); // Accelerate from 20 to 100
+
+                for (let i = 0; i < stars.length; i++) {
+                    const star = stars[i];
+
+                    // Move star toward viewer
+                    star.z -= warpSpeed * star.speed;
+
+                    // Reset star if it passes the viewer
+                    if (star.z <= 0) {
+                        star.x = Math.random() * canvas.width - centerX;
+                        star.y = Math.random() * canvas.height - centerY;
+                        star.z = 1500;
+                        star.speed = Math.random() * 2 + 1;
+                    }
+
+                    // Project 3D position to 2D
+                    const scale = 500 / star.z;
+                    const x2d = star.x * scale + centerX;
+                    const y2d = star.y * scale + centerY;
+
+                    // Calculate previous position for streak
+                    const prevZ = star.z + warpSpeed * star.speed;
+                    const prevScale = 500 / prevZ;
+                    const prevX = star.x * prevScale + centerX;
+                    const prevY = star.y * prevScale + centerY;
+
+                    // Draw star streak (line from previous to current position)
+                    const streakLength = Math.min(1, progress * 2); // Streaks grow with warp
+                    const brightness = Math.min(255, 100 + (1500 - star.z) / 5);
+
+                    ctx.beginPath();
+                    ctx.moveTo(prevX, prevY);
+                    ctx.lineTo(x2d, y2d);
+                    ctx.strokeStyle = `rgba(${brightness}, ${brightness}, ${Math.min(255, brightness + 50)}, ${0.5 + streakLength * 0.5})`;
+                    ctx.lineWidth = 1 + scale * 2 * streakLength;
+                    ctx.stroke();
+
+                    // Draw bright point at end of streak
+                    ctx.beginPath();
+                    ctx.arc(x2d, y2d, Math.max(0.5, scale * 1.5), 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.8 + streakLength * 0.2})`;
+                    ctx.fill();
+                }
+
+                // Continue animation or transition to galaxy
+                if (elapsed < warpDuration) {
+                    animationId = requestAnimationFrame(drawStars);
+                } else {
+                    // Warp complete - show galaxy reveal
+                    cancelAnimationFrame(animationId);
+                    showGalaxyReveal(warpContainer);
+                }
+            }
+
+            // Start warp animation
+            warpContainer.classList.add('active');
+            drawStars();
+        }
+
+        // Show galaxy image after warp
+        function showGalaxyReveal(warpContainer) {
+            // Create galaxy container
+            const galaxyDiv = document.createElement('div');
+            galaxyDiv.className = 'galaxy-reveal';
+
+            // Placeholder galaxy image (colorful nebula/galaxy)
+            galaxyDiv.innerHTML = `
+                <div class="galaxy-content">
+                    <div class="galaxy-placeholder">
+                        <div class="galaxy-stars"></div>
+                        <div class="galaxy-nebula"></div>
+                        <div class="galaxy-center"></div>
+                    </div>
+                    <p class="galaxy-text">Destination: Unknown Galaxy</p>
+                </div>
+            `;
+
+            warpContainer.appendChild(galaxyDiv);
+
+            // Fade out canvas, fade in galaxy
+            const canvas = warpContainer.querySelector('.warp-canvas');
+            canvas.classList.add('fade-out');
+
+            setTimeout(() => {
+                galaxyDiv.classList.add('visible');
+            }, 100);
+
+            // Auto-close after viewing
+            setTimeout(() => {
+                warpContainer.classList.add('closing');
+                setTimeout(() => {
+                    warpContainer.remove();
+                }, 1000);
+            }, 4000);
         }
 
         // Check keystroke buffer for matching commands
