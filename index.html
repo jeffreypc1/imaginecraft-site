@@ -1601,11 +1601,21 @@
         function handleChoiceYes() {
             if (!state.waitingForChoice) return;
 
+            // Immediately prevent multiple clicks
+            state.waitingForChoice = false;
+
             // Clear idle timeout since user made a choice
             clearTimeout(state.idleTimeout);
             state.idleTimeout = null;
 
-            state.waitingForChoice = false;
+            // Add flash feedback effect
+            const yesBtn = document.getElementById('choiceBtnYes');
+            if (yesBtn) {
+                yesBtn.classList.add('btn-active');
+                setTimeout(() => {
+                    yesBtn.classList.remove('btn-active');
+                }, 150);
+            }
 
             // Mark selection made and highlight Yes button (don't hide buttons)
             markChoiceSelection('yes');
@@ -1617,14 +1627,27 @@
         // Unified function to trigger backspace animation and move to next thought
         // Used by both "No" button click and idle timeout
         function triggerBackspaceAndNext(isTimeout = false) {
+            if (!state.waitingForChoice) return;
+
+            // Immediately prevent multiple clicks
+            state.waitingForChoice = false;
+
             // Clear any pending idle timeout
             clearTimeout(state.idleTimeout);
             state.idleTimeout = null;
 
-            if (!state.waitingForChoice) return;
-            state.waitingForChoice = false;
+            // Add flash feedback effect only for user clicks (not timeout)
+            if (!isTimeout) {
+                const noBtn = document.getElementById('choiceBtnNo');
+                if (noBtn) {
+                    noBtn.classList.add('btn-active');
+                    setTimeout(() => {
+                        noBtn.classList.remove('btn-active');
+                    }, 150);
+                }
+            }
 
-            // Mark selection made - if timeout, mark as "no" selection
+            // Mark selection made - keeps buttons visible but dimmed
             markChoiceSelection('no');
 
             // Backspace the current thought and move to next
