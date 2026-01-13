@@ -787,12 +787,13 @@ section p {
 }
 
 /* Panel Actions */
+/* Final action buttons - stacked vertically */
 .explore-panel-actions {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -832,6 +833,7 @@ section p {
     font-size: 2.25rem;
     padding: 0.75rem 2rem;
     height: 3.5rem;
+    min-width: 280px;
     border-width: 2px;
 }
 
@@ -884,13 +886,17 @@ section p {
    Choice Buttons (Yes/No Interaction)
    ======================================== */
 
+/* Yes/No buttons container - centered popup overlay style */
 .choice-buttons-container {
     display: flex;
-    gap: 1rem;
-    margin-top: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 2rem;
+    padding: 0.75rem;
     opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(15px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .choice-buttons-container.visible {
@@ -898,49 +904,60 @@ section p {
     transform: translateY(0);
 }
 
+/* Glassmorphism Yes/No Buttons - Modern UI Overlay Style */
 .choice-btn {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 0.9rem;
-    font-weight: 500;
-    padding: 0.6rem 1.5rem;
-    border-radius: 6px;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
     cursor: pointer;
-    transition: all 0.2s ease;
-    letter-spacing: 0.02em;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    /* Glassmorphism effect */
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .choice-btn-yes {
-    background: transparent;
-    color: #34ff35;
-    border: 1.5px solid rgba(52, 255, 53, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .choice-btn-yes:hover {
-    background: rgba(52, 255, 53, 0.15);
-    border-color: #34ff35;
-    box-shadow: 0 0 12px rgba(52, 255, 53, 0.3);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
 .choice-btn-yes:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(52, 255, 53, 0.4);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .choice-btn-no {
-    background: transparent;
-    color: #34ff35;
-    border: 1.5px solid rgba(52, 255, 53, 0.5);
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .choice-btn-no:hover {
-    background: rgba(52, 255, 53, 0.15);
-    border-color: #34ff35;
-    box-shadow: 0 0 12px rgba(52, 255, 53, 0.3);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 20px rgba(255, 255, 255, 0.15);
 }
 
 .choice-btn-no:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(52, 255, 53, 0.4);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Persistent selection states for choice buttons */
@@ -951,38 +968,58 @@ section p {
 .choice-btn.selected {
     opacity: 1;
     cursor: default;
+    transform: translateY(0);
 }
 
 .choice-btn-yes.selected {
-    background: rgba(52, 255, 53, 0.25);
-    border-color: #34ff35;
-    box-shadow: 0 0 12px rgba(52, 255, 53, 0.4);
+    background: rgba(52, 255, 53, 0.3);
+    border-color: rgba(52, 255, 53, 0.6);
+    color: #34ff35;
+    box-shadow: 0 0 20px rgba(52, 255, 53, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .choice-btn-no.selected {
-    background: rgba(52, 255, 53, 0.25);
-    border-color: #34ff35;
-    box-shadow: 0 0 12px rgba(52, 255, 53, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Dim unselected button when selection is made */
 .choice-buttons-container.selection-made .choice-btn:not(.selected) {
-    opacity: 0.3;
+    opacity: 0.25;
+    transform: translateY(0);
 }
 
-/* Flash feedback effect when button is clicked */
+/* Flash feedback effect when button is clicked - vibrant white/green glow */
 .choice-btn.btn-active {
-    background: rgba(52, 255, 53, 0.4);
-    border-color: #34ff35;
-    box-shadow: 0 0 20px rgba(52, 255, 53, 0.6);
-    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(255, 255, 255, 1) !important;
+    color: #000 !important;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 0 0 60px rgba(52, 255, 53, 0.4) !important;
+    transform: scale(0.97);
+}
+
+/* Green glow variant for Yes button flash */
+.choice-btn-yes.btn-active {
+    background: rgba(52, 255, 53, 0.95) !important;
+    border-color: #34ff35 !important;
+    color: #000 !important;
+    box-shadow: 0 0 40px rgba(52, 255, 53, 0.9), 0 0 80px rgba(52, 255, 53, 0.5) !important;
 }
 
 /* Disabled state for choice buttons - reduces opacity but keeps visible */
 .choice-btn.disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     pointer-events: none;
     cursor: default;
+    transform: translateY(0);
+}
+
+/* Fading out animation for idle timeout */
+.choice-buttons-container.fading-out {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 /* New Question Button - appears in panel actions and question area */
@@ -1035,19 +1072,21 @@ section p {
     align-items: center;
     justify-content: center;
     height: 3.5rem;
+    min-width: 280px;
     line-height: 1;
     box-sizing: border-box;
     margin-top: 0;
     opacity: 0;
     pointer-events: none;
     cursor: default;
-    transform: none;
+    transform: translateY(5px);
 }
 
 .explore-panel-actions .new-question-btn.visible {
     opacity: 1;
     pointer-events: auto;
     cursor: pointer;
+    transform: translateY(0);
 }
 
 .explore-panel-actions .new-question-btn:hover {
