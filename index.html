@@ -600,16 +600,16 @@
         // Default settings
         const defaultHeroText = 'Why are you here?';
 
-        // Data versioning - increment this when making breaking changes to data structure
-        const IMAGINECRAFT_DATA_VERSION = '1.0.0';
-        const DATA_VERSION_KEY = 'imaginecraft_data_version';
+        // App version - increment this to force localStorage data refresh on all browsers
+        const APP_VERSION = '1.0.5';
+        const DATA_VERSION_KEY = 'imaginecraft_app_version';
 
         // Check and handle data version mismatch
         function checkDataVersion() {
             try {
                 const storedVersion = localStorage.getItem(DATA_VERSION_KEY);
-                if (storedVersion !== IMAGINECRAFT_DATA_VERSION) {
-                    console.log('Data version mismatch. Stored:', storedVersion, 'Current:', IMAGINECRAFT_DATA_VERSION);
+                if (storedVersion !== APP_VERSION) {
+                    console.log('App version mismatch. Stored:', storedVersion, 'Current:', APP_VERSION);
                     console.log('Clearing cached data to load fresh content...');
                     // Clear all imaginecraft data keys
                     const keysToRemove = [
@@ -633,7 +633,7 @@
                         localStorage.removeItem(key);
                     });
                     // Set new version
-                    localStorage.setItem(DATA_VERSION_KEY, IMAGINECRAFT_DATA_VERSION);
+                    localStorage.setItem(DATA_VERSION_KEY, APP_VERSION);
                     return true; // Data was cleared
                 }
                 return false; // Version matched, no clear needed
