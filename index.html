@@ -1280,6 +1280,7 @@
             selectedIndex: null,
             cycleTimeout: null,
             animationTimeout: null,
+            idleTimeout: null,        // Timeout for auto-cycling when no choice is made
             isAnimating: false,
             currentText: '',
             targetText: '',
@@ -1464,6 +1465,13 @@
                     // Show choice buttons and wait for user interaction
                     state.waitingForChoice = true;
                     showChoiceButtons();
+
+                    // Start idle timeout - if user doesn't interact, trigger backspace like "No"
+                    state.idleTimeout = setTimeout(() => {
+                        if (state.waitingForChoice && !state.isUserTyping && !state.isSelected) {
+                            triggerBackspaceAndNext(true);
+                        }
+                    }, timing.linger);
                 } else {
                     // Original behavior: Linger for 3 seconds after fully typed
                     state.cycleTimeout = setTimeout(() => {
@@ -1592,6 +1600,11 @@
         // Handle Yes button click - trigger the response
         function handleChoiceYes() {
             if (!state.waitingForChoice) return;
+
+            // Clear idle timeout since user made a choice
+            clearTimeout(state.idleTimeout);
+            state.idleTimeout = null;
+
             state.waitingForChoice = false;
 
             // Mark selection made and highlight Yes button (don't hide buttons)
@@ -1601,16 +1614,18 @@
             selectThought(state.currentIndex);
         }
 
-        // Handle No button click - backspace and move to next thought
-        function handleChoiceNo() {
+        // Unified function to trigger backspace animation and move to next thought
+        // Used by both "No" button click and idle timeout
+        function triggerBackspaceAndNext(isTimeout = false) {
+            // Clear any pending idle timeout
+            clearTimeout(state.idleTimeout);
+            state.idleTimeout = null;
+
             if (!state.waitingForChoice) return;
             state.waitingForChoice = false;
 
-            // Mark selection made and highlight No button (don't hide buttons)
+            // Mark selection made - if timeout, mark as "no" selection
             markChoiceSelection('no');
-
-            // Show "New Question" button in the question area
-            showNewQuestionButton('choice');
 
             // Backspace the current thought and move to next
             backspaceCharacter(() => {
@@ -1619,6 +1634,11 @@
                 state.currentIndex = (state.currentIndex + 1) % thoughts.length;
                 showThought(state.currentIndex);
             });
+        }
+
+        // Handle No button click - backspace and move to next thought
+        function handleChoiceNo() {
+            triggerBackspaceAndNext(false);
         }
 
         function startCycling() {
@@ -1647,6 +1667,7 @@
         function stopCycling() {
             clearTimeout(state.cycleTimeout);
             clearTimeout(state.animationTimeout);
+            clearTimeout(state.idleTimeout);
             state.isAnimating = false;
         }
 
@@ -2108,6 +2129,10 @@
             state.isSelected = false;
             state.isUserTyping = false;
             state.isAnimating = false;
+            state.waitingForChoice = false;
+            // Clear any pending timeouts
+            clearTimeout(state.idleTimeout);
+            state.idleTimeout = null;
             // Advance to the next thought in sequence (don't reset to 0)
             state.currentIndex = (state.currentIndex + 1) % thoughts.length;
             state.selectedIndex = null;
