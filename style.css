@@ -943,6 +943,108 @@ section p {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
+/* Persistent selection states for choice buttons */
+.choice-buttons-container.selection-made {
+    pointer-events: none;
+}
+
+.choice-btn.selected {
+    opacity: 1;
+    cursor: default;
+}
+
+.choice-btn-yes.selected {
+    background: rgba(52, 255, 53, 0.25);
+    border-color: #34ff35;
+    box-shadow: 0 0 12px rgba(52, 255, 53, 0.4);
+}
+
+.choice-btn-no.selected {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Dim unselected button when selection is made */
+.choice-buttons-container.selection-made .choice-btn:not(.selected) {
+    opacity: 0.3;
+}
+
+/* New Question Button - appears in panel actions and question area */
+.new-question-btn {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    margin-top: 1rem;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.new-question-btn.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.new-question-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.new-question-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+/* New Question button in panel actions - styled to match terminal aesthetic */
+.explore-panel-actions .new-question-btn {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 3px;
+    color: rgba(52, 255, 53, 0.5);
+    border-color: rgba(52, 255, 53, 0.3);
+    margin-top: 1.5rem;
+}
+
+.explore-panel-actions .new-question-btn.visible {
+    color: rgba(52, 255, 53, 0.7);
+    border-color: rgba(52, 255, 53, 0.4);
+}
+
+.explore-panel-actions .new-question-btn:hover {
+    background: rgba(52, 255, 53, 0.1);
+    border-color: rgba(52, 255, 53, 0.6);
+    color: #34ff35;
+}
+
+/* Urgent mood styling for new question button */
+.explore-page.mood-urgent .new-question-btn {
+    color: rgba(255, 52, 52, 0.5);
+    border-color: rgba(255, 52, 52, 0.3);
+}
+
+.explore-page.mood-urgent .new-question-btn.visible {
+    color: rgba(255, 52, 52, 0.7);
+    border-color: rgba(255, 52, 52, 0.4);
+}
+
+.explore-page.mood-urgent .new-question-btn:hover {
+    background: rgba(255, 52, 52, 0.1);
+    border-color: rgba(255, 52, 52, 0.6);
+    color: #ff3434;
+}
+
 /* ========================================
    Explore Page - Responsive
    ======================================== */

@@ -54,6 +54,8 @@
                     <button class="choice-btn choice-btn-yes" id="choiceBtnYes">Yes</button>
                     <button class="choice-btn choice-btn-no" id="choiceBtnNo">No</button>
                 </div>
+                <!-- New Question button (appears after No selection) -->
+                <button class="new-question-btn" id="newQuestionBtnChoice">New Question</button>
             </div>
 
             <!-- Response panels (hidden by default) -->
@@ -63,6 +65,7 @@
                     <p class="panel-response"><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-action-btn hidden" id="actionBtn0"><span class="action-text"></span></button>
+                        <button class="new-question-btn" id="newQuestionBtn0">New Question</button>
                     </div>
                 </article>
 
@@ -71,6 +74,7 @@
                     <p class="panel-response"><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-action-btn hidden" id="actionBtn1"><span class="action-text"></span></button>
+                        <button class="new-question-btn" id="newQuestionBtn1">New Question</button>
                     </div>
                 </article>
 
@@ -79,6 +83,7 @@
                     <p class="panel-response"><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-action-btn hidden" id="actionBtn2"><span class="action-text"></span></button>
+                        <button class="new-question-btn" id="newQuestionBtn2">New Question</button>
                     </div>
                 </article>
 
@@ -87,6 +92,7 @@
                     <p class="panel-response"><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-action-btn hidden" id="actionBtn3"><span class="action-text"></span></button>
+                        <button class="new-question-btn" id="newQuestionBtn3">New Question</button>
                     </div>
                 </article>
 
@@ -95,6 +101,7 @@
                     <p class="panel-response"><span class="response-text"></span></p>
                     <div class="explore-panel-actions">
                         <button class="explore-action-btn hidden" id="actionBtn4"><span class="action-text"></span></button>
+                        <button class="new-question-btn" id="newQuestionBtn4">New Question</button>
                     </div>
                 </article>
 
@@ -1477,6 +1484,16 @@
         // Show choice buttons with animation
         function showChoiceButtons() {
             if (choiceButtonsContainer) {
+                // Reset any previous selection state
+                choiceButtonsContainer.classList.remove('selection-made');
+                const yesBtn = document.getElementById('choiceBtnYes');
+                const noBtn = document.getElementById('choiceBtnNo');
+                if (yesBtn) yesBtn.classList.remove('selected');
+                if (noBtn) noBtn.classList.remove('selected');
+
+                // Hide the New Question button in choice area
+                hideNewQuestionButton('choice');
+
                 choiceButtonsContainer.hidden = false;
                 // Trigger animation after a brief delay
                 setTimeout(() => {
@@ -1495,11 +1512,90 @@
             }
         }
 
+        // Mark a choice button as selected (persistent visual state)
+        function markChoiceSelection(choice) {
+            if (!choiceButtonsContainer) return;
+
+            // Add selection-made class to disable further interaction
+            choiceButtonsContainer.classList.add('selection-made');
+
+            // Add selected class to the chosen button
+            const yesBtn = document.getElementById('choiceBtnYes');
+            const noBtn = document.getElementById('choiceBtnNo');
+
+            if (choice === 'yes' && yesBtn) {
+                yesBtn.classList.add('selected');
+            } else if (choice === 'no' && noBtn) {
+                noBtn.classList.add('selected');
+            }
+        }
+
+        // Reset choice buttons to initial state
+        function resetChoiceButtons() {
+            if (!choiceButtonsContainer) return;
+
+            // Remove selection state
+            choiceButtonsContainer.classList.remove('selection-made', 'visible');
+            choiceButtonsContainer.hidden = true;
+
+            // Remove selected class from buttons
+            const yesBtn = document.getElementById('choiceBtnYes');
+            const noBtn = document.getElementById('choiceBtnNo');
+            if (yesBtn) yesBtn.classList.remove('selected');
+            if (noBtn) noBtn.classList.remove('selected');
+
+            // Hide the New Question button in choice area
+            hideNewQuestionButton('choice');
+        }
+
+        // Show New Question button
+        function showNewQuestionButton(location) {
+            let btn;
+            if (location === 'choice') {
+                btn = document.getElementById('newQuestionBtnChoice');
+            } else if (typeof location === 'number') {
+                btn = document.getElementById('newQuestionBtn' + location);
+            }
+
+            if (btn) {
+                setTimeout(() => {
+                    btn.classList.add('visible');
+                }, 100);
+            }
+        }
+
+        // Hide New Question button
+        function hideNewQuestionButton(location) {
+            let btn;
+            if (location === 'choice') {
+                btn = document.getElementById('newQuestionBtnChoice');
+            } else if (typeof location === 'number') {
+                btn = document.getElementById('newQuestionBtn' + location);
+            }
+
+            if (btn) {
+                btn.classList.remove('visible');
+            }
+        }
+
+        // Hide all New Question buttons
+        function hideAllNewQuestionButtons() {
+            const choiceBtn = document.getElementById('newQuestionBtnChoice');
+            if (choiceBtn) choiceBtn.classList.remove('visible');
+
+            for (let i = 0; i < 5; i++) {
+                const panelBtn = document.getElementById('newQuestionBtn' + i);
+                if (panelBtn) panelBtn.classList.remove('visible');
+            }
+        }
+
         // Handle Yes button click - trigger the response
         function handleChoiceYes() {
             if (!state.waitingForChoice) return;
             state.waitingForChoice = false;
-            hideChoiceButtons();
+
+            // Mark selection made and highlight Yes button (don't hide buttons)
+            markChoiceSelection('yes');
 
             // Trigger the thought selection (shows response panel)
             selectThought(state.currentIndex);
@@ -1509,7 +1605,12 @@
         function handleChoiceNo() {
             if (!state.waitingForChoice) return;
             state.waitingForChoice = false;
-            hideChoiceButtons();
+
+            // Mark selection made and highlight No button (don't hide buttons)
+            markChoiceSelection('no');
+
+            // Show "New Question" button in the question area
+            showNewQuestionButton('choice');
 
             // Backspace the current thought and move to next
             backspaceCharacter(() => {
@@ -1702,10 +1803,21 @@
 
                     // Stop cursor blinking - typing is complete
                     cursorElement.classList.add('cursor-stopped');
+
+                    // Show New Question button after action is ready
+                    showNewQuestionButton(panelIndex);
                 });
             } else {
                 // No action configured - just stop cursor blinking
                 cursorElement.classList.add('cursor-stopped');
+
+                // Show New Question button even if no action
+                if (typeof panelIndex === 'number') {
+                    if (actionsEl) {
+                        actionsEl.classList.add('visible');
+                    }
+                    showNewQuestionButton(panelIndex);
+                }
             }
         }
 
@@ -2009,6 +2121,12 @@
 
             // Hide cursor initially (will be shown after delay when cycling restarts)
             cursorElement.classList.remove('visible', 'cursor-stopped');
+
+            // Reset choice buttons to initial state
+            resetChoiceButtons();
+
+            // Hide all New Question buttons
+            hideAllNewQuestionButtons();
 
             // Hide all panels and reset their elements
             const panels = panelsContainer.querySelectorAll('.explore-panel');
@@ -2402,6 +2520,20 @@
             }
             if (choiceBtnNo) {
                 choiceBtnNo.addEventListener('click', handleChoiceNo);
+            }
+
+            // Attach New Question button event listeners
+            const newQuestionBtnChoice = document.getElementById('newQuestionBtnChoice');
+            if (newQuestionBtnChoice) {
+                newQuestionBtnChoice.addEventListener('click', resetExplore);
+            }
+
+            // Attach event listeners to all panel New Question buttons
+            for (let i = 0; i < 5; i++) {
+                const btn = document.getElementById('newQuestionBtn' + i);
+                if (btn) {
+                    btn.addEventListener('click', resetExplore);
+                }
             }
 
             // Type out hero text character by character
