@@ -1165,6 +1165,28 @@
             </div>
         </div>
 
+        <!-- Builders Media Section (for TRANSPARENT command) -->
+        <div class="typing-speed-section">
+            <h2>Builders Image/Video URL</h2>
+            <p>Set the image or video URL shown behind the terminal when the TRANSPARENT command is triggered. This creates the illusion of builders constructing the site behind the screen.</p>
+            <div class="nav-links-grid">
+                <div class="form-group">
+                    <label>Media Type</label>
+                    <select id="buildersMediaType" class="mood-select" style="max-width: 200px;">
+                        <option value="image">Image</option>
+                        <option value="video">Video (MP4)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Media URL</label>
+                    <input type="url" id="buildersMediaUrl" placeholder="https://example.com/construction-crew.jpg (or .mp4)">
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
+                Tip: For best results, use an image or video of a construction crew with hammers and tools. If left blank, a placeholder animation will be shown.
+            </p>
+        </div>
+
         <!-- Managed Secret Commands Section -->
         <div class="secret-commands-section">
             <h2>Managed Secret Commands</h2>
@@ -1257,6 +1279,8 @@
         const SECRET_ACTION_TYPES = [
             { value: 'earthquake', label: 'Trigger Earthquake & Split' },
             { value: 'matrix', label: 'Toggle Matrix Animation' },
+            { value: 'warp', label: 'Star Wars Hyperspace Jump' },
+            { value: 'transparent', label: 'Transparent (Reveal Builders)' },
             { value: 'redirect', label: 'Redirect to URL' }
         ];
 
@@ -1264,7 +1288,9 @@
         const defaultSecretCommands = [
             { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
             { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
-            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' }
+            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
+            { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
+            { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
         ];
 
         // Current data
@@ -1282,6 +1308,7 @@
         let currentBootSequenceEnabled = true; // Default boot sequence enabled
         let currentSystemMood = 'stable'; // Default system mood
         let currentSecretCommands = [...defaultSecretCommands]; // Secret commands
+        let currentBuildersMedia = { type: 'image', url: '' }; // Builders media for TRANSPARENT command
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1310,6 +1337,7 @@
                 const storedBootSequenceEnabled = localStorage.getItem('imaginecraft_boot_sequence_enabled');
                 const storedSystemMood = localStorage.getItem('imaginecraft_system_mood');
                 const storedSecretCommands = localStorage.getItem('imaginecraft_secret_commands');
+                const storedBuildersMedia = localStorage.getItem('imaginecraft_builders_media');
 
                 currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
                 currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
@@ -1325,6 +1353,7 @@
                 currentBootSequenceEnabled = storedBootSequenceEnabled !== null ? storedBootSequenceEnabled === 'true' : true;
                 currentSystemMood = storedSystemMood || 'stable';
                 currentSecretCommands = storedSecretCommands ? JSON.parse(storedSecretCommands) : [...defaultSecretCommands];
+                currentBuildersMedia = storedBuildersMedia ? JSON.parse(storedBuildersMedia) : { type: 'image', url: '' };
 
                 // Ensure all 12 actions exist
                 while (currentActions.length < 12) {
@@ -1350,6 +1379,7 @@
                 currentBootSequenceEnabled = true;
                 currentSystemMood = 'stable';
                 currentSecretCommands = [...defaultSecretCommands];
+                currentBuildersMedia = { type: 'image', url: '' };
             }
         }
 
@@ -1370,6 +1400,7 @@
                 localStorage.setItem('imaginecraft_boot_sequence_enabled', currentBootSequenceEnabled.toString());
                 localStorage.setItem('imaginecraft_system_mood', currentSystemMood);
                 localStorage.setItem('imaginecraft_secret_commands', JSON.stringify(currentSecretCommands));
+                localStorage.setItem('imaginecraft_builders_media', JSON.stringify(currentBuildersMedia));
                 return true;
             } catch (e) {
                 console.error('Failed to save to localStorage:', e);
@@ -1514,6 +1545,14 @@
                 systemMoodSelect.addEventListener('change', function() {
                     updateMoodPreview(this.value);
                 });
+            }
+
+            // Update builders media fields
+            const buildersMediaType = document.getElementById('buildersMediaType');
+            const buildersMediaUrl = document.getElementById('buildersMediaUrl');
+            if (buildersMediaType && buildersMediaUrl) {
+                buildersMediaType.value = currentBuildersMedia.type || 'image';
+                buildersMediaUrl.value = currentBuildersMedia.url || '';
             }
 
             renderThoughtCards();
@@ -1881,6 +1920,16 @@
             const systemMoodSelect = document.getElementById('systemMoodSelect');
             if (systemMoodSelect) {
                 currentSystemMood = systemMoodSelect.value;
+            }
+
+            // Save builders media settings
+            const buildersMediaType = document.getElementById('buildersMediaType');
+            const buildersMediaUrl = document.getElementById('buildersMediaUrl');
+            if (buildersMediaType && buildersMediaUrl) {
+                currentBuildersMedia = {
+                    type: buildersMediaType.value,
+                    url: buildersMediaUrl.value
+                };
             }
 
             // Save secret commands

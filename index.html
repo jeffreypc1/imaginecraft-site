@@ -347,6 +347,222 @@
         .explore-page.boot-hidden {
             visibility: hidden;
         }
+
+        /* Transparent Effect Styles */
+        .builders-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: #2a2a2a;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .builders-container.active {
+            opacity: 1;
+        }
+
+        .builders-media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Placeholder construction scene when no media is set */
+        .builders-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #87CEEB 0%, #87CEEB 60%, #8B4513 60%, #8B4513 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scaffold {
+            position: absolute;
+            bottom: 40%;
+            left: 20%;
+            width: 200px;
+            height: 300px;
+            border: 8px solid #654321;
+            border-bottom: none;
+            background: transparent;
+        }
+
+        .scaffold::before,
+        .scaffold::after {
+            content: '';
+            position: absolute;
+            background: #654321;
+        }
+
+        .scaffold::before {
+            width: 100%;
+            height: 8px;
+            top: 50%;
+        }
+
+        .scaffold::after {
+            width: 8px;
+            height: 100%;
+            left: 50%;
+        }
+
+        .scaffold-2 {
+            left: auto;
+            right: 25%;
+            height: 250px;
+        }
+
+        .builder {
+            position: absolute;
+            bottom: 40%;
+            z-index: 2;
+        }
+
+        .builder-1 {
+            left: 25%;
+        }
+
+        .builder-2 {
+            right: 30%;
+        }
+
+        .builder-body {
+            width: 40px;
+            height: 80px;
+            background: linear-gradient(180deg, #FFD700 0%, #FFD700 30%, #1E90FF 30%, #1E90FF 100%);
+            border-radius: 20px 20px 5px 5px;
+            position: relative;
+        }
+
+        .builder-body::before {
+            content: '';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: #FFE4C4;
+            border-radius: 50%;
+        }
+
+        .builder-body::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 15px;
+            background: #FFD700;
+            border-radius: 50% 50% 0 0;
+        }
+
+        .hammer {
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            width: 8px;
+            height: 40px;
+            background: #8B4513;
+            transform-origin: bottom center;
+            animation: hammerSwing 0.8s ease-in-out infinite;
+        }
+
+        .hammer::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: -8px;
+            width: 24px;
+            height: 15px;
+            background: #696969;
+            border-radius: 3px;
+        }
+
+        .builder-2 .hammer {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes hammerSwing {
+            0%, 100% { transform: rotate(-30deg); }
+            50% { transform: rotate(30deg); }
+        }
+
+        .builders-text {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'VT323', monospace;
+            font-size: 3rem;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 0.2em;
+        }
+
+        /* Terminal fade effect */
+        .explore-page.transparent-fade {
+            animation: terminalFade 3s ease-in-out forwards;
+        }
+
+        @keyframes terminalFade {
+            0% {
+                background-color: rgba(0, 0, 0, 1);
+            }
+            100% {
+                background-color: rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        .explore-page.transparent-fade .explore-container {
+            animation: textFade 3s ease-in-out forwards;
+        }
+
+        @keyframes textFade {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        /* Close button for transparent effect */
+        .transparent-close-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #34ff35;
+            background: rgba(0, 0, 0, 0.7);
+            color: #34ff35;
+            font-size: 2rem;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.2s ease, background-color 0.2s ease;
+            font-family: 'VT323', monospace;
+            text-shadow: 0 0 8px rgba(52, 255, 53, 0.6);
+        }
+
+        .transparent-close-btn.visible {
+            opacity: 1;
+        }
+
+        .transparent-close-btn:hover {
+            background: rgba(52, 255, 53, 0.2);
+            transform: scale(1.1);
+        }
     </style>
 
     <script>
@@ -535,7 +751,8 @@
             { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
             { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
             { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
-            { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' }
+            { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
+            { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
         ];
 
         // Load secret commands from localStorage
@@ -583,6 +800,9 @@
                     break;
                 case 'warp':
                     triggerWarpAnimation();
+                    break;
+                case 'transparent':
+                    triggerTransparentAnimation();
                     break;
                 case 'redirect':
                     if (command.url) {
@@ -850,6 +1070,100 @@
                     warpContainer.remove();
                 }, 1000);
             }, 4000);
+        }
+
+        // Load builders image/video URL from localStorage
+        function loadBuildersMediaFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_builders_media');
+                if (stored) {
+                    return JSON.parse(stored);
+                }
+            } catch (e) {
+                console.warn('Failed to load builders media from localStorage:', e);
+            }
+            // Default placeholder image
+            return {
+                type: 'image',
+                url: ''
+            };
+        }
+
+        // Trigger Transparent animation - reveals builders behind the terminal
+        function triggerTransparentAnimation() {
+            const buildersMedia = loadBuildersMediaFromStorage();
+
+            // Create builders background container
+            const buildersContainer = document.createElement('div');
+            buildersContainer.id = 'buildersContainer';
+            buildersContainer.className = 'builders-container';
+
+            // Add media content (image or video)
+            if (buildersMedia.url) {
+                if (buildersMedia.type === 'video') {
+                    buildersContainer.innerHTML = `
+                        <video class="builders-media" autoplay loop muted playsinline>
+                            <source src="${buildersMedia.url}" type="video/mp4">
+                        </video>
+                    `;
+                } else {
+                    buildersContainer.innerHTML = `
+                        <img class="builders-media" src="${buildersMedia.url}" alt="Construction Crew">
+                    `;
+                }
+            } else {
+                // Placeholder if no URL set - CSS animated construction scene
+                buildersContainer.innerHTML = `
+                    <div class="builders-placeholder">
+                        <div class="builder builder-1">
+                            <div class="builder-body"></div>
+                            <div class="hammer"></div>
+                        </div>
+                        <div class="builder builder-2">
+                            <div class="builder-body"></div>
+                            <div class="hammer"></div>
+                        </div>
+                        <div class="scaffold"></div>
+                        <div class="scaffold scaffold-2"></div>
+                        <p class="builders-text">UNDER CONSTRUCTION</p>
+                    </div>
+                `;
+            }
+
+            // Insert builders behind the terminal
+            document.body.insertBefore(buildersContainer, document.body.firstChild);
+
+            // Get terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const bootOverlay = document.getElementById('bootSequenceOverlay');
+
+            // Add close button overlay
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'transparent-close-btn';
+            closeBtn.innerHTML = '&times;';
+            closeBtn.onclick = () => closeTransparentEffect(buildersContainer, explorePage, closeBtn);
+            document.body.appendChild(closeBtn);
+
+            // Trigger fade animation
+            requestAnimationFrame(() => {
+                buildersContainer.classList.add('active');
+                explorePage.classList.add('transparent-fade');
+                if (bootOverlay) {
+                    bootOverlay.style.display = 'none';
+                }
+                closeBtn.classList.add('visible');
+            });
+        }
+
+        // Close transparent effect
+        function closeTransparentEffect(buildersContainer, explorePage, closeBtn) {
+            explorePage.classList.remove('transparent-fade');
+            closeBtn.classList.remove('visible');
+
+            setTimeout(() => {
+                buildersContainer.remove();
+                closeBtn.remove();
+            }, 1000);
         }
 
         // Check keystroke buffer for matching commands
