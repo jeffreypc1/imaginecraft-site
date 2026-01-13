@@ -970,6 +970,14 @@ section p {
     opacity: 0.3;
 }
 
+/* Flash feedback effect when button is clicked */
+.choice-btn.btn-active {
+    background: rgba(52, 255, 53, 0.4);
+    border-color: #34ff35;
+    box-shadow: 0 0 20px rgba(52, 255, 53, 0.6);
+    transform: scale(0.98);
+}
+
 /* Disabled state for choice buttons - reduces opacity but keeps visible */
 .choice-btn.disabled {
     opacity: 0.5;
