@@ -7,47 +7,16 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>ImagineCraft Studios</title>
-    <!-- Dynamic Cache Buster: Appends unique timestamp to CSS/JS resources -->
-    <script>
-        (function() {
-            var timestamp = Date.now();
-            // Function to append cache buster to a URL
-            function addCacheBuster(url) {
-                if (!url || url.indexOf('googleapis') !== -1 || url.indexOf('gstatic') !== -1) {
-                    return url; // Skip external CDN resources
-                }
-                var separator = url.indexOf('?') === -1 ? '?' : '&';
-                // Remove any existing v= parameter
-                url = url.replace(/[?&]v=[^&]*/, '');
-                // Clean up any double separators
-                url = url.replace(/\?&/, '?').replace(/&&/, '&');
-                if (url.endsWith('?') || url.endsWith('&')) {
-                    url = url.slice(0, -1);
-                }
-                separator = url.indexOf('?') === -1 ? '?' : '&';
-                return url + separator + 'v=' + timestamp;
-            }
-            // Override document.write to intercept stylesheet/script loading
-            var originalWrite = document.write;
-            document.write = function(content) {
-                // Add cache buster to any href or src in the content
-                content = content.replace(/href="([^"]+\.css)"/g, function(match, url) {
-                    return 'href="' + addCacheBuster(url) + '"';
-                });
-                content = content.replace(/src="([^"]+\.js)"/g, function(match, url) {
-                    return 'src="' + addCacheBuster(url) + '"';
-                });
-                originalWrite.call(document, content);
-            };
-            // Store function globally for dynamic loading
-            window.IMAGINECRAFT_CACHE_BUSTER = timestamp;
-            window.addCacheBuster = addCacheBuster;
-        })();
-    </script>
+    <!-- Dynamic Cache Buster: Appends timestamp to CSS/JS resources to bypass CDN caching -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=VT323&display=swap" rel="stylesheet">
-    <script>document.write('<link rel="stylesheet" href="' + window.addCacheBuster('style.css') + '">');</script>
+    <script>
+        // Generate timestamp once for consistent cache busting across all resources
+        var CACHE_TIMESTAMP = Date.now();
+        // Write CSS link with dynamic timestamp to bypass GitHub CDN caching
+        document.write('<link rel="stylesheet" href="style.css?v=' + CACHE_TIMESTAMP + '">');
+    </script>
     <noscript><link rel="stylesheet" href="style.css"></noscript>
 </head>
 <body>
