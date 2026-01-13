@@ -49,6 +49,11 @@
                         autocomplete="off"
                     >
                 </div>
+                <!-- Choice buttons for Yes/No interaction -->
+                <div class="choice-buttons-container" id="choiceButtonsContainer" hidden>
+                    <button class="choice-btn choice-btn-yes" id="choiceBtnYes">Yes</button>
+                    <button class="choice-btn choice-btn-no" id="choiceBtnNo">No</button>
+                </div>
             </div>
 
             <!-- Response panels (hidden by default) -->
@@ -1289,6 +1294,21 @@
 
         const earthquakeDuration = loadEarthquakeDurationFromStorage();
 
+        // Load Choice Buttons setting from localStorage (admin configurable)
+        function loadChoiceButtonsEnabledFromStorage() {
+            try {
+                const stored = localStorage.getItem('imaginecraft_choice_buttons_enabled');
+                if (stored !== null) {
+                    return stored === 'true';
+                }
+            } catch (e) {
+                console.warn('Failed to load choice buttons setting from localStorage:', e);
+            }
+            return false; // Default disabled
+        }
+
+        const choiceButtonsEnabled = loadChoiceButtonsEnabledFromStorage();
+
         let state = {
             currentIndex: 0,
             isUserTyping: false,
@@ -1300,7 +1320,9 @@
             currentText: '',
             targetText: '',
             matrixActive: false,
-            matrixAnimationId: null
+            matrixAnimationId: null,
+            waitingForChoice: false,  // Whether we're waiting for Yes/No button click
+            heroTyped: false          // Whether the hero text has been typed
         };
 
         // Load typing speed from localStorage (admin configurable)
@@ -1382,6 +1404,10 @@
         const inputElement = document.getElementById('exploreInput');
         const panelsContainer = document.getElementById('explorePanels');
         const cursorElement = document.getElementById('exploreCursor');
+        const choiceButtonsContainer = document.getElementById('choiceButtonsContainer');
+        const choiceBtnYes = document.getElementById('choiceBtnYes');
+        const choiceBtnNo = document.getElementById('choiceBtnNo');
+        const heroElement = document.getElementById('exploreQuestion');
 
         // ========================================
         // Typing Animation
@@ -1470,18 +1496,70 @@
 
             // Type out the thought character by character
             typeCharacter(thought, 0, () => {
-                // Linger for 3 seconds after fully typed
-                state.cycleTimeout = setTimeout(() => {
-                    if (!state.isUserTyping && !state.isSelected) {
-                        // Backspace the thought
-                        backspaceCharacter(() => {
-                            state.isAnimating = false;
-                            // Move to next thought
-                            state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                            showThought(state.currentIndex);
-                        });
-                    }
-                }, timing.linger);
+                if (choiceButtonsEnabled) {
+                    // Show choice buttons and wait for user interaction
+                    state.waitingForChoice = true;
+                    showChoiceButtons();
+                } else {
+                    // Original behavior: Linger for 3 seconds after fully typed
+                    state.cycleTimeout = setTimeout(() => {
+                        if (!state.isUserTyping && !state.isSelected) {
+                            // Backspace the thought
+                            backspaceCharacter(() => {
+                                state.isAnimating = false;
+                                // Move to next thought
+                                state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                                showThought(state.currentIndex);
+                            });
+                        }
+                    }, timing.linger);
+                }
+            });
+        }
+
+        // Show choice buttons with animation
+        function showChoiceButtons() {
+            if (choiceButtonsContainer) {
+                choiceButtonsContainer.hidden = false;
+                // Trigger animation after a brief delay
+                setTimeout(() => {
+                    choiceButtonsContainer.classList.add('visible');
+                }, 50);
+            }
+        }
+
+        // Hide choice buttons
+        function hideChoiceButtons() {
+            if (choiceButtonsContainer) {
+                choiceButtonsContainer.classList.remove('visible');
+                setTimeout(() => {
+                    choiceButtonsContainer.hidden = true;
+                }, 300); // Wait for fade out transition
+            }
+        }
+
+        // Handle Yes button click - trigger the response
+        function handleChoiceYes() {
+            if (!state.waitingForChoice) return;
+            state.waitingForChoice = false;
+            hideChoiceButtons();
+
+            // Trigger the thought selection (shows response panel)
+            selectThought(state.currentIndex);
+        }
+
+        // Handle No button click - backspace and move to next thought
+        function handleChoiceNo() {
+            if (!state.waitingForChoice) return;
+            state.waitingForChoice = false;
+            hideChoiceButtons();
+
+            // Backspace the current thought and move to next
+            backspaceCharacter(() => {
+                state.isAnimating = false;
+                // Move to next thought
+                state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                showThought(state.currentIndex);
             });
         }
 
@@ -1495,11 +1573,17 @@
                 return;
             }
 
-            // Show cursor after initial delay, then start cycling thoughts
-            state.cycleTimeout = setTimeout(() => {
-                cursorElement.classList.add('visible');
+            // If hero was typed, cursor is already visible and we skip the initial delay
+            // (the 1.5s pause after hero typing serves as the delay)
+            if (state.heroTyped) {
                 showThought(state.currentIndex);
-            }, timing.initialDelay);
+            } else {
+                // Original behavior: Show cursor after initial delay, then start cycling thoughts
+                state.cycleTimeout = setTimeout(() => {
+                    cursorElement.classList.add('visible');
+                    showThought(state.currentIndex);
+                }, timing.initialDelay);
+            }
         }
 
         function stopCycling() {
@@ -2384,10 +2468,10 @@
                 explorePage.classList.add(`mood-${systemMood}`);
             }
 
-            // Set hero text from localStorage
-            const heroElement = document.getElementById('exploreQuestion');
+            // Clear hero text initially (will be typed out)
             if (heroElement && heroText) {
-                heroElement.textContent = heroText;
+                heroElement.textContent = '';
+                heroElement.dataset.fullText = heroText;
             }
 
             // Apply reduced motion adjustments
@@ -2404,9 +2488,54 @@
             attachEarthquakeHandlers();
             preloadMainSite();
 
+            // Attach choice button event listeners
+            if (choiceBtnYes) {
+                choiceBtnYes.addEventListener('click', handleChoiceYes);
+            }
+            if (choiceBtnNo) {
+                choiceBtnNo.addEventListener('click', handleChoiceNo);
+            }
+
+            // Type out hero text character by character
+            function typeHeroText(callback) {
+                const fullText = heroElement.dataset.fullText || heroText;
+                let index = 0;
+
+                function typeNextChar() {
+                    if (index <= fullText.length) {
+                        heroElement.textContent = fullText.substring(0, index);
+                        index++;
+
+                        // Calculate delay for each character
+                        let delay = prefersReducedMotion ? 0 : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
+                        const lastChar = fullText.charAt(index - 1);
+                        if (isPunctuation(lastChar)) {
+                            delay = timing.punctuationPause;
+                        }
+
+                        state.animationTimeout = setTimeout(typeNextChar, delay);
+                    } else {
+                        // Hero text finished typing
+                        state.heroTyped = true;
+                        if (callback) callback();
+                    }
+                }
+
+                typeNextChar();
+            }
+
             // Function to start the main terminal experience
             function initializeTerminal() {
-                startCycling();
+                // Type hero text first, then pause, then start cycling thoughts
+                typeHeroText(() => {
+                    // 1.5 second pause with blinking cursor after hero finishes
+                    cursorElement.classList.add('visible');
+
+                    setTimeout(() => {
+                        // Now start cycling thoughts
+                        startCycling();
+                    }, 1500);
+                });
             }
 
             // Check if boot sequence should run

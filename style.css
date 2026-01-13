@@ -880,6 +880,68 @@ section p {
     text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
 }
 
+/* ========================================
+   Choice Buttons (Yes/No Interaction)
+   ======================================== */
+
+.choice-buttons-container {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.choice-buttons-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.choice-btn {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+}
+
+.choice-btn-yes {
+    background: transparent;
+    color: #34ff35;
+    border: 1.5px solid rgba(52, 255, 53, 0.5);
+}
+
+.choice-btn-yes:hover {
+    background: rgba(52, 255, 53, 0.15);
+    border-color: #34ff35;
+    box-shadow: 0 0 12px rgba(52, 255, 53, 0.3);
+}
+
+.choice-btn-yes:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 255, 53, 0.4);
+}
+
+.choice-btn-no {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+}
+
+.choice-btn-no:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.choice-btn-no:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
 
 /* ========================================
    Explore Page - Responsive
