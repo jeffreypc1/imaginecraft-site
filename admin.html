@@ -980,6 +980,37 @@
             height: 18px;
         }
 
+        /* Builders Media Section Input Styles */
+        .typing-speed-section .nav-links-grid input,
+        .typing-speed-section .nav-links-grid select {
+            width: 100%;
+            padding: 0.75rem;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1rem;
+            color: var(--primary);
+            background: var(--background);
+            border: 1px solid var(--off-white-dark);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .typing-speed-section .nav-links-grid input:focus,
+        .typing-speed-section .nav-links-grid select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
+        }
+
+        .typing-speed-section .nav-links-grid label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(31, 31, 31, 0.6);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
