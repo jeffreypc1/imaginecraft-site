@@ -1117,6 +1117,173 @@ section p {
 }
 
 /* ========================================
+   Warp Animation - Star Wars Hyperspace Effect
+   ======================================== */
+
+.warp-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    background: #000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.warp-container.active {
+    opacity: 1;
+}
+
+.warp-container.closing {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.warp-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.5s ease;
+}
+
+.warp-canvas.fade-out {
+    opacity: 0;
+}
+
+/* Galaxy reveal after warp */
+.galaxy-reveal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.galaxy-reveal.visible {
+    opacity: 1;
+}
+
+.galaxy-content {
+    text-align: center;
+}
+
+/* Placeholder galaxy using CSS gradients */
+.galaxy-placeholder {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+/* Starfield background */
+.galaxy-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(1px 1px at 20px 30px, white, transparent),
+        radial-gradient(1px 1px at 40px 70px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(1px 1px at 50px 160px, rgba(255, 255, 255, 0.9), transparent),
+        radial-gradient(1px 1px at 90px 40px, white, transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.7), transparent),
+        radial-gradient(1px 1px at 160px 120px, white, transparent),
+        radial-gradient(1px 1px at 200px 150px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(1px 1px at 220px 50px, white, transparent),
+        radial-gradient(1px 1px at 260px 180px, rgba(255, 255, 255, 0.9), transparent),
+        radial-gradient(1px 1px at 300px 90px, white, transparent),
+        radial-gradient(1px 1px at 340px 200px, rgba(255, 255, 255, 0.7), transparent),
+        radial-gradient(1px 1px at 380px 140px, white, transparent),
+        radial-gradient(1px 1px at 100px 300px, white, transparent),
+        radial-gradient(1px 1px at 180px 350px, rgba(255, 255, 255, 0.8), transparent),
+        radial-gradient(1px 1px at 250px 280px, white, transparent),
+        radial-gradient(1px 1px at 320px 320px, rgba(255, 255, 255, 0.9), transparent);
+    background-color: transparent;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+/* Colorful nebula effect */
+.galaxy-nebula {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(ellipse at 30% 40%, rgba(138, 43, 226, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(255, 105, 180, 0.3) 0%, transparent 45%),
+        radial-gradient(ellipse at 50% 50%, rgba(0, 191, 255, 0.25) 0%, transparent 60%),
+        radial-gradient(ellipse at 60% 30%, rgba(255, 165, 0, 0.2) 0%, transparent 40%),
+        radial-gradient(ellipse at 40% 70%, rgba(0, 255, 127, 0.15) 0%, transparent 50%);
+    animation: nebulaPulse 4s ease-in-out infinite;
+}
+
+/* Bright galaxy center */
+.galaxy-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 200, 0.8) 20%,
+        rgba(255, 200, 150, 0.5) 40%,
+        transparent 70%);
+    border-radius: 50%;
+    animation: centerGlow 2s ease-in-out infinite;
+}
+
+.galaxy-text {
+    margin-top: 2rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: #34ff35;
+    text-shadow: 0 0 10px rgba(52, 255, 53, 0.8);
+    letter-spacing: 0.1em;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes nebulaPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+    50% {
+        transform: scale(1.05);
+        filter: brightness(1.2);
+    }
+}
+
+@keyframes centerGlow {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.9;
+    }
+}
+
+/* ========================================
    Explore Page - ASCII Logo Container
    ======================================== */
 
@@ -1603,36 +1770,41 @@ section p {
    Glitchy Mood - Flickering and Chromatic Aberration
    ======================================== */
 
-/* Chromatic aberration animation */
+/* Chromatic aberration animation - triggers every ~10 seconds */
 @keyframes chromaticAberration {
     0% {
         text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     }
-    2% {
-        text-shadow: -2px 0 #ff0000, 2px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
-    }
-    4% {
-        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
-    }
-    30% {
-        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
-    }
+    /* Glitch burst at ~10s mark (33% of 30s) */
     32% {
-        text-shadow: 3px 0 #ff0000, -3px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+        text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     }
     33% {
+        text-shadow: -3px 0 #ff0000, 3px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    33.5% {
+        text-shadow: 2px 1px #ff0000, -2px -1px #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    34% {
         text-shadow: -1px 0 #ff0000, 1px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
     }
     35% {
         text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     }
-    60% {
+    /* Glitch burst at ~20s mark (66% of 30s) */
+    65% {
         text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     }
-    61% {
-        text-shadow: 2px 1px #ff0000, -2px -1px #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    66% {
+        text-shadow: 3px 0 #ff0000, -3px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
     }
-    62% {
+    66.5% {
+        text-shadow: -2px -1px #ff0000, 2px 1px #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    67% {
+        text-shadow: 1px 0 #ff0000, -1px 0 #00ffff, 0 0 8px rgba(52, 255, 53, 0.6);
+    }
+    68% {
         text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
     }
     100% {
@@ -1640,61 +1812,64 @@ section p {
     }
 }
 
-/* Flicker animation */
+/* Flicker animation - triggers every ~10 seconds */
 @keyframes glitchFlicker {
     0% { opacity: 1; }
-    3% { opacity: 0.4; }
-    6% { opacity: 1; }
-    7% { opacity: 0.8; }
-    8% { opacity: 1; }
-    25% { opacity: 1; }
-    26% { opacity: 0.2; }
-    27% { opacity: 1; }
-    50% { opacity: 1; }
-    51% { opacity: 0.6; }
-    52% { opacity: 0.9; }
-    53% { opacity: 1; }
-    75% { opacity: 1; }
-    76% { opacity: 0.3; }
-    77% { opacity: 0.7; }
-    78% { opacity: 1; }
+    /* Flicker burst at ~10s mark (33% of 30s) */
+    32% { opacity: 1; }
+    33% { opacity: 0.4; }
+    33.3% { opacity: 1; }
+    33.6% { opacity: 0.2; }
+    34% { opacity: 0.8; }
+    35% { opacity: 1; }
+    /* Flicker burst at ~20s mark (66% of 30s) */
+    65% { opacity: 1; }
+    66% { opacity: 0.3; }
+    66.3% { opacity: 0.9; }
+    66.6% { opacity: 0.5; }
+    67% { opacity: 0.7; }
+    68% { opacity: 1; }
     100% { opacity: 1; }
 }
 
-/* Text jitter animation */
+/* Text jitter animation - triggers every ~10 seconds */
 @keyframes glitchJitter {
     0% { transform: translate(0, 0); }
-    2% { transform: translate(-1px, 0); }
-    4% { transform: translate(1px, 0); }
-    6% { transform: translate(0, 0); }
-    30% { transform: translate(0, 0); }
-    31% { transform: translate(2px, -1px); }
-    32% { transform: translate(-1px, 1px); }
-    33% { transform: translate(0, 0); }
-    60% { transform: translate(0, 0); }
-    61% { transform: translate(-2px, 0); }
-    62% { transform: translate(0, 0); }
+    /* Jitter burst at ~10s mark (33% of 30s) */
+    32% { transform: translate(0, 0); }
+    33% { transform: translate(-2px, 1px); }
+    33.3% { transform: translate(3px, -1px); }
+    33.6% { transform: translate(-1px, 2px); }
+    34% { transform: translate(2px, 0); }
+    35% { transform: translate(0, 0); }
+    /* Jitter burst at ~20s mark (66% of 30s) */
+    65% { transform: translate(0, 0); }
+    66% { transform: translate(2px, -2px); }
+    66.3% { transform: translate(-3px, 1px); }
+    66.6% { transform: translate(1px, -1px); }
+    67% { transform: translate(-2px, 0); }
+    68% { transform: translate(0, 0); }
     100% { transform: translate(0, 0); }
 }
 
-/* Apply glitchy mood to explore page */
+/* Apply glitchy mood to explore page - 30s cycle for ~10s between glitch bursts */
 .explore-page.mood-glitchy .explore-question,
 .explore-page.mood-glitchy .explore-thought,
 .explore-page.mood-glitchy .panel-response,
 .explore-page.mood-glitchy .explore-panel p {
-    animation: chromaticAberration 4s infinite, glitchFlicker 6s infinite;
+    animation: chromaticAberration 30s infinite, glitchFlicker 30s infinite;
 }
 
 .explore-page.mood-glitchy .explore-cursor,
 .explore-page.mood-glitchy .typing-cursor {
-    animation: cursor-blink 1s step-end infinite, glitchFlicker 6s infinite;
+    animation: cursor-blink 1s step-end infinite, glitchFlicker 30s infinite;
 }
 
 .explore-page.mood-glitchy .explore-container {
-    animation: glitchJitter 4s infinite;
+    animation: glitchJitter 30s infinite;
 }
 
-/* Scanline effect for glitchy mood */
+/* Scanline effect for glitchy mood - appears during glitch bursts only */
 .explore-page.mood-glitchy::before {
     content: '';
     position: fixed;
@@ -1704,19 +1879,32 @@ section p {
     height: 100%;
     background: repeating-linear-gradient(
         0deg,
-        rgba(0, 0, 0, 0.1) 0px,
-        rgba(0, 0, 0, 0.1) 1px,
+        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.15) 1px,
         transparent 1px,
         transparent 3px
     );
     pointer-events: none;
     z-index: 1000;
-    animation: scanlineMove 0.1s linear infinite;
+    animation: scanlineMove 0.1s linear infinite, scanlineVisibility 30s infinite;
+    opacity: 0;
 }
 
 @keyframes scanlineMove {
     0% { transform: translateY(0); }
     100% { transform: translateY(3px); }
+}
+
+/* Scanlines appear only during glitch bursts (~10s intervals) */
+@keyframes scanlineVisibility {
+    0% { opacity: 0; }
+    32% { opacity: 0; }
+    33% { opacity: 1; }
+    35% { opacity: 0; }
+    65% { opacity: 0; }
+    66% { opacity: 1; }
+    68% { opacity: 0; }
+    100% { opacity: 0; }
 }
 
 /* ========================================
