@@ -566,8 +566,11 @@
         // State Management
         // ========================================
 
-        // Default thoughts and responses (12 total)
-        const defaultThoughts = [
+        // Remote configuration (loaded from config.json)
+        let remoteConfig = null;
+
+        // Fallback hardcoded defaults (used if config.json fetch fails)
+        const fallbackThoughts = [
             "I have ideas.",
             "I don't know where to start.",
             "Our tools don't fit us.",
@@ -582,7 +585,7 @@
             "What makes you different?"
         ];
 
-        const defaultResponses = [
+        const fallbackResponses = [
             "Starting is the hardest part. We will figure out the first step together.",
             "Who we are is less important than what we can build together.",
             "The right tools don't exist yet; we have to invent them.",
@@ -597,11 +600,75 @@
             "We listen first. Then we build what actually matters to you."
         ];
 
-        // Default settings
-        const defaultHeroText = 'Why are you here?';
+        const fallbackHeroText = 'Why are you here?';
+
+        // Helper functions to get defaults (from remote config or fallback)
+        function getDefaultThoughts() {
+            return remoteConfig && remoteConfig.thoughts ? [...remoteConfig.thoughts] : [...fallbackThoughts];
+        }
+        function getDefaultResponses() {
+            return remoteConfig && remoteConfig.responses ? [...remoteConfig.responses] : [...fallbackResponses];
+        }
+        function getDefaultHeroText() {
+            return remoteConfig && remoteConfig.heroText ? remoteConfig.heroText : fallbackHeroText;
+        }
+        function getDefaultActions() {
+            if (remoteConfig && remoteConfig.actions) {
+                return remoteConfig.actions.map(a => ({...a}));
+            }
+            return Array(12).fill(null).map(() => ({ type: 'none', url: '', logo: '', linkText: 'Click here' }));
+        }
+        function getDefaultActiveStates() {
+            return remoteConfig && remoteConfig.activeStates ? [...remoteConfig.activeStates] : Array(12).fill(true);
+        }
+        function getDefaultSettings() {
+            if (remoteConfig && remoteConfig.settings) {
+                return remoteConfig.settings;
+            }
+            return {
+                typingSpeed: 150,
+                choiceButtonsEnabled: false,
+                matrixFadeDuration: 1.5,
+                earthquakeDuration: 1.5,
+                earthquakeEnabled: true,
+                bootSequenceEnabled: true,
+                randomizeEnabled: false,
+                systemMood: 'stable'
+            };
+        }
+        function getDefaultSecretCommands() {
+            if (remoteConfig && remoteConfig.secretCommands) {
+                return remoteConfig.secretCommands.map(cmd => ({...cmd}));
+            }
+            return [
+                { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
+                { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
+                { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
+                { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
+                { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
+            ];
+        }
+        function getDefaultBuildersMedia() {
+            return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : { type: 'image', url: '' };
+        }
+
+        // Fetch remote configuration with cache busting
+        async function fetchRemoteConfig() {
+            try {
+                const response = await fetch('config.json?v=' + Date.now());
+                if (!response.ok) {
+                    throw new Error('Failed to fetch config.json: ' + response.status);
+                }
+                remoteConfig = await response.json();
+                console.log('Remote config loaded successfully');
+            } catch (e) {
+                console.warn('Failed to load remote config, using fallback defaults:', e);
+                remoteConfig = null;
+            }
+        }
 
         // App version - increment this to force localStorage data refresh on all browsers
-        const APP_VERSION = '1.0.5';
+        const APP_VERSION = '1.0.6';
         const DATA_VERSION_KEY = 'imaginecraft_app_version';
 
         // Check and handle data version mismatch
@@ -643,10 +710,23 @@
             }
         }
 
-        // Run version check immediately
-        checkDataVersion();
+        // Deferred initialization - wait for remote config before proceeding
+        let configLoaded = false;
 
-        // Load from localStorage or use defaults
+        // Initialize the app after fetching remote config
+        async function initializeWithRemoteConfig() {
+            // Fetch remote config first
+            await fetchRemoteConfig();
+            configLoaded = true;
+
+            // Run version check after config is loaded
+            checkDataVersion();
+        }
+
+        // Start fetching config immediately
+        const configPromise = initializeWithRemoteConfig();
+
+        // Load from localStorage or use defaults (from remote config or fallback)
         function loadThoughtsFromStorage() {
             try {
                 const stored = localStorage.getItem('imaginecraft_thoughts');
@@ -656,7 +736,7 @@
             } catch (e) {
                 console.warn('Failed to load thoughts from localStorage:', e);
             }
-            return defaultThoughts;
+            return getDefaultThoughts();
         }
 
         function loadResponsesFromStorage() {
@@ -668,7 +748,7 @@
             } catch (e) {
                 console.warn('Failed to load responses from localStorage:', e);
             }
-            return defaultResponses;
+            return getDefaultResponses();
         }
 
         function loadHeroTextFromStorage() {
@@ -680,7 +760,7 @@
             } catch (e) {
                 console.warn('Failed to load hero text from localStorage:', e);
             }
-            return defaultHeroText;
+            return getDefaultHeroText();
         }
 
         function loadActionsFromStorage() {
@@ -692,7 +772,7 @@
             } catch (e) {
                 console.warn('Failed to load actions from localStorage:', e);
             }
-            return [];
+            return getDefaultActions();
         }
 
         function loadActiveStatesFromStorage() {
@@ -704,8 +784,7 @@
             } catch (e) {
                 console.warn('Failed to load active states from localStorage:', e);
             }
-            // Default: all questions are active
-            return Array(12).fill(true);
+            return getDefaultActiveStates();
         }
 
         function loadRandomizeEnabledFromStorage() {
@@ -717,7 +796,8 @@
             } catch (e) {
                 console.warn('Failed to load randomize setting from localStorage:', e);
             }
-            return false; // Default: randomize disabled
+            const defaults = getDefaultSettings();
+            return defaults.randomizeEnabled || false;
         }
 
         // Load boot sequence enabled state from localStorage (admin configurable)
@@ -730,7 +810,8 @@
             } catch (e) {
                 console.warn('Failed to load boot sequence setting from localStorage:', e);
             }
-            return true; // Default: boot sequence enabled
+            const defaults = getDefaultSettings();
+            return defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
         }
 
         // Check if boot sequence has already played this session
@@ -751,7 +832,10 @@
             }
         }
 
-        const bootSequenceEnabled = loadBootSequenceEnabledFromStorage();
+        // These will be initialized after config loads
+        let bootSequenceEnabled = true; // Placeholder
+        let systemMood = 'stable'; // Placeholder
+        let secretCommands = []; // Placeholder
 
         // Load system mood from localStorage (admin configurable)
         function loadSystemMoodFromStorage() {
@@ -763,23 +847,13 @@
             } catch (e) {
                 console.warn('Failed to load system mood from localStorage:', e);
             }
-            return 'stable'; // Default: stable mood
+            const defaults = getDefaultSettings();
+            return defaults.systemMood || 'stable';
         }
-
-        const systemMood = loadSystemMoodFromStorage();
 
         // ========================================
         // Secret Commands System
         // ========================================
-
-        // Default secret commands
-        const defaultSecretCommands = [
-            { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
-            { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
-            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
-            { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
-            { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
-        ];
 
         // Load secret commands from localStorage
         function loadSecretCommandsFromStorage() {
@@ -791,10 +865,15 @@
             } catch (e) {
                 console.warn('Failed to load secret commands from localStorage:', e);
             }
-            return [...defaultSecretCommands];
+            return getDefaultSecretCommands();
         }
 
-        const secretCommands = loadSecretCommandsFromStorage();
+        // Function to initialize config-dependent values
+        function initializeConfigDependentValues() {
+            bootSequenceEnabled = loadBootSequenceEnabledFromStorage();
+            systemMood = loadSystemMoodFromStorage();
+            secretCommands = loadSecretCommandsFromStorage();
+        }
 
         // Keystroke buffer for command detection
         let keystrokeBuffer = '';
@@ -1236,52 +1315,68 @@
             return shuffled;
         }
 
-        const allThoughts = loadThoughtsFromStorage();
-        const allResponses = loadResponsesFromStorage();
-        const heroText = loadHeroTextFromStorage();
-        const actions = loadActionsFromStorage();
-        const activeStates = loadActiveStatesFromStorage();
-        const randomizeEnabled = loadRandomizeEnabledFromStorage();
-
-        // Filter to only include active thoughts and track their original indices
+        // These will be initialized after config loads
+        let allThoughts = [];
+        let allResponses = [];
+        let heroText = '';
+        let actions = [];
+        let activeStates = [];
+        let randomizeEnabled = false;
         let activeIndices = [];
         let thoughts = [];
         let responses = [];
-        for (let i = 0; i < allThoughts.length; i++) {
-            // Default to active if no state is set
-            if (activeStates[i] !== false) {
-                activeIndices.push(i);
-                thoughts.push(allThoughts[i]);
-                responses.push(allResponses[i]);
-            }
-        }
 
-        // Apply randomization if enabled
-        if (randomizeEnabled && activeIndices.length > 0) {
-            // Create array of indices into the active arrays
-            const indices = activeIndices.map((_, idx) => idx);
+        // Function to load and process thoughts/responses data
+        function initializeContentData() {
+            allThoughts = loadThoughtsFromStorage();
+            allResponses = loadResponsesFromStorage();
+            heroText = loadHeroTextFromStorage();
+            actions = loadActionsFromStorage();
+            activeStates = loadActiveStatesFromStorage();
+            randomizeEnabled = loadRandomizeEnabledFromStorage();
 
-            // Shuffle the indices
-            const shuffledIndices = shuffleArray(indices);
+            // Reset arrays
+            activeIndices = [];
+            thoughts = [];
+            responses = [];
 
-            // Take up to 3 (or fewer if not enough active questions)
-            const selectedCount = Math.min(3, shuffledIndices.length);
-            const selectedIndices = shuffledIndices.slice(0, selectedCount);
-
-            // Rebuild arrays with only the selected items
-            const newActiveIndices = [];
-            const newThoughts = [];
-            const newResponses = [];
-
-            for (const idx of selectedIndices) {
-                newActiveIndices.push(activeIndices[idx]);
-                newThoughts.push(thoughts[idx]);
-                newResponses.push(responses[idx]);
+            // Filter to only include active thoughts and track their original indices
+            for (let i = 0; i < allThoughts.length; i++) {
+                // Default to active if no state is set
+                if (activeStates[i] !== false) {
+                    activeIndices.push(i);
+                    thoughts.push(allThoughts[i]);
+                    responses.push(allResponses[i]);
+                }
             }
 
-            activeIndices = newActiveIndices;
-            thoughts = newThoughts;
-            responses = newResponses;
+            // Apply randomization if enabled
+            if (randomizeEnabled && activeIndices.length > 0) {
+                // Create array of indices into the active arrays
+                const indices = activeIndices.map((_, idx) => idx);
+
+                // Shuffle the indices
+                const shuffledIndices = shuffleArray(indices);
+
+                // Take up to 3 (or fewer if not enough active questions)
+                const selectedCount = Math.min(3, shuffledIndices.length);
+                const selectedIndices = shuffledIndices.slice(0, selectedCount);
+
+                // Rebuild arrays with only the selected items
+                const newActiveIndices = [];
+                const newThoughts = [];
+                const newResponses = [];
+
+                for (const idx of selectedIndices) {
+                    newActiveIndices.push(activeIndices[idx]);
+                    newThoughts.push(thoughts[idx]);
+                    newResponses.push(responses[idx]);
+                }
+
+                activeIndices = newActiveIndices;
+                thoughts = newThoughts;
+                responses = newResponses;
+            }
         }
 
         // Load Matrix fade duration from localStorage (admin configurable)
@@ -1294,10 +1389,11 @@
             } catch (e) {
                 console.warn('Failed to load matrix fade duration from localStorage:', e);
             }
-            return 1.5; // Default fade duration in seconds
+            const defaults = getDefaultSettings();
+            return defaults.matrixFadeDuration || 1.5;
         }
 
-        const matrixFadeDuration = loadMatrixFadeDurationFromStorage();
+        let matrixFadeDuration = 1.5; // Placeholder
 
         // Load Earthquake duration from localStorage (admin configurable)
         function loadEarthquakeDurationFromStorage() {
@@ -1309,10 +1405,11 @@
             } catch (e) {
                 console.warn('Failed to load earthquake duration from localStorage:', e);
             }
-            return 1.5; // Default earthquake duration in seconds
+            const defaults = getDefaultSettings();
+            return defaults.earthquakeDuration || 1.5;
         }
 
-        const earthquakeDuration = loadEarthquakeDurationFromStorage();
+        let earthquakeDuration = 1.5; // Placeholder
 
         // Load Choice Buttons setting from localStorage (admin configurable)
         function loadChoiceButtonsEnabledFromStorage() {
@@ -1324,10 +1421,18 @@
             } catch (e) {
                 console.warn('Failed to load choice buttons setting from localStorage:', e);
             }
-            return false; // Default disabled
+            const defaults = getDefaultSettings();
+            return defaults.choiceButtonsEnabled || false;
         }
 
-        const choiceButtonsEnabled = loadChoiceButtonsEnabledFromStorage();
+        let choiceButtonsEnabled = false; // Placeholder
+
+        // Function to initialize settings after config loads
+        function initializeSettings() {
+            matrixFadeDuration = loadMatrixFadeDurationFromStorage();
+            earthquakeDuration = loadEarthquakeDurationFromStorage();
+            choiceButtonsEnabled = loadChoiceButtonsEnabledFromStorage();
+        }
 
         let state = {
             currentIndex: 0,
@@ -2673,7 +2778,15 @@
         // ========================================
         // Initialize
         // ========================================
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait for remote config to load before initializing
+            await configPromise;
+
+            // Initialize all config-dependent values now that config is loaded
+            initializeConfigDependentValues();
+            initializeContentData();
+            initializeSettings();
+
             // Apply system mood CSS class to explore page
             const explorePage = document.querySelector('.explore-page');
             if (explorePage && systemMood !== 'stable') {
