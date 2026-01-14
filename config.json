@@ -1,0 +1,68 @@
+{
+  "version": "1.0.6",
+  "heroText": "Why are you here?",
+  "thoughts": [
+    "I have ideas.",
+    "I don't know where to start.",
+    "Our tools don't fit us.",
+    "I want software that matches how we work.",
+    "Help us think this through.",
+    "Who are you?",
+    "I need something custom.",
+    "Our budget is limited.",
+    "We've tried this before.",
+    "How long will it take?",
+    "Can you work with our team?",
+    "What makes you different?"
+  ],
+  "responses": [
+    "Starting is the hardest part. We will figure out the first step together.",
+    "Who we are is less important than what we can build together.",
+    "The right tools don't exist yet; we have to invent them.",
+    "Complexity is the enemy. We specialize in radical simplicity.",
+    "Your vision is the blueprint. Our code is the foundation.",
+    "We're builders who believe software should feel inevitable.",
+    "Custom is our specialty. Every solution we build is tailored.",
+    "Great work doesn't require a fortune. Let's find what's possible.",
+    "Past failures are lessons. We learn what didn't work and build better.",
+    "Quality takes time, but we move with purpose. Let's set expectations.",
+    "Collaboration is core to how we work. Your team becomes ours.",
+    "We listen first. Then we build what actually matters to you."
+  ],
+  "actions": [
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
+    { "type": "none", "url": "", "logo": "", "linkText": "Click here" }
+  ],
+  "activeStates": [true, true, true, true, true, true, true, true, true, true, true, true],
+  "settings": {
+    "typingSpeed": 150,
+    "choiceButtonsEnabled": false,
+    "matrixFadeDuration": 1.5,
+    "earthquakeDuration": 1.5,
+    "earthquakeEnabled": true,
+    "bootSequenceEnabled": true,
+    "randomizeEnabled": false,
+    "systemMood": "stable"
+  },
+  "secretCommands": [
+    { "keyword": "FOREST", "action": "earthquake", "enabled": true, "description": "Triggers Earthquake & Split to reveal background" },
+    { "keyword": "MATRIX", "action": "matrix", "enabled": true, "description": "Toggles digital rain animation on/off" },
+    { "keyword": "ADMIN", "action": "redirect", "url": "admin.html", "enabled": true, "description": "Navigates to Admin Dashboard" },
+    { "keyword": "WARP", "action": "warp", "enabled": true, "description": "Star Wars style hyperspace jump to a distant galaxy" },
+    { "keyword": "TRANSPARENT", "action": "transparent", "enabled": true, "description": "Fades terminal to reveal the builders behind the screen" }
+  ],
+  "buildersMedia": {
+    "type": "image",
+    "url": ""
+  }
+}

@@ -250,6 +250,16 @@
             background-color: #dc2626;
         }
 
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3b3fb8;
+        }
+
         /* Hero Text Section */
         .hero-section {
             background: white;
@@ -1100,6 +1110,7 @@
             <h1>Manage Thoughts & Responses</h1>
             <div class="dashboard-actions">
                 <button class="btn btn-success" onclick="saveChanges()">Save Changes</button>
+                <button class="btn btn-primary" onclick="downloadConfig()">Download Config</button>
                 <button class="btn btn-danger" onclick="factoryReset()">Factory Reset</button>
             </div>
         </div>
@@ -1279,8 +1290,109 @@
     </div>
 
     <script>
+        // Remote configuration (loaded from config.json)
+        let remoteConfig = null;
+
+        // Fallback hardcoded defaults (used if config.json fetch fails)
+        const fallbackThoughts = [
+            "I have ideas.",
+            "I don't know where to start.",
+            "Our tools don't fit us.",
+            "I want software that matches how we work.",
+            "Help us think this through.",
+            "Who are you?",
+            "I need something custom.",
+            "Our budget is limited.",
+            "We've tried this before.",
+            "How long will it take?",
+            "Can you work with our team?",
+            "What makes you different?"
+        ];
+
+        const fallbackResponses = [
+            "Starting is the hardest part. We will figure out the first step together.",
+            "Who we are is less important than what we can build together.",
+            "The right tools don't exist yet; we have to invent them.",
+            "Complexity is the enemy. We specialize in radical simplicity.",
+            "Your vision is the blueprint. Our code is the foundation.",
+            "We're builders who believe software should feel inevitable.",
+            "Custom is our specialty. Every solution we build is tailored.",
+            "Great work doesn't require a fortune. Let's find what's possible.",
+            "Past failures are lessons. We learn what didn't work and build better.",
+            "Quality takes time, but we move with purpose. Let's set expectations.",
+            "Collaboration is core to how we work. Your team becomes ours.",
+            "We listen first. Then we build what actually matters to you."
+        ];
+
+        const fallbackHeroText = 'WHY ARE YOU HERE?';
+
+        // Helper functions to get defaults (from remote config or fallback)
+        function getDefaultThoughts() {
+            return remoteConfig && remoteConfig.thoughts ? [...remoteConfig.thoughts] : [...fallbackThoughts];
+        }
+        function getDefaultResponses() {
+            return remoteConfig && remoteConfig.responses ? [...remoteConfig.responses] : [...fallbackResponses];
+        }
+        function getDefaultHeroText() {
+            return remoteConfig && remoteConfig.heroText ? remoteConfig.heroText : fallbackHeroText;
+        }
+        function getDefaultActions() {
+            if (remoteConfig && remoteConfig.actions) {
+                return remoteConfig.actions.map(a => ({...a}));
+            }
+            return Array(12).fill(null).map(() => ({ type: 'none', url: '', logo: '', linkText: 'Click here' }));
+        }
+        function getDefaultActiveStates() {
+            return remoteConfig && remoteConfig.activeStates ? [...remoteConfig.activeStates] : Array(12).fill(true);
+        }
+        function getDefaultSettings() {
+            if (remoteConfig && remoteConfig.settings) {
+                return remoteConfig.settings;
+            }
+            return {
+                typingSpeed: 150,
+                choiceButtonsEnabled: false,
+                matrixFadeDuration: 1.5,
+                earthquakeDuration: 1.5,
+                earthquakeEnabled: true,
+                bootSequenceEnabled: true,
+                randomizeEnabled: false,
+                systemMood: 'stable'
+            };
+        }
+        function getDefaultSecretCommands() {
+            if (remoteConfig && remoteConfig.secretCommands) {
+                return remoteConfig.secretCommands.map(cmd => ({...cmd}));
+            }
+            return [
+                { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
+                { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
+                { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
+                { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
+                { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
+            ];
+        }
+        function getDefaultBuildersMedia() {
+            return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : { type: 'image', url: '' };
+        }
+
+        // Fetch remote configuration with cache busting
+        async function fetchRemoteConfig() {
+            try {
+                const response = await fetch('config.json?v=' + Date.now());
+                if (!response.ok) {
+                    throw new Error('Failed to fetch config.json: ' + response.status);
+                }
+                remoteConfig = await response.json();
+                console.log('Remote config loaded successfully');
+            } catch (e) {
+                console.warn('Failed to load remote config, using fallback defaults:', e);
+                remoteConfig = null;
+            }
+        }
+
         // App version - must match index.html. Increment to force localStorage data refresh
-        const APP_VERSION = '1.0.5';
+        const APP_VERSION = '1.0.6';
         const DATA_VERSION_KEY = 'imaginecraft_app_version';
 
         // Check and handle data version mismatch
@@ -1322,45 +1434,17 @@
             }
         }
 
-        // Run version check immediately
-        checkDataVersion();
+        // Initialize the app after fetching remote config
+        async function initializeWithRemoteConfig() {
+            await fetchRemoteConfig();
+            checkDataVersion();
+        }
 
-        // Default thoughts and responses (must match index.html)
-        const defaultThoughts = [
-            "I have ideas.",
-            "I don't know where to start.",
-            "Our tools don't fit us.",
-            "I want software that matches how we work.",
-            "Help us think this through.",
-            "Who are you?",
-            "I need something custom.",
-            "Our budget is limited.",
-            "We've tried this before.",
-            "How long will it take?",
-            "Can you work with our team?",
-            "What makes you different?"
-        ];
-
-        const defaultResponses = [
-            "Starting is the hardest part. We will figure out the first step together.",
-            "Who we are is less important than what we can build together.",
-            "The right tools don't exist yet; we have to invent them.",
-            "Complexity is the enemy. We specialize in radical simplicity.",
-            "Your vision is the blueprint. Our code is the foundation.",
-            "We're builders who believe software should feel inevitable.",
-            "Custom is our specialty. Every solution we build is tailored.",
-            "Great work doesn't require a fortune. Let's find what's possible.",
-            "Past failures are lessons. We learn what didn't work and build better.",
-            "Quality takes time, but we move with purpose. Let's set expectations.",
-            "Collaboration is core to how we work. Your team becomes ours.",
-            "We listen first. Then we build what actually matters to you."
-        ];
+        // Start fetching config immediately
+        const configPromise = initializeWithRemoteConfig();
 
         // Hardcoded password
         const ADMIN_PASSWORD = 'admin123';
-
-        // Default settings
-        const defaultHeroText = 'WHY ARE YOU HERE?';
 
         // Action types
         const ACTION_TYPES = [
@@ -1381,44 +1465,31 @@
             { value: 'redirect', label: 'Redirect to URL' }
         ];
 
-        // Default secret commands
-        const defaultSecretCommands = [
-            { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
-            { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
-            { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
-            { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
-            { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
-        ];
-
-        // Current data
+        // Current data (will be initialized after config loads)
         let currentThoughts = [];
         let currentResponses = [];
-        let currentHeroText = defaultHeroText;
+        let currentHeroText = '';
         let currentActions = [];
-        let currentActiveStates = []; // Track which questions are active
-        let currentRandomizeEnabled = false; // Track randomize mode
-        let currentTypingSpeed = 150; // Default typing speed
-        let currentChoiceButtonsEnabled = false; // Default choice buttons disabled
-        let currentMatrixFadeDuration = 1.5; // Default matrix fade duration in seconds
-        let currentEarthquakeDuration = 1.5; // Default earthquake duration in seconds
-        let currentEarthquakeEnabled = true; // Default earthquake transition enabled
-        let currentBootSequenceEnabled = true; // Default boot sequence enabled
-        let currentSystemMood = 'stable'; // Default system mood
-        let currentSecretCommands = [...defaultSecretCommands]; // Secret commands
-        let currentBuildersMedia = { type: 'image', url: '' }; // Builders media for TRANSPARENT command
+        let currentActiveStates = [];
+        let currentRandomizeEnabled = false;
+        let currentTypingSpeed = 150;
+        let currentChoiceButtonsEnabled = false;
+        let currentMatrixFadeDuration = 1.5;
+        let currentEarthquakeDuration = 1.5;
+        let currentEarthquakeEnabled = true;
+        let currentBootSequenceEnabled = true;
+        let currentSystemMood = 'stable';
+        let currentSecretCommands = [];
+        let currentBuildersMedia = { type: 'image', url: '' };
 
         // Initialize default actions
         function initDefaultActions() {
-            return Array(12).fill(null).map(() => ({
-                type: 'none',
-                url: '',
-                logo: '',
-                linkText: 'Click here'
-            }));
+            return getDefaultActions();
         }
 
         // Load data from localStorage
         function loadFromStorage() {
+            const defaults = getDefaultSettings();
             try {
                 const storedThoughts = localStorage.getItem('imaginecraft_thoughts');
                 const storedResponses = localStorage.getItem('imaginecraft_responses');
@@ -1436,47 +1507,48 @@
                 const storedSecretCommands = localStorage.getItem('imaginecraft_secret_commands');
                 const storedBuildersMedia = localStorage.getItem('imaginecraft_builders_media');
 
-                currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : [...defaultThoughts];
-                currentResponses = storedResponses ? JSON.parse(storedResponses) : [...defaultResponses];
-                currentHeroText = storedHeroText || defaultHeroText;
+                currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : getDefaultThoughts();
+                currentResponses = storedResponses ? JSON.parse(storedResponses) : getDefaultResponses();
+                currentHeroText = storedHeroText || getDefaultHeroText();
                 currentActions = storedActions ? JSON.parse(storedActions) : initDefaultActions();
-                currentActiveStates = storedActiveStates ? JSON.parse(storedActiveStates) : Array(12).fill(true);
-                currentRandomizeEnabled = storedRandomizeEnabled === 'true';
-                currentTypingSpeed = storedTypingSpeed ? parseInt(storedTypingSpeed, 10) : 150;
-                currentChoiceButtonsEnabled = storedChoiceButtonsEnabled === 'true';
-                currentMatrixFadeDuration = storedMatrixFadeDuration ? parseFloat(storedMatrixFadeDuration) : 1.5;
-                currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : 1.5;
-                currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : true;
-                currentBootSequenceEnabled = storedBootSequenceEnabled !== null ? storedBootSequenceEnabled === 'true' : true;
-                currentSystemMood = storedSystemMood || 'stable';
-                currentSecretCommands = storedSecretCommands ? JSON.parse(storedSecretCommands) : [...defaultSecretCommands];
-                currentBuildersMedia = storedBuildersMedia ? JSON.parse(storedBuildersMedia) : { type: 'image', url: '' };
+                currentActiveStates = storedActiveStates ? JSON.parse(storedActiveStates) : getDefaultActiveStates();
+                currentRandomizeEnabled = storedRandomizeEnabled === 'true' ? true : (storedRandomizeEnabled === null ? (defaults.randomizeEnabled || false) : false);
+                currentTypingSpeed = storedTypingSpeed ? parseInt(storedTypingSpeed, 10) : (defaults.typingSpeed || 150);
+                currentChoiceButtonsEnabled = storedChoiceButtonsEnabled === 'true' ? true : (storedChoiceButtonsEnabled === null ? (defaults.choiceButtonsEnabled || false) : false);
+                currentMatrixFadeDuration = storedMatrixFadeDuration ? parseFloat(storedMatrixFadeDuration) : (defaults.matrixFadeDuration || 1.5);
+                currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : (defaults.earthquakeDuration || 1.5);
+                currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : (defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true);
+                currentBootSequenceEnabled = storedBootSequenceEnabled !== null ? storedBootSequenceEnabled === 'true' : (defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true);
+                currentSystemMood = storedSystemMood || (defaults.systemMood || 'stable');
+                currentSecretCommands = storedSecretCommands ? JSON.parse(storedSecretCommands) : getDefaultSecretCommands();
+                currentBuildersMedia = storedBuildersMedia ? JSON.parse(storedBuildersMedia) : getDefaultBuildersMedia();
 
-                // Ensure all 12 actions exist
-                while (currentActions.length < 12) {
+                // Ensure all actions exist (based on thought count)
+                const thoughtCount = currentThoughts.length;
+                while (currentActions.length < thoughtCount) {
                     currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
                 }
-                // Ensure all 12 active states exist (default to true)
-                while (currentActiveStates.length < 12) {
+                // Ensure all active states exist (default to true)
+                while (currentActiveStates.length < thoughtCount) {
                     currentActiveStates.push(true);
                 }
             } catch (e) {
                 console.warn('Failed to load from localStorage:', e);
-                currentThoughts = [...defaultThoughts];
-                currentResponses = [...defaultResponses];
-                currentHeroText = defaultHeroText;
+                currentThoughts = getDefaultThoughts();
+                currentResponses = getDefaultResponses();
+                currentHeroText = getDefaultHeroText();
                 currentActions = initDefaultActions();
-                currentActiveStates = Array(12).fill(true);
-                currentRandomizeEnabled = false;
-                currentTypingSpeed = 150;
-                currentChoiceButtonsEnabled = false;
-                currentMatrixFadeDuration = 1.5;
-                currentEarthquakeDuration = 1.5;
-                currentEarthquakeEnabled = true;
-                currentBootSequenceEnabled = true;
-                currentSystemMood = 'stable';
-                currentSecretCommands = [...defaultSecretCommands];
-                currentBuildersMedia = { type: 'image', url: '' };
+                currentActiveStates = getDefaultActiveStates();
+                currentRandomizeEnabled = defaults.randomizeEnabled || false;
+                currentTypingSpeed = defaults.typingSpeed || 150;
+                currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
+                currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
+                currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
+                currentEarthquakeEnabled = defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true;
+                currentBootSequenceEnabled = defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
+                currentSystemMood = defaults.systemMood || 'stable';
+                currentSecretCommands = getDefaultSecretCommands();
+                currentBuildersMedia = getDefaultBuildersMedia();
             }
         }
 
@@ -2166,6 +2238,51 @@
             }, 3000);
         }
 
+        // Download current configuration as config.json
+        function downloadConfig() {
+            // Build the config object from current state
+            const config = {
+                version: APP_VERSION,
+                heroText: currentHeroText,
+                thoughts: [...currentThoughts],
+                responses: [...currentResponses],
+                actions: currentActions.map(a => ({...a})),
+                activeStates: [...currentActiveStates],
+                settings: {
+                    typingSpeed: currentTypingSpeed,
+                    choiceButtonsEnabled: currentChoiceButtonsEnabled,
+                    matrixFadeDuration: currentMatrixFadeDuration,
+                    earthquakeDuration: currentEarthquakeDuration,
+                    earthquakeEnabled: currentEarthquakeEnabled,
+                    bootSequenceEnabled: currentBootSequenceEnabled,
+                    randomizeEnabled: currentRandomizeEnabled,
+                    systemMood: currentSystemMood
+                },
+                secretCommands: currentSecretCommands.map(cmd => ({...cmd})),
+                buildersMedia: {...currentBuildersMedia}
+            };
+
+            // Convert to JSON with pretty formatting
+            const jsonString = JSON.stringify(config, null, 2);
+
+            // Create a blob and download link
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            // Create temporary download link and click it
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = 'config.json';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            // Clean up the URL object
+            URL.revokeObjectURL(url);
+
+            showToast('Config downloaded! Upload to your GitHub repository to update the site.', 'success');
+        }
+
         // Factory Reset - clears all localStorage and reloads the page
         function factoryReset() {
             if (!confirm('Are you sure you want to reset all settings to factory defaults?\n\nThis will clear all your customizations and cannot be undone.')) {
@@ -2209,7 +2326,9 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait for remote config to load before initializing
+            await configPromise;
             loadFromStorage();
             checkAuth();
         });
