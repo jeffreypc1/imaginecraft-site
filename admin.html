@@ -1107,12 +1107,23 @@
     <!-- Dashboard Section -->
     <div class="dashboard" id="dashboard">
         <div class="dashboard-header">
-            <h1>Manage Thoughts & Responses</h1>
+            <h1>Remote Config Generator</h1>
             <div class="dashboard-actions">
-                <button class="btn btn-success" onclick="saveChanges()">Save Changes</button>
-                <button class="btn btn-primary" onclick="downloadConfig()">Download Config</button>
-                <button class="btn btn-danger" onclick="factoryReset()">Factory Reset</button>
+                <button class="btn btn-success" onclick="downloadConfig()">Download config.json</button>
+                <button class="btn btn-danger" onclick="factoryReset()">Reset to Defaults</button>
             </div>
+        </div>
+
+        <!-- Instructions Banner -->
+        <div style="background: linear-gradient(135deg, #5B5FEA, #4a4ed8); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(91, 95, 234, 0.2);">
+            <h3 style="margin: 0 0 0.75rem 0; font-size: 1.1rem; font-weight: 600;">How to Update Your Site</h3>
+            <ol style="margin: 0; padding-left: 1.5rem; font-size: 0.95rem; line-height: 1.8;">
+                <li>Edit your content below (changes are temporary - not saved automatically)</li>
+                <li>Click "Download config.json" to save your configuration file</li>
+                <li>Upload the downloaded config.json to your GitHub repository (replace the existing one)</li>
+                <li>Changes will appear on all browsers within seconds - no manual refresh needed!</li>
+            </ol>
+            <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; opacity: 0.9;">Note: This panel doesn't save changes permanently. All your edits exist only in this session until you download and upload the config file.</p>
         </div>
         <!-- Hero Text Section -->
         <div class="hero-section">
@@ -1487,53 +1498,10 @@
             return getDefaultActions();
         }
 
-        // Load data from localStorage
-        function loadFromStorage() {
+        // Load data from config.json (no localStorage)
+        function loadFromConfig() {
             const defaults = getDefaultSettings();
             try {
-                const storedThoughts = localStorage.getItem('imaginecraft_thoughts');
-                const storedResponses = localStorage.getItem('imaginecraft_responses');
-                const storedHeroText = localStorage.getItem('imaginecraft_hero_text');
-                const storedActions = localStorage.getItem('imaginecraft_actions');
-                const storedActiveStates = localStorage.getItem('imaginecraft_active_states');
-                const storedRandomizeEnabled = localStorage.getItem('imaginecraft_randomize_enabled');
-                const storedTypingSpeed = localStorage.getItem('imaginecraft_typing_speed');
-                const storedChoiceButtonsEnabled = localStorage.getItem('imaginecraft_choice_buttons_enabled');
-                const storedMatrixFadeDuration = localStorage.getItem('imaginecraft_matrix_fade_duration');
-                const storedEarthquakeDuration = localStorage.getItem('imaginecraft_earthquake_duration');
-                const storedEarthquakeEnabled = localStorage.getItem('imaginecraft_earthquake_enabled');
-                const storedBootSequenceEnabled = localStorage.getItem('imaginecraft_boot_sequence_enabled');
-                const storedSystemMood = localStorage.getItem('imaginecraft_system_mood');
-                const storedSecretCommands = localStorage.getItem('imaginecraft_secret_commands');
-                const storedBuildersMedia = localStorage.getItem('imaginecraft_builders_media');
-
-                currentThoughts = storedThoughts ? JSON.parse(storedThoughts) : getDefaultThoughts();
-                currentResponses = storedResponses ? JSON.parse(storedResponses) : getDefaultResponses();
-                currentHeroText = storedHeroText || getDefaultHeroText();
-                currentActions = storedActions ? JSON.parse(storedActions) : initDefaultActions();
-                currentActiveStates = storedActiveStates ? JSON.parse(storedActiveStates) : getDefaultActiveStates();
-                currentRandomizeEnabled = storedRandomizeEnabled === 'true' ? true : (storedRandomizeEnabled === null ? (defaults.randomizeEnabled || false) : false);
-                currentTypingSpeed = storedTypingSpeed ? parseInt(storedTypingSpeed, 10) : (defaults.typingSpeed || 150);
-                currentChoiceButtonsEnabled = storedChoiceButtonsEnabled === 'true' ? true : (storedChoiceButtonsEnabled === null ? (defaults.choiceButtonsEnabled || false) : false);
-                currentMatrixFadeDuration = storedMatrixFadeDuration ? parseFloat(storedMatrixFadeDuration) : (defaults.matrixFadeDuration || 1.5);
-                currentEarthquakeDuration = storedEarthquakeDuration ? parseFloat(storedEarthquakeDuration) : (defaults.earthquakeDuration || 1.5);
-                currentEarthquakeEnabled = storedEarthquakeEnabled !== null ? storedEarthquakeEnabled === 'true' : (defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true);
-                currentBootSequenceEnabled = storedBootSequenceEnabled !== null ? storedBootSequenceEnabled === 'true' : (defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true);
-                currentSystemMood = storedSystemMood || (defaults.systemMood || 'stable');
-                currentSecretCommands = storedSecretCommands ? JSON.parse(storedSecretCommands) : getDefaultSecretCommands();
-                currentBuildersMedia = storedBuildersMedia ? JSON.parse(storedBuildersMedia) : getDefaultBuildersMedia();
-
-                // Ensure all actions exist (based on thought count)
-                const thoughtCount = currentThoughts.length;
-                while (currentActions.length < thoughtCount) {
-                    currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
-                }
-                // Ensure all active states exist (default to true)
-                while (currentActiveStates.length < thoughtCount) {
-                    currentActiveStates.push(true);
-                }
-            } catch (e) {
-                console.warn('Failed to load from localStorage:', e);
                 currentThoughts = getDefaultThoughts();
                 currentResponses = getDefaultResponses();
                 currentHeroText = getDefaultHeroText();
@@ -1549,31 +1517,33 @@
                 currentSystemMood = defaults.systemMood || 'stable';
                 currentSecretCommands = getDefaultSecretCommands();
                 currentBuildersMedia = getDefaultBuildersMedia();
-            }
-        }
 
-        // Save data to localStorage
-        function saveToStorage() {
-            try {
-                localStorage.setItem('imaginecraft_thoughts', JSON.stringify(currentThoughts));
-                localStorage.setItem('imaginecraft_responses', JSON.stringify(currentResponses));
-                localStorage.setItem('imaginecraft_hero_text', currentHeroText);
-                localStorage.setItem('imaginecraft_actions', JSON.stringify(currentActions));
-                localStorage.setItem('imaginecraft_active_states', JSON.stringify(currentActiveStates));
-                localStorage.setItem('imaginecraft_randomize_enabled', currentRandomizeEnabled.toString());
-                localStorage.setItem('imaginecraft_typing_speed', currentTypingSpeed.toString());
-                localStorage.setItem('imaginecraft_choice_buttons_enabled', currentChoiceButtonsEnabled.toString());
-                localStorage.setItem('imaginecraft_matrix_fade_duration', currentMatrixFadeDuration.toString());
-                localStorage.setItem('imaginecraft_earthquake_duration', currentEarthquakeDuration.toString());
-                localStorage.setItem('imaginecraft_earthquake_enabled', currentEarthquakeEnabled.toString());
-                localStorage.setItem('imaginecraft_boot_sequence_enabled', currentBootSequenceEnabled.toString());
-                localStorage.setItem('imaginecraft_system_mood', currentSystemMood);
-                localStorage.setItem('imaginecraft_secret_commands', JSON.stringify(currentSecretCommands));
-                localStorage.setItem('imaginecraft_builders_media', JSON.stringify(currentBuildersMedia));
-                return true;
+                // Ensure all actions exist (based on thought count)
+                const thoughtCount = currentThoughts.length;
+                while (currentActions.length < thoughtCount) {
+                    currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
+                }
+                // Ensure all active states exist (default to true)
+                while (currentActiveStates.length < thoughtCount) {
+                    currentActiveStates.push(true);
+                }
             } catch (e) {
-                console.error('Failed to save to localStorage:', e);
-                return false;
+                console.warn('Failed to load from config:', e);
+                currentThoughts = getDefaultThoughts();
+                currentResponses = getDefaultResponses();
+                currentHeroText = getDefaultHeroText();
+                currentActions = initDefaultActions();
+                currentActiveStates = getDefaultActiveStates();
+                currentRandomizeEnabled = defaults.randomizeEnabled || false;
+                currentTypingSpeed = defaults.typingSpeed || 150;
+                currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
+                currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
+                currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
+                currentEarthquakeEnabled = defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true;
+                currentBootSequenceEnabled = defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
+                currentSystemMood = defaults.systemMood || 'stable';
+                currentSecretCommands = getDefaultSecretCommands();
+                currentBuildersMedia = getDefaultBuildersMedia();
             }
         }
 
@@ -2080,63 +2050,63 @@
             return div.innerHTML;
         }
 
-        // Save changes
-        function saveChanges() {
-            // Save hero text
+        // Collect current form data into memory (no localStorage persistence)
+        function collectCurrentFormData() {
+            // Collect hero text
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
                 currentHeroText = heroInput.value || defaultHeroText;
             }
 
-            // Save typing speed
+            // Collect typing speed
             const typingSpeedSlider = document.getElementById('typingSpeedSlider');
             if (typingSpeedSlider) {
                 currentTypingSpeed = parseInt(typingSpeedSlider.value, 10) || 150;
             }
 
-            // Save choice buttons setting
+            // Collect choice buttons setting
             const choiceButtonsToggle = document.getElementById('choiceButtonsToggle');
             if (choiceButtonsToggle) {
                 currentChoiceButtonsEnabled = choiceButtonsToggle.checked;
             }
 
-            // Save matrix fade duration
+            // Collect matrix fade duration
             const matrixFadeSlider = document.getElementById('matrixFadeSlider');
             if (matrixFadeSlider) {
                 currentMatrixFadeDuration = parseFloat(matrixFadeSlider.value) || 1.5;
             }
 
-            // Save earthquake duration
+            // Collect earthquake duration
             const earthquakeDurationSlider = document.getElementById('earthquakeDurationSlider');
             if (earthquakeDurationSlider) {
                 currentEarthquakeDuration = parseFloat(earthquakeDurationSlider.value) || 1.5;
             }
 
-            // Save earthquake transition setting
+            // Collect earthquake transition setting
             const earthquakeToggle = document.getElementById('earthquakeToggle');
             if (earthquakeToggle) {
                 currentEarthquakeEnabled = earthquakeToggle.checked;
             }
 
-            // Save randomize setting
+            // Collect randomize setting
             const randomizeToggle = document.getElementById('randomizeToggle');
             if (randomizeToggle) {
                 currentRandomizeEnabled = randomizeToggle.checked;
             }
 
-            // Save boot sequence setting
+            // Collect boot sequence setting
             const bootSequenceToggle = document.getElementById('bootSequenceToggle');
             if (bootSequenceToggle) {
                 currentBootSequenceEnabled = bootSequenceToggle.checked;
             }
 
-            // Save system mood setting
+            // Collect system mood setting
             const systemMoodSelect = document.getElementById('systemMoodSelect');
             if (systemMoodSelect) {
                 currentSystemMood = systemMoodSelect.value;
             }
 
-            // Save builders media settings
+            // Collect builders media settings
             const buildersMediaType = document.getElementById('buildersMediaType');
             const buildersMediaUrl = document.getElementById('buildersMediaUrl');
             if (buildersMediaType && buildersMediaUrl) {
@@ -2146,7 +2116,7 @@
                 };
             }
 
-            // Save secret commands
+            // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
                 const actionSelect = document.getElementById(`cmd-action-${i}`);
@@ -2171,7 +2141,7 @@
                 }
             }
 
-            // Save thoughts, responses, actions, and active states (dynamic count)
+            // Collect thoughts, responses, actions, and active states (dynamic count)
             const thoughtCount = currentThoughts.length;
             for (let i = 0; i < thoughtCount; i++) {
                 const thoughtInput = document.getElementById(`thought-${i}`);
@@ -2184,7 +2154,7 @@
                     currentResponses[i] = responseInput.value;
                 }
 
-                // Save active state
+                // Collect active state
                 const activeCheckbox = document.getElementById(`active-${i}`);
                 if (activeCheckbox) {
                     currentActiveStates[i] = activeCheckbox.checked;
@@ -2197,7 +2167,7 @@
                 }
                 currentActions[i].type = actionType;
 
-                // Save action-specific fields
+                // Collect action-specific fields
                 if (actionType !== 'none') {
                     const linkTextInput = document.getElementById(`action-linktext-${i}`);
                     if (linkTextInput) {
@@ -2217,12 +2187,6 @@
                     }
                 }
             }
-
-            if (saveToStorage()) {
-                showToast('Changes saved successfully!', 'success');
-            } else {
-                showToast('Failed to save changes.', 'error');
-            }
         }
 
         // Show toast notification
@@ -2238,11 +2202,20 @@
             }, 3000);
         }
 
-        // Download current configuration as config.json
+        // Download current configuration as config.json with auto-incremented version
         function downloadConfig() {
+            // First, collect all current form data
+            collectCurrentFormData();
+
+            // Auto-increment version number for cross-browser sync
+            const currentVersion = remoteConfig && remoteConfig.version ? remoteConfig.version : '1.0.0';
+            const versionParts = currentVersion.split('.');
+            const newPatchVersion = parseInt(versionParts[2] || 0, 10) + 1;
+            const newVersion = `${versionParts[0]}.${versionParts[1]}.${newPatchVersion}`;
+
             // Build the config object from current state
             const config = {
-                version: APP_VERSION,
+                version: newVersion,
                 heroText: currentHeroText,
                 thoughts: [...currentThoughts],
                 responses: [...currentResponses],
@@ -2280,48 +2253,25 @@
             // Clean up the URL object
             URL.revokeObjectURL(url);
 
-            showToast('Config downloaded! Upload to your GitHub repository to update the site.', 'success');
+            showToast(`Config v${newVersion} downloaded! Upload to GitHub to update all browsers automatically.`, 'success');
         }
 
-        // Factory Reset - clears all localStorage and reloads the page
+        // Reset to defaults - reloads config from config.json
         function factoryReset() {
-            if (!confirm('Are you sure you want to reset all settings to factory defaults?\n\nThis will clear all your customizations and cannot be undone.')) {
+            if (!confirm('Are you sure you want to reset to the current config.json defaults?\n\nThis will discard all your current edits in this session.')) {
                 return;
             }
 
             try {
-                // Clear all imaginecraft data keys
-                const keysToRemove = [
-                    'imaginecraft_thoughts',
-                    'imaginecraft_responses',
-                    'imaginecraft_hero_text',
-                    'imaginecraft_actions',
-                    'imaginecraft_active_states',
-                    'imaginecraft_randomize_enabled',
-                    'imaginecraft_typing_speed',
-                    'imaginecraft_choice_buttons_enabled',
-                    'imaginecraft_matrix_fade_duration',
-                    'imaginecraft_earthquake_duration',
-                    'imaginecraft_earthquake_enabled',
-                    'imaginecraft_boot_sequence_enabled',
-                    'imaginecraft_system_mood',
-                    'imaginecraft_secret_commands',
-                    'imaginecraft_builders_media',
-                    'imaginecraft_app_version'
-                ];
-                keysToRemove.forEach(function(key) {
-                    localStorage.removeItem(key);
-                });
-
-                showToast('Factory reset complete. Reloading...', 'success');
+                showToast('Resetting to defaults. Reloading...', 'success');
 
                 // Reload after a brief delay to show the toast
                 setTimeout(function() {
                     window.location.reload();
                 }, 1000);
             } catch (e) {
-                console.error('Factory reset failed:', e);
-                showToast('Factory reset failed. Please try again.', 'error');
+                console.error('Reset failed:', e);
+                showToast('Reset failed. Please try again.', 'error');
             }
         }
 
@@ -2329,7 +2279,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Wait for remote config to load before initializing
             await configPromise;
-            loadFromStorage();
+            loadFromConfig();
             checkAuth();
         });
     </script>

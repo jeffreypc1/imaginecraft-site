@@ -570,86 +570,39 @@
         let remoteConfig = null;
 
         // Fallback hardcoded defaults (used if config.json fetch fails)
-        const fallbackThoughts = [
-            "I have ideas.",
-            "I don't know where to start.",
-            "Our tools don't fit us.",
-            "I want software that matches how we work.",
-            "Help us think this through.",
-            "Who are you?",
-            "I need something custom.",
-            "Our budget is limited.",
-            "We've tried this before.",
-            "How long will it take?",
-            "Can you work with our team?",
-            "What makes you different?"
-        ];
-
-        const fallbackResponses = [
-            "Starting is the hardest part. We will figure out the first step together.",
-            "Who we are is less important than what we can build together.",
-            "The right tools don't exist yet; we have to invent them.",
-            "Complexity is the enemy. We specialize in radical simplicity.",
-            "Your vision is the blueprint. Our code is the foundation.",
-            "We're builders who believe software should feel inevitable.",
-            "Custom is our specialty. Every solution we build is tailored.",
-            "Great work doesn't require a fortune. Let's find what's possible.",
-            "Past failures are lessons. We learn what didn't work and build better.",
-            "Quality takes time, but we move with purpose. Let's set expectations.",
-            "Collaboration is core to how we work. Your team becomes ours.",
-            "We listen first. Then we build what actually matters to you."
-        ];
-
-        const fallbackHeroText = 'Hi. Hello.';
-
-        // Helper functions to get defaults (from remote config or fallback)
-        function getDefaultThoughts() {
-            return remoteConfig && remoteConfig.thoughts ? [...remoteConfig.thoughts] : [...fallbackThoughts];
+        // Helper functions to get data from remote config only
+        function getConfigThoughts() {
+            return remoteConfig && remoteConfig.thoughts ? [...remoteConfig.thoughts] : null;
         }
-        function getDefaultResponses() {
-            return remoteConfig && remoteConfig.responses ? [...remoteConfig.responses] : [...fallbackResponses];
+        function getConfigResponses() {
+            return remoteConfig && remoteConfig.responses ? [...remoteConfig.responses] : null;
         }
-        function getDefaultHeroText() {
-            return remoteConfig && remoteConfig.heroText ? remoteConfig.heroText : fallbackHeroText;
+        function getConfigHeroText() {
+            return remoteConfig && remoteConfig.heroText ? remoteConfig.heroText : null;
         }
-        function getDefaultActions() {
+        function getConfigActions() {
             if (remoteConfig && remoteConfig.actions) {
                 return remoteConfig.actions.map(a => ({...a}));
             }
-            return Array(12).fill(null).map(() => ({ type: 'none', url: '', logo: '', linkText: 'Click here' }));
+            return null;
         }
-        function getDefaultActiveStates() {
-            return remoteConfig && remoteConfig.activeStates ? [...remoteConfig.activeStates] : Array(12).fill(true);
+        function getConfigActiveStates() {
+            return remoteConfig && remoteConfig.activeStates ? [...remoteConfig.activeStates] : null;
         }
-        function getDefaultSettings() {
+        function getConfigSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
             }
-            return {
-                typingSpeed: 150,
-                choiceButtonsEnabled: false,
-                matrixFadeDuration: 1.5,
-                earthquakeDuration: 1.5,
-                earthquakeEnabled: true,
-                bootSequenceEnabled: true,
-                randomizeEnabled: false,
-                systemMood: 'stable'
-            };
+            return null;
         }
-        function getDefaultSecretCommands() {
+        function getConfigSecretCommands() {
             if (remoteConfig && remoteConfig.secretCommands) {
                 return remoteConfig.secretCommands.map(cmd => ({...cmd}));
             }
-            return [
-                { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
-                { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
-                { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
-                { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
-                { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
-            ];
+            return null;
         }
-        function getDefaultBuildersMedia() {
-            return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : { type: 'image', url: '' };
+        function getConfigBuildersMedia() {
+            return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : null;
         }
 
         // Fetch remote configuration with cache busting
@@ -667,48 +620,8 @@
             }
         }
 
-        // App version - increment this to force localStorage data refresh on all browsers
-        const APP_VERSION = '1.0.6';
-        const DATA_VERSION_KEY = 'imaginecraft_app_version';
-
-        // Check and handle data version mismatch
-        function checkDataVersion() {
-            try {
-                const storedVersion = localStorage.getItem(DATA_VERSION_KEY);
-                if (storedVersion !== APP_VERSION) {
-                    console.log('App version mismatch. Stored:', storedVersion, 'Current:', APP_VERSION);
-                    console.log('Clearing cached data to load fresh content...');
-                    // Clear all imaginecraft data keys
-                    const keysToRemove = [
-                        'imaginecraft_thoughts',
-                        'imaginecraft_responses',
-                        'imaginecraft_hero_text',
-                        'imaginecraft_actions',
-                        'imaginecraft_active_states',
-                        'imaginecraft_randomize_enabled',
-                        'imaginecraft_typing_speed',
-                        'imaginecraft_choice_buttons_enabled',
-                        'imaginecraft_matrix_fade_duration',
-                        'imaginecraft_earthquake_duration',
-                        'imaginecraft_earthquake_enabled',
-                        'imaginecraft_boot_sequence_enabled',
-                        'imaginecraft_system_mood',
-                        'imaginecraft_secret_commands',
-                        'imaginecraft_builders_media'
-                    ];
-                    keysToRemove.forEach(function(key) {
-                        localStorage.removeItem(key);
-                    });
-                    // Set new version
-                    localStorage.setItem(DATA_VERSION_KEY, APP_VERSION);
-                    return true; // Data was cleared
-                }
-                return false; // Version matched, no clear needed
-            } catch (e) {
-                console.warn('Failed to check data version:', e);
-                return false;
-            }
-        }
+        // Config version tracking for auto-refresh
+        let lastKnownVersion = null;
 
         // Deferred initialization - wait for remote config before proceeding
         let configLoaded = false;
@@ -719,99 +632,45 @@
             await fetchRemoteConfig();
             configLoaded = true;
 
-            // Run version check after config is loaded
-            checkDataVersion();
+            // Store the initial version for change detection
+            if (remoteConfig && remoteConfig.version) {
+                lastKnownVersion = remoteConfig.version;
+                console.log('Config loaded, version:', lastKnownVersion);
+            }
         }
 
         // Start fetching config immediately
         const configPromise = initializeWithRemoteConfig();
 
-        // Load from localStorage or use defaults (from remote config or fallback)
-        function loadThoughtsFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_thoughts');
-                if (stored) {
-                    return JSON.parse(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load thoughts from localStorage:', e);
-            }
-            return getDefaultThoughts();
+        // Load data from config only (no localStorage)
+        function loadThoughts() {
+            return getConfigThoughts();
         }
 
-        function loadResponsesFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_responses');
-                if (stored) {
-                    return JSON.parse(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load responses from localStorage:', e);
-            }
-            return getDefaultResponses();
+        function loadResponses() {
+            return getConfigResponses();
         }
 
-        function loadHeroTextFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_hero_text');
-                if (stored) {
-                    return stored;
-                }
-            } catch (e) {
-                console.warn('Failed to load hero text from localStorage:', e);
-            }
-            return getDefaultHeroText();
+        function loadHeroText() {
+            return getConfigHeroText();
         }
 
-        function loadActionsFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_actions');
-                if (stored) {
-                    return JSON.parse(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load actions from localStorage:', e);
-            }
-            return getDefaultActions();
+        function loadActions() {
+            return getConfigActions();
         }
 
-        function loadActiveStatesFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_active_states');
-                if (stored) {
-                    return JSON.parse(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load active states from localStorage:', e);
-            }
-            return getDefaultActiveStates();
+        function loadActiveStates() {
+            return getConfigActiveStates();
         }
 
-        function loadRandomizeEnabledFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_randomize_enabled');
-                if (stored !== null) {
-                    return stored === 'true';
-                }
-            } catch (e) {
-                console.warn('Failed to load randomize setting from localStorage:', e);
-            }
-            const defaults = getDefaultSettings();
-            return defaults.randomizeEnabled || false;
+        function loadRandomizeEnabled() {
+            const settings = getConfigSettings();
+            return settings ? (settings.randomizeEnabled || false) : false;
         }
 
-        // Load boot sequence enabled state from localStorage (admin configurable)
-        function loadBootSequenceEnabledFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_boot_sequence_enabled');
-                if (stored !== null) {
-                    return stored === 'true';
-                }
-            } catch (e) {
-                console.warn('Failed to load boot sequence setting from localStorage:', e);
-            }
-            const defaults = getDefaultSettings();
-            return defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
+        function loadBootSequenceEnabled() {
+            const settings = getConfigSettings();
+            return settings ? (settings.bootSequenceEnabled !== undefined ? settings.bootSequenceEnabled : true) : true;
         }
 
         // Check if boot sequence has already played this session
@@ -837,42 +696,24 @@
         let systemMood = 'stable'; // Placeholder
         let secretCommands = []; // Placeholder
 
-        // Load system mood from localStorage (admin configurable)
-        function loadSystemMoodFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_system_mood');
-                if (stored && ['stable', 'glitchy', 'urgent'].includes(stored)) {
-                    return stored;
-                }
-            } catch (e) {
-                console.warn('Failed to load system mood from localStorage:', e);
-            }
-            const defaults = getDefaultSettings();
-            return defaults.systemMood || 'stable';
+        function loadSystemMood() {
+            const settings = getConfigSettings();
+            return settings && settings.systemMood ? settings.systemMood : 'stable';
         }
 
         // ========================================
         // Secret Commands System
         // ========================================
 
-        // Load secret commands from localStorage
-        function loadSecretCommandsFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_secret_commands');
-                if (stored) {
-                    return JSON.parse(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load secret commands from localStorage:', e);
-            }
-            return getDefaultSecretCommands();
+        function loadSecretCommands() {
+            return getConfigSecretCommands() || [];
         }
 
         // Function to initialize config-dependent values
         function initializeConfigDependentValues() {
-            bootSequenceEnabled = loadBootSequenceEnabledFromStorage();
-            systemMood = loadSystemMoodFromStorage();
-            secretCommands = loadSecretCommandsFromStorage();
+            bootSequenceEnabled = loadBootSequenceEnabled();
+            systemMood = loadSystemMood();
+            secretCommands = loadSecretCommands();
         }
 
         // Keystroke buffer for command detection
@@ -1177,26 +1018,13 @@
             }, 4000);
         }
 
-        // Load builders image/video URL from localStorage
-        function loadBuildersMediaFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_builders_media');
-                if (stored) {
-                    return JSON.parse(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load builders media from localStorage:', e);
-            }
-            // Default placeholder image
-            return {
-                type: 'image',
-                url: ''
-            };
+        function loadBuildersMedia() {
+            return getConfigBuildersMedia() || { type: 'image', url: '' };
         }
 
         // Trigger Transparent animation - reveals builders behind the terminal
         function triggerTransparentAnimation() {
-            const buildersMedia = loadBuildersMediaFromStorage();
+            const buildersMedia = loadBuildersMedia();
 
             // Create builders background container
             const buildersContainer = document.createElement('div');
@@ -1328,12 +1156,23 @@
 
         // Function to load and process thoughts/responses data
         function initializeContentData() {
-            allThoughts = loadThoughtsFromStorage();
-            allResponses = loadResponsesFromStorage();
-            heroText = loadHeroTextFromStorage();
-            actions = loadActionsFromStorage();
-            activeStates = loadActiveStatesFromStorage();
-            randomizeEnabled = loadRandomizeEnabledFromStorage();
+            allThoughts = loadThoughts();
+            allResponses = loadResponses();
+            heroText = loadHeroText();
+            actions = loadActions();
+            activeStates = loadActiveStates();
+            randomizeEnabled = loadRandomizeEnabled();
+
+            // If config not loaded, show loading state
+            if (!allThoughts || !allResponses || !heroText) {
+                console.warn('Config not loaded, showing loading state');
+                allThoughts = ['Loading...'];
+                allResponses = ['Please wait while we load the configuration...'];
+                heroText = 'Loading...';
+                actions = [{ type: 'none', url: '', logo: '', linkText: 'Click here' }];
+                activeStates = [true];
+                randomizeEnabled = false;
+            }
 
             // Reset arrays
             activeIndices = [];
@@ -1379,59 +1218,32 @@
             }
         }
 
-        // Load Matrix fade duration from localStorage (admin configurable)
-        function loadMatrixFadeDurationFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_matrix_fade_duration');
-                if (stored) {
-                    return parseFloat(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load matrix fade duration from localStorage:', e);
-            }
-            const defaults = getDefaultSettings();
-            return defaults.matrixFadeDuration || 1.5;
+        function loadMatrixFadeDuration() {
+            const settings = getConfigSettings();
+            return settings && settings.matrixFadeDuration ? settings.matrixFadeDuration : 1.5;
         }
 
         let matrixFadeDuration = 1.5; // Placeholder
 
-        // Load Earthquake duration from localStorage (admin configurable)
-        function loadEarthquakeDurationFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_earthquake_duration');
-                if (stored) {
-                    return parseFloat(stored);
-                }
-            } catch (e) {
-                console.warn('Failed to load earthquake duration from localStorage:', e);
-            }
-            const defaults = getDefaultSettings();
-            return defaults.earthquakeDuration || 1.5;
+        function loadEarthquakeDuration() {
+            const settings = getConfigSettings();
+            return settings && settings.earthquakeDuration ? settings.earthquakeDuration : 1.5;
         }
 
         let earthquakeDuration = 1.5; // Placeholder
 
-        // Load Choice Buttons setting from localStorage (admin configurable)
-        function loadChoiceButtonsEnabledFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_choice_buttons_enabled');
-                if (stored !== null) {
-                    return stored === 'true';
-                }
-            } catch (e) {
-                console.warn('Failed to load choice buttons setting from localStorage:', e);
-            }
-            const defaults = getDefaultSettings();
-            return defaults.choiceButtonsEnabled || false;
+        function loadChoiceButtonsEnabled() {
+            const settings = getConfigSettings();
+            return settings && settings.choiceButtonsEnabled !== undefined ? settings.choiceButtonsEnabled : false;
         }
 
         let choiceButtonsEnabled = false; // Placeholder
 
         // Function to initialize settings after config loads
         function initializeSettings() {
-            matrixFadeDuration = loadMatrixFadeDurationFromStorage();
-            earthquakeDuration = loadEarthquakeDurationFromStorage();
-            choiceButtonsEnabled = loadChoiceButtonsEnabledFromStorage();
+            matrixFadeDuration = loadMatrixFadeDuration();
+            earthquakeDuration = loadEarthquakeDuration();
+            choiceButtonsEnabled = loadChoiceButtonsEnabled();
         }
 
         let state = {
@@ -1451,20 +1263,12 @@
             heroTyped: false          // Whether the hero text has been typed
         };
 
-        // Load typing speed from localStorage (admin configurable)
-        function loadTypingSpeedFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_typing_speed');
-                if (stored) {
-                    return parseInt(stored, 10);
-                }
-            } catch (e) {
-                console.warn('Failed to load typing speed from localStorage:', e);
-            }
-            return 150; // Default base speed
+        function loadTypingSpeed() {
+            const settings = getConfigSettings();
+            return settings && settings.typingSpeed ? settings.typingSpeed : 150;
         }
 
-        const baseTypingSpeed = loadTypingSpeedFromStorage();
+        const baseTypingSpeed = loadTypingSpeed();
 
         // Timing configuration (in ms) - uses admin-configurable base speed
         // Adjusted based on system mood
@@ -2543,24 +2347,17 @@
         // ========================================
         // Earthquake Transition
         // ========================================
-        function loadEarthquakeSettingFromStorage() {
-            try {
-                const stored = localStorage.getItem('imaginecraft_earthquake_enabled');
-                if (stored !== null) {
-                    return stored === 'true';
-                }
-            } catch (e) {
-                console.warn('Failed to load earthquake setting from localStorage:', e);
-            }
-            return true; // Default to enabled
+        function loadEarthquakeSetting() {
+            const settings = getConfigSettings();
+            return settings && settings.earthquakeEnabled !== undefined ? settings.earthquakeEnabled : true;
         }
 
-        const earthquakeEnabled = loadEarthquakeSettingFromStorage();
+        const earthquakeEnabled = loadEarthquakeSetting();
 
-        // Apply --quake-time CSS variable from localStorage immediately
+        // Apply --quake-time CSS variable
         // Urgent mood increases earthquake duration by 50% for more dramatic effect
         function applyQuakeTimeVariable() {
-            let quakeTime = earthquakeDuration; // Already loaded from localStorage
+            let quakeTime = earthquakeDuration;
 
             // Urgent mood gets 50% longer and more intense earthquake
             if (systemMood === 'urgent') {
@@ -2890,7 +2687,44 @@
                 skipBootSequence();
                 initializeTerminal();
             }
+
+            // ========================================
+            // Version Checking & Auto-Refresh
+            // ========================================
+            // Start periodic version checking after initial load
+            startVersionChecking();
         });
+
+        // Check for config version changes and auto-refresh
+        async function checkForConfigUpdate() {
+            try {
+                // Fetch config.json with cache busting
+                const response = await fetch('config.json?v=' + Date.now());
+                if (!response.ok) {
+                    console.warn('Failed to check config version');
+                    return;
+                }
+
+                const newConfig = await response.json();
+
+                // Check if version changed
+                if (newConfig.version && lastKnownVersion && newConfig.version !== lastKnownVersion) {
+                    console.log(`Config version changed from ${lastKnownVersion} to ${newConfig.version}. Refreshing...`);
+
+                    // Force a hard refresh to get new content
+                    window.location.reload(true);
+                }
+            } catch (e) {
+                console.warn('Failed to check for config updates:', e);
+            }
+        }
+
+        // Start periodic version checking
+        function startVersionChecking() {
+            // Check every 5 seconds
+            setInterval(checkForConfigUpdate, 5000);
+            console.log('Version checking started. Will auto-refresh when config.json version changes.');
+        }
     </script>
 </body>
 </html>
