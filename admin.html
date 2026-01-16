@@ -1109,7 +1109,7 @@
         <div class="dashboard-header">
             <h1>Remote Config Generator</h1>
             <div class="dashboard-actions">
-                <button class="btn btn-success" onclick="downloadConfig()">Download config.json</button>
+                <button class="btn btn-success" onclick="downloadConfig()">Push Live Update</button>
                 <button class="btn btn-danger" onclick="factoryReset()">Reset to Defaults</button>
             </div>
         </div>
@@ -1119,11 +1119,10 @@
             <h3 style="margin: 0 0 0.75rem 0; font-size: 1.1rem; font-weight: 600;">How to Update Your Site</h3>
             <ol style="margin: 0; padding-left: 1.5rem; font-size: 0.95rem; line-height: 1.8;">
                 <li>Edit your content below (changes are temporary - not saved automatically)</li>
-                <li>Click "Download config.json" to save your configuration file</li>
-                <li>Upload the downloaded config.json to your GitHub repository (replace the existing one)</li>
-                <li>Changes will appear on all browsers within seconds - no manual refresh needed!</li>
+                <li>Click "Push Live Update" to instantly publish to all browsers via Firebase</li>
+                <li>All connected browsers will update in real-time - no refresh needed!</li>
             </ol>
-            <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; opacity: 0.9;">Note: This panel doesn't save changes permanently. All your edits exist only in this session until you download and upload the config file.</p>
+            <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; opacity: 0.9;">Note: This panel doesn't save changes permanently until you push them live. All your edits exist only in this session until you click "Push Live Update".</p>
         </div>
         <!-- Hero Text Section -->
         <div class="hero-section">
@@ -1300,7 +1299,27 @@
         <span id="toastMessage">Changes saved successfully!</span>
     </div>
 
-    <script>
+    <script type="module">
+        // ========================================
+        // Firebase Configuration
+        // ========================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // Initialize Firebase with your project credentials
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9Ga6OROaym45ezFh_vJ2WFMVUACkMGXY",
+            authDomain: "imaginecraft-live.firebaseapp.com",
+            databaseURL: "https://imaginecraft-live-default-rtdb.firebaseio.com",
+            projectId: "imaginecraft-live",
+            storageBucket: "imaginecraft-live.firebasestorage.app",
+            messagingSenderId: "962150460666",
+            appId: "1:962150460666:web:382bff8cdb23c191c16d43"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
         // Remote configuration (loaded from config.json)
         let remoteConfig = null;
 
@@ -2202,20 +2221,12 @@
             }, 3000);
         }
 
-        // Download current configuration as config.json with auto-incremented version
+        // Push configuration to Firebase (replaced downloadConfig)
         function downloadConfig() {
-            // First, collect all current form data
+            // Collect current form data
             collectCurrentFormData();
 
-            // Auto-increment version number for cross-browser sync
-            const currentVersion = remoteConfig && remoteConfig.version ? remoteConfig.version : '1.0.0';
-            const versionParts = currentVersion.split('.');
-            const newPatchVersion = parseInt(versionParts[2] || 0, 10) + 1;
-            const newVersion = `${versionParts[0]}.${versionParts[1]}.${newPatchVersion}`;
-
-            // Build the config object from current state
             const config = {
-                version: newVersion,
                 heroText: currentHeroText,
                 thoughts: [...currentThoughts],
                 responses: [...currentResponses],
@@ -2235,25 +2246,15 @@
                 buildersMedia: {...currentBuildersMedia}
             };
 
-            // Convert to JSON with pretty formatting
-            const jsonString = JSON.stringify(config, null, 2);
-
-            // Create a blob and download link
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-
-            // Create temporary download link and click it
-            const downloadLink = document.createElement('a');
-            downloadLink.href = url;
-            downloadLink.download = 'config.json';
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-
-            // Clean up the URL object
-            URL.revokeObjectURL(url);
-
-            showToast(`Config v${newVersion} downloaded! Upload to GitHub to update all browsers automatically.`, 'success');
+            // Push to Firebase instead of downloading
+            set(ref(db, 'siteConfig'), config)
+                .then(() => {
+                    showToast("Live Update Successful! All sites updated.", "success");
+                })
+                .catch((error) => {
+                    console.error("Firebase Update Failed:", error);
+                    showToast("Update failed. Check console.", "error");
+                });
         }
 
         // Reset to defaults - reloads config from config.json

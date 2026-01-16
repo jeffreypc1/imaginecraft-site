@@ -561,12 +561,32 @@
         }
     </style>
 
-    <script>
+    <script type="module">
+        // ========================================
+        // Firebase Configuration
+        // ========================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // Initialize Firebase with your project credentials
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9Ga6OROaym45ezFh_vJ2WFMVUACkMGXY",
+            authDomain: "imaginecraft-live.firebaseapp.com",
+            databaseURL: "https://imaginecraft-live-default-rtdb.firebaseio.com",
+            projectId: "imaginecraft-live",
+            storageBucket: "imaginecraft-live.firebasestorage.app",
+            messagingSenderId: "962150460666",
+            appId: "1:962150460666:web:382bff8cdb23c191c16d43"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
         // ========================================
         // State Management
         // ========================================
 
-        // Remote configuration (loaded from config.json)
+        // Remote configuration (loaded from Firebase)
         let remoteConfig = null;
 
         // Fallback hardcoded defaults (used if config.json fetch fails)
@@ -605,42 +625,52 @@
             return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : null;
         }
 
-        // Fetch remote configuration with cache busting
-        async function fetchRemoteConfig() {
-            try {
-                const response = await fetch('config.json?v=' + Date.now());
-                if (!response.ok) {
-                    throw new Error('Failed to fetch config.json: ' + response.status);
-                }
-                remoteConfig = await response.json();
-                console.log('Remote config loaded successfully');
-            } catch (e) {
-                console.warn('Failed to load remote config, using fallback defaults:', e);
-                remoteConfig = null;
-            }
-        }
-
-        // Config version tracking for auto-refresh
-        let lastKnownVersion = null;
-
-        // Deferred initialization - wait for remote config before proceeding
+        // Firebase real-time listener for configuration
         let configLoaded = false;
+        let configPromise = null;
 
-        // Initialize the app after fetching remote config
-        async function initializeWithRemoteConfig() {
-            // Fetch remote config first
-            await fetchRemoteConfig();
-            configLoaded = true;
+        // Initialize Firebase listener
+        function initializeFirebaseListener() {
+            return new Promise((resolve) => {
+                const configRef = ref(db, 'siteConfig');
 
-            // Store the initial version for change detection
-            if (remoteConfig && remoteConfig.version) {
-                lastKnownVersion = remoteConfig.version;
-                console.log('Config loaded, version:', lastKnownVersion);
-            }
+                onValue(configRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        remoteConfig = data;
+                        console.log('Firebase config loaded/updated successfully');
+
+                        // If this is the first load, resolve the promise
+                        if (!configLoaded) {
+                            configLoaded = true;
+                            resolve();
+                        } else {
+                            // If config was already loaded, this is an update
+                            // Trigger a visual refresh
+                            console.log('Config updated in real-time, refreshing site...');
+                            location.reload();
+                        }
+                    } else {
+                        console.warn('No config data found in Firebase');
+                        remoteConfig = null;
+                        if (!configLoaded) {
+                            configLoaded = true;
+                            resolve();
+                        }
+                    }
+                }, (error) => {
+                    console.error('Firebase listener error:', error);
+                    remoteConfig = null;
+                    if (!configLoaded) {
+                        configLoaded = true;
+                        resolve();
+                    }
+                });
+            });
         }
 
-        // Start fetching config immediately
-        const configPromise = initializeWithRemoteConfig();
+        // Start Firebase listener immediately
+        configPromise = initializeFirebaseListener();
 
         // Load data from config only (no localStorage)
         function loadThoughts() {
@@ -2688,43 +2718,7 @@
                 initializeTerminal();
             }
 
-            // ========================================
-            // Version Checking & Auto-Refresh
-            // ========================================
-            // Start periodic version checking after initial load
-            startVersionChecking();
         });
-
-        // Check for config version changes and auto-refresh
-        async function checkForConfigUpdate() {
-            try {
-                // Fetch config.json with cache busting
-                const response = await fetch('config.json?v=' + Date.now());
-                if (!response.ok) {
-                    console.warn('Failed to check config version');
-                    return;
-                }
-
-                const newConfig = await response.json();
-
-                // Check if version changed
-                if (newConfig.version && lastKnownVersion && newConfig.version !== lastKnownVersion) {
-                    console.log(`Config version changed from ${lastKnownVersion} to ${newConfig.version}. Refreshing...`);
-
-                    // Force a hard refresh to get new content
-                    window.location.reload(true);
-                }
-            } catch (e) {
-                console.warn('Failed to check for config updates:', e);
-            }
-        }
-
-        // Start periodic version checking
-        function startVersionChecking() {
-            // Check every 5 seconds
-            setInterval(checkForConfigUpdate, 5000);
-            console.log('Version checking started. Will auto-refresh when config.json version changes.');
-        }
     </script>
 </body>
 </html>
