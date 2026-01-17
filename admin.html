@@ -1424,6 +1424,12 @@
                 typingSpeedSlider.addEventListener('input', function() {
                     typingSpeedValue.textContent = this.value;
                 });
+
+                // Add event listener to update Firebase immediately when slider changes
+                typingSpeedSlider.addEventListener('change', function() {
+                    currentTypingSpeed = parseInt(this.value, 10) || 150;
+                    updateTypingSpeedInFirebase();
+                });
             }
 
             // Update choice buttons toggle
@@ -2023,6 +2029,42 @@
             }, 3000);
         }
 
+        // Update only typing speed in Firebase immediately
+        function updateTypingSpeedInFirebase() {
+            // Collect current form data to ensure we have latest values
+            collectCurrentFormData();
+
+            const config = {
+                heroText: currentHeroText,
+                thoughts: [...currentThoughts],
+                responses: [...currentResponses],
+                actions: currentActions.map(a => ({...a})),
+                activeStates: [...currentActiveStates],
+                settings: {
+                    typingSpeed: currentTypingSpeed,
+                    choiceButtonsEnabled: currentChoiceButtonsEnabled,
+                    matrixFadeDuration: currentMatrixFadeDuration,
+                    earthquakeDuration: currentEarthquakeDuration,
+                    earthquakeEnabled: currentEarthquakeEnabled,
+                    bootSequenceEnabled: currentBootSequenceEnabled,
+                    randomizeEnabled: currentRandomizeEnabled,
+                    systemMood: currentSystemMood
+                },
+                secretCommands: currentSecretCommands.map(cmd => ({...cmd})),
+                buildersMedia: {...currentBuildersMedia}
+            };
+
+            // Push to Firebase
+            set(ref(db, 'siteConfig'), config)
+                .then(() => {
+                    showToast("Typing speed updated! All sites will reload.", "success");
+                })
+                .catch((error) => {
+                    console.error("Firebase Update Failed:", error);
+                    showToast("Update failed. Check console.", "error");
+                });
+        }
+
         // Push configuration to Firebase (replaced downloadConfig)
         function downloadConfig() {
             // Collect current form data
@@ -2092,6 +2134,7 @@
         window.handleActionTypeChange = handleActionTypeChange;
         window.downloadConfig = downloadConfig;
         window.factoryReset = factoryReset;
+        window.updateTypingSpeedInFirebase = updateTypingSpeedInFirebase;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {

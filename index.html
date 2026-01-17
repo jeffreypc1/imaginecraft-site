@@ -1487,12 +1487,18 @@
         // Show choice buttons with animation
         function showChoiceButtons() {
             if (choiceButtonsContainer) {
-                // Reset any previous selection state
-                choiceButtonsContainer.classList.remove('selection-made');
+                // Reset any previous selection state - remove ALL state classes
+                choiceButtonsContainer.classList.remove('selection-made', 'fading-out');
                 const yesBtn = document.getElementById('choiceBtnYes');
                 const noBtn = document.getElementById('choiceBtnNo');
-                if (yesBtn) yesBtn.classList.remove('selected');
-                if (noBtn) noBtn.classList.remove('selected');
+
+                // Thoroughly clean all button states to ensure responsiveness
+                if (yesBtn) {
+                    yesBtn.classList.remove('selected', 'btn-active', 'disabled');
+                }
+                if (noBtn) {
+                    noBtn.classList.remove('selected', 'btn-active', 'disabled');
+                }
 
                 // Hide the New Question button in choice area
                 hideNewQuestionButton('choice');
