@@ -1669,8 +1669,13 @@
             // Mark selection made and highlight Yes button (don't hide buttons)
             markChoiceSelection('yes');
 
-            // Trigger the thought selection (shows response panel)
-            selectThought(state.currentIndex);
+            // Add natural delay (1.5-2 seconds) before showing response
+            // This makes the AI feel like it's "considering" the positive interaction
+            const naturalDelay = 1500 + Math.random() * 500; // 1.5-2 seconds
+            setTimeout(() => {
+                // Trigger the thought selection (shows response panel)
+                selectThought(state.currentIndex);
+            }, naturalDelay);
         }
 
         // Unified function to trigger backspace animation and move to next thought
@@ -1730,15 +1735,13 @@
                 if (noBtn) noBtn.classList.add('disabled');
                 if (yesBtn) yesBtn.classList.add('disabled');
 
-                // Immediately start backspace animation after flash
-                setTimeout(() => {
-                    backspaceCharacter(() => {
-                        state.isAnimating = false;
-                        // Move to next thought
-                        state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                        showThought(state.currentIndex);
-                    });
-                }, 200);
+                // Immediately start backspace animation (no delay for "No" response)
+                backspaceCharacter(() => {
+                    state.isAnimating = false;
+                    // Move to next thought
+                    state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                    showThought(state.currentIndex);
+                });
             }
         }
 
