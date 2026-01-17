@@ -1060,6 +1060,22 @@
             </div>
         </div>
 
+        <!-- Boot Sequence Script Section -->
+        <div class="typing-speed-section">
+            <h2>Boot Sequence Script</h2>
+            <p>Customize the diagnostic lines shown during the boot sequence. Enter one line per row. Each line will be typed out with the green terminal style and fast typing speed.</p>
+            <textarea id="bootScriptTextarea"
+                      style="width: 100%; min-height: 150px; padding: 0.75rem; font-family: 'VT323', 'Courier New', monospace; font-size: 1rem; color: var(--primary); background: var(--background); border: 1px solid var(--off-white-dark); border-radius: 8px; resize: vertical; line-height: 1.5;"
+                      placeholder="CORE_INIT: OK&#10;MEM_LOAD: 1024KB&#10;DRV_MOUNT: /assets&#10;NET_STACK: READY&#10;SYS_CHECK: COMPLETE">CORE_INIT: OK
+MEM_LOAD: 1024KB
+DRV_MOUNT: /assets
+NET_STACK: READY
+SYS_CHECK: COMPLETE</textarea>
+            <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
+                Tip: Keep lines short and tech-y for the best effect. Use colons and status words like OK, READY, COMPLETE, etc.
+            </p>
+        </div>
+
         <!-- AI System Mood Section -->
         <div class="typing-speed-section">
             <h2>AI System Mood</h2>
@@ -1230,6 +1246,9 @@
         function getDefaultBuildersMedia() {
             return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : { type: 'image', url: '' };
         }
+        function getDefaultBootScript() {
+            return remoteConfig && remoteConfig.bootScript ? remoteConfig.bootScript : 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
+        }
 
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
@@ -1341,6 +1360,7 @@
         let currentSystemMood = 'stable';
         let currentSecretCommands = [];
         let currentBuildersMedia = { type: 'image', url: '' };
+        let currentBootScript = 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1366,6 +1386,7 @@
                 currentSystemMood = defaults.systemMood || 'stable';
                 currentSecretCommands = getDefaultSecretCommands();
                 currentBuildersMedia = getDefaultBuildersMedia();
+                currentBootScript = getDefaultBootScript();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1393,6 +1414,7 @@
                 currentSystemMood = defaults.systemMood || 'stable';
                 currentSecretCommands = getDefaultSecretCommands();
                 currentBuildersMedia = getDefaultBuildersMedia();
+                currentBootScript = getDefaultBootScript();
             }
         }
 
@@ -1507,6 +1529,12 @@
             if (buildersMediaType && buildersMediaUrl) {
                 buildersMediaType.value = currentBuildersMedia.type || 'image';
                 buildersMediaUrl.value = currentBuildersMedia.url || '';
+            }
+
+            // Update boot script textarea
+            const bootScriptTextarea = document.getElementById('bootScriptTextarea');
+            if (bootScriptTextarea) {
+                bootScriptTextarea.value = currentBootScript;
             }
 
             renderThoughtCards();
@@ -1928,6 +1956,12 @@
                 };
             }
 
+            // Collect boot script
+            const bootScriptTextarea = document.getElementById('bootScriptTextarea');
+            if (bootScriptTextarea) {
+                currentBootScript = bootScriptTextarea.value;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2036,7 +2070,8 @@
                     systemMood: currentSystemMood
                 },
                 secretCommands: currentSecretCommands.map(cmd => ({...cmd})),
-                buildersMedia: {...currentBuildersMedia}
+                buildersMedia: {...currentBuildersMedia},
+                bootScript: currentBootScript
             };
 
             // Push to Firebase instead of downloading
