@@ -573,8 +573,10 @@ section p {
     background-color: #000000;
     color: #34ff35;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
     padding: 0;
     position: relative;
     z-index: 2; /* Terminal layer: above main site (z:1), below split overlay (z:3) */
@@ -588,10 +590,6 @@ section p {
     align-items: center;
     justify-content: center;
     text-align: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     padding: 0 2rem;
 }
 
@@ -1131,12 +1129,12 @@ section p {
 
 @media (max-width: 768px) {
     .explore-page {
-        padding: 2rem 1.5rem;
+        padding: 0;
     }
 
     .explore-container {
         min-height: auto;
-        padding: 4rem 0;
+        padding: 0 1.5rem;
     }
 
     .explore-question {
@@ -1161,7 +1159,11 @@ section p {
 
 @media (max-width: 480px) {
     .explore-page {
-        padding: 2rem 1.25rem;
+        padding: 0;
+    }
+
+    .explore-container {
+        padding: 0 1.25rem;
     }
 
     .explore-question-area {
