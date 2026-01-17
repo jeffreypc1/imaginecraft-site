@@ -1268,6 +1268,13 @@
 
         let earthquakeDuration = 1.5; // Placeholder
 
+        function loadCurtainDuration() {
+            const settings = getConfigSettings();
+            return settings && settings.curtainDuration ? settings.curtainDuration : 4;
+        }
+
+        let curtainDuration = 4; // Placeholder
+
         function loadChoiceButtonsEnabled() {
             const settings = getConfigSettings();
             return settings && settings.choiceButtonsEnabled !== undefined ? settings.choiceButtonsEnabled : false;
@@ -1279,6 +1286,7 @@
         function initializeSettings() {
             matrixFadeDuration = loadMatrixFadeDuration();
             earthquakeDuration = loadEarthquakeDuration();
+            curtainDuration = loadCurtainDuration();
             choiceButtonsEnabled = loadChoiceButtonsEnabled();
         }
 
@@ -2730,19 +2738,47 @@
                 });
             }
 
-            // Check if boot sequence should run
-            const shouldRunBootSequence = bootSequenceEnabled &&
-                                          !hasBootSequencePlayedThisSession() &&
-                                          !prefersReducedMotion;
+            // Function to handle curtain rise animation
+            function raiseCurtain(callback) {
+                const curtainElement = document.getElementById('theaterCurtain');
+                if (!curtainElement) {
+                    // If curtain element doesn't exist, proceed immediately
+                    if (callback) callback();
+                    return;
+                }
 
-            if (shouldRunBootSequence) {
-                // Run boot sequence, then initialize terminal
-                runBootSequence(initializeTerminal);
-            } else {
-                // Skip boot sequence, initialize terminal immediately
-                skipBootSequence();
-                initializeTerminal();
+                // Apply curtain duration as CSS variable
+                document.documentElement.style.setProperty('--curtain-duration', curtainDuration + 's');
+
+                // Start curtain rise animation
+                curtainElement.classList.add('curtain-rising');
+
+                // After curtain has fully risen, hide it and proceed
+                setTimeout(() => {
+                    curtainElement.classList.add('curtain-hidden');
+                    if (callback) callback();
+                }, curtainDuration * 1000);
             }
+
+            // Function to proceed with boot sequence or terminal
+            function proceedAfterCurtain() {
+                // Check if boot sequence should run
+                const shouldRunBootSequence = bootSequenceEnabled &&
+                                              !hasBootSequencePlayedThisSession() &&
+                                              !prefersReducedMotion;
+
+                if (shouldRunBootSequence) {
+                    // Run boot sequence, then initialize terminal
+                    runBootSequence(initializeTerminal);
+                } else {
+                    // Skip boot sequence, initialize terminal immediately
+                    skipBootSequence();
+                    initializeTerminal();
+                }
+            }
+
+            // Start with curtain rise, then proceed to boot/terminal
+            raiseCurtain(proceedAfterCurtain);
 
         });
     </script>
@@ -2804,6 +2840,12 @@
 
     <!-- Film Grain Overlay -->
     <div id="filmGrain" class="film-grain-overlay"></div>
+
+    <!-- Theater Curtain Overlay -->
+    <div id="theaterCurtain" class="theater-curtain">
+        <div class="curtain-left"></div>
+        <div class="curtain-right"></div>
+    </div>
 
 </body>
 </html>

@@ -49,6 +49,7 @@
     "choiceButtonsEnabled": false,
     "matrixFadeDuration": 1.5,
     "earthquakeDuration": 1.5,
+    "curtainDuration": 4,
     "earthquakeEnabled": true,
     "bootSequenceEnabled": true,
     "randomizeEnabled": false,
