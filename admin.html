@@ -970,7 +970,7 @@
         <div class="hero-section">
             <h2>Hero Heading</h2>
             <p>This is the main static heading displayed at the top. It does not cycle like the thoughts.</p>
-            <input type="text" id="heroText" placeholder="Enter hero heading...">
+            <input type="text" id="heroText" placeholder="Enter hero heading..." value="WHY ARE YOU HERE?">
         </div>
 
         <!-- Typing Speed Section -->
@@ -982,9 +982,9 @@
                     <span>Fast</span>
                     <span>Slow</span>
                 </div>
-                <input type="range" id="typingSpeedSlider" min="50" max="300" class="speed-slider">
+                <input type="range" id="typingSpeedSlider" min="50" max="300" value="150" class="speed-slider">
                 <div class="slider-value">
-                    <span id="typingSpeedValue"></span>ms base delay
+                    <span id="typingSpeedValue">150</span>ms base delay
                 </div>
             </div>
         </div>
@@ -998,7 +998,7 @@
                     <input type="checkbox" id="choiceButtonsToggle">
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label" id="choiceButtonsToggleLabel"></span>
+                <span class="toggle-label" id="choiceButtonsToggleLabel">Disabled</span>
             </div>
         </div>
 
@@ -1011,9 +1011,9 @@
                     <span>Quick (0.5s)</span>
                     <span>Slow (5s)</span>
                 </div>
-                <input type="range" id="matrixFadeSlider" min="0.5" max="5" step="0.1" class="speed-slider">
+                <input type="range" id="matrixFadeSlider" min="0.5" max="5" step="0.1" value="1.5" class="speed-slider">
                 <div class="slider-value">
-                    <span id="matrixFadeValue"></span>s fade duration
+                    <span id="matrixFadeValue">1.5</span>s fade duration
                 </div>
             </div>
         </div>
@@ -1027,9 +1027,9 @@
                     <span>Quick (0.5s)</span>
                     <span>Long (5s)</span>
                 </div>
-                <input type="range" id="earthquakeDurationSlider" min="0.5" max="5" step="0.1" class="speed-slider">
+                <input type="range" id="earthquakeDurationSlider" min="0.5" max="5" step="0.1" value="1.5" class="speed-slider">
                 <div class="slider-value">
-                    <span id="earthquakeDurationValue"></span>s shake duration
+                    <span id="earthquakeDurationValue">1.5</span>s shake duration
                 </div>
             </div>
         </div>
@@ -1040,10 +1040,10 @@
             <p>When enabled, clicking "Enter Main Site" will trigger a dramatic earthquake shake and screen crack effect before navigating to the main site.</p>
             <div class="toggle-container">
                 <label class="toggle-switch">
-                    <input type="checkbox" id="earthquakeToggle">
+                    <input type="checkbox" id="earthquakeToggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label" id="earthquakeToggleLabel"></span>
+                <span class="toggle-label" id="earthquakeToggleLabel">Enabled</span>
             </div>
         </div>
 
@@ -1053,10 +1053,10 @@
             <p>When enabled, the site will display a "Power Up" boot sequence with system diagnostics and a progress bar on first load. The sequence only plays once per browser session.</p>
             <div class="toggle-container">
                 <label class="toggle-switch">
-                    <input type="checkbox" id="bootSequenceToggle">
+                    <input type="checkbox" id="bootSequenceToggle" checked>
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label" id="bootSequenceToggleLabel"></span>
+                <span class="toggle-label" id="bootSequenceToggleLabel">Enabled</span>
             </div>
         </div>
 
@@ -1146,7 +1146,7 @@
         // Firebase Configuration
         // ========================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Initialize Firebase with your project credentials
         const firebaseConfig = {
@@ -1306,22 +1306,14 @@
             }
         }
 
-        // Initialize the app - prioritize Firebase over config.json
-        async function initializeApp() {
-            // First, fetch config.json for fallback defaults
+        // Initialize the app after fetching remote config
+        async function initializeWithRemoteConfig() {
             await fetchRemoteConfig();
-
-            // Try to load from Firebase first (primary source)
-            const loadedFromFirebase = await loadFromFirebase();
-
-            // If Firebase is empty, use fallback defaults from config.json
-            if (!loadedFromFirebase) {
-                loadFallbackDefaults();
-            }
+            checkDataVersion();
         }
 
-        // Start initialization immediately
-        const initPromise = initializeApp();
+        // Start fetching config immediately
+        const configPromise = initializeWithRemoteConfig();
 
         // Action types
         const ACTION_TYPES = [
@@ -1364,61 +1356,9 @@
             return getDefaultActions();
         }
 
-        // Load data from Firebase (primary source)
-        async function loadFromFirebase() {
-            try {
-                const snapshot = await get(ref(db, 'siteConfig'));
-
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    console.log('Loaded data from Firebase');
-
-                    // Load all data from Firebase
-                    currentThoughts = data.thoughts || getDefaultThoughts();
-                    currentResponses = data.responses || getDefaultResponses();
-                    currentHeroText = data.heroText || getDefaultHeroText();
-                    currentActions = data.actions || initDefaultActions();
-                    currentActiveStates = data.activeStates || getDefaultActiveStates();
-                    currentSecretCommands = data.secretCommands || getDefaultSecretCommands();
-                    currentBuildersMedia = data.buildersMedia || getDefaultBuildersMedia();
-
-                    // Load settings
-                    const settings = data.settings || {};
-                    currentRandomizeEnabled = settings.randomizeEnabled || false;
-                    currentTypingSpeed = settings.typingSpeed || 150;
-                    currentChoiceButtonsEnabled = settings.choiceButtonsEnabled || false;
-                    currentMatrixFadeDuration = settings.matrixFadeDuration || 1.5;
-                    currentEarthquakeDuration = settings.earthquakeDuration || 1.5;
-                    currentEarthquakeEnabled = settings.earthquakeEnabled !== undefined ? settings.earthquakeEnabled : true;
-                    currentBootSequenceEnabled = settings.bootSequenceEnabled !== undefined ? settings.bootSequenceEnabled : true;
-                    currentSystemMood = settings.systemMood || 'stable';
-
-                    // Ensure all actions exist (based on thought count)
-                    const thoughtCount = currentThoughts.length;
-                    while (currentActions.length < thoughtCount) {
-                        currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
-                    }
-                    // Ensure all active states exist (default to true)
-                    while (currentActiveStates.length < thoughtCount) {
-                        currentActiveStates.push(true);
-                    }
-
-                    return true; // Successfully loaded from Firebase
-                } else {
-                    console.log('No data in Firebase, will use fallback defaults');
-                    return false; // No data in Firebase, use fallbacks
-                }
-            } catch (e) {
-                console.warn('Failed to load from Firebase:', e);
-                return false; // Error loading from Firebase, use fallbacks
-            }
-        }
-
-        // Load fallback data from config.json (only used when Firebase is empty)
-        function loadFallbackDefaults() {
+        // Load data from config.json (no localStorage)
+        function loadFromConfig() {
             const defaults = getDefaultSettings();
-            console.log('Loading fallback defaults from config.json');
-
             try {
                 currentThoughts = getDefaultThoughts();
                 currentResponses = getDefaultResponses();
@@ -1446,8 +1386,7 @@
                     currentActiveStates.push(true);
                 }
             } catch (e) {
-                console.warn('Failed to load fallback defaults:', e);
-                // If everything fails, use hardcoded fallbacks
+                console.warn('Failed to load from config:', e);
                 currentThoughts = getDefaultThoughts();
                 currentResponses = getDefaultResponses();
                 currentHeroText = getDefaultHeroText();
@@ -1484,12 +1423,6 @@
                 // Add event listener for real-time value update
                 typingSpeedSlider.addEventListener('input', function() {
                     typingSpeedValue.textContent = this.value;
-                });
-
-                // Add event listener to update Firebase immediately when slider changes
-                typingSpeedSlider.addEventListener('change', function() {
-                    currentTypingSpeed = parseInt(this.value, 10) || 150;
-                    updateTypingSpeedInFirebase();
                 });
             }
 
@@ -1943,7 +1876,7 @@
             // Collect hero text
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
-                currentHeroText = heroInput.value || getDefaultHeroText();
+                currentHeroText = heroInput.value || defaultHeroText;
             }
 
             // Collect typing speed
@@ -2090,42 +2023,6 @@
             }, 3000);
         }
 
-        // Update only typing speed in Firebase immediately
-        function updateTypingSpeedInFirebase() {
-            // Collect current form data to ensure we have latest values
-            collectCurrentFormData();
-
-            const config = {
-                heroText: currentHeroText,
-                thoughts: [...currentThoughts],
-                responses: [...currentResponses],
-                actions: currentActions.map(a => ({...a})),
-                activeStates: [...currentActiveStates],
-                settings: {
-                    typingSpeed: currentTypingSpeed,
-                    choiceButtonsEnabled: currentChoiceButtonsEnabled,
-                    matrixFadeDuration: currentMatrixFadeDuration,
-                    earthquakeDuration: currentEarthquakeDuration,
-                    earthquakeEnabled: currentEarthquakeEnabled,
-                    bootSequenceEnabled: currentBootSequenceEnabled,
-                    randomizeEnabled: currentRandomizeEnabled,
-                    systemMood: currentSystemMood
-                },
-                secretCommands: currentSecretCommands.map(cmd => ({...cmd})),
-                buildersMedia: {...currentBuildersMedia}
-            };
-
-            // Push to Firebase
-            set(ref(db, 'siteConfig'), config)
-                .then(() => {
-                    showToast("Typing speed updated! All sites will reload.", "success");
-                })
-                .catch((error) => {
-                    console.error("Firebase Update Failed:", error);
-                    showToast("Update failed. Check console.", "error");
-                });
-        }
-
         // Push configuration to Firebase (replaced downloadConfig)
         function downloadConfig() {
             // Collect current form data
@@ -2195,12 +2092,12 @@
         window.handleActionTypeChange = handleActionTypeChange;
         window.downloadConfig = downloadConfig;
         window.factoryReset = factoryReset;
-        window.updateTypingSpeedInFirebase = updateTypingSpeedInFirebase;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for app initialization (Firebase load + fallback config)
-            await initPromise;
+            // Wait for remote config to load before initializing
+            await configPromise;
+            loadFromConfig();
             renderDashboard();
         });
     </script>
