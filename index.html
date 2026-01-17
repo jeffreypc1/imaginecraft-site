@@ -723,6 +723,71 @@
             return bootScript || defaultBootScript;
         }
 
+        function loadBackgroundImageUrl() {
+            return remoteConfig && remoteConfig.backgroundImageUrl ? remoteConfig.backgroundImageUrl : '';
+        }
+
+        // Background image loading state
+        let backgroundImageReady = false;
+        let backgroundImageLoadPromise = null;
+
+        // Load the opening background image with 3-second timeout
+        function loadOpeningBackgroundImage() {
+            const backgroundImageUrl = loadBackgroundImageUrl();
+            const openingBackground = document.getElementById('openingBackground');
+            const openingBackgroundImage = document.getElementById('openingBackgroundImage');
+
+            if (!backgroundImageUrl || !openingBackground || !openingBackgroundImage) {
+                console.log('No background image URL configured or elements not found');
+                backgroundImageReady = true;
+                return Promise.resolve();
+            }
+
+            console.log('Loading background image:', backgroundImageUrl);
+
+            backgroundImageLoadPromise = new Promise((resolve) => {
+                let imageLoaded = false;
+                let timeoutId;
+
+                // Set 3-second timeout
+                timeoutId = setTimeout(() => {
+                    if (!imageLoaded) {
+                        console.warn('Background image load timeout after 3 seconds - proceeding anyway');
+                        imageLoaded = true;
+                        backgroundImageReady = true;
+                        resolve();
+                    }
+                }, 3000);
+
+                // Load the image
+                openingBackgroundImage.onload = () => {
+                    if (!imageLoaded) {
+                        console.log('Background image loaded successfully');
+                        clearTimeout(timeoutId);
+                        imageLoaded = true;
+                        backgroundImageReady = true;
+                        // Don't show yet - will be revealed when boot overlay fades
+                        resolve();
+                    }
+                };
+
+                openingBackgroundImage.onerror = () => {
+                    if (!imageLoaded) {
+                        console.warn('Background image failed to load');
+                        clearTimeout(timeoutId);
+                        imageLoaded = true;
+                        backgroundImageReady = true;
+                        resolve();
+                    }
+                };
+
+                // Start loading
+                openingBackgroundImage.src = backgroundImageUrl;
+            });
+
+            return backgroundImageLoadPromise;
+        }
+
         // Check if boot sequence has already played this session
         function hasBootSequencePlayedThisSession() {
             try {
@@ -2625,6 +2690,12 @@
                 // Fade out the overlay using style.opacity for reliable animation
                 overlay.style.opacity = '0';
 
+                // Reveal the background image behind the curtains
+                const openingBackground = document.getElementById('openingBackground');
+                if (openingBackground) {
+                    openingBackground.classList.add('visible');
+                }
+
                 // Show main content
                 if (explorePage) {
                     explorePage.classList.remove('boot-hidden');
@@ -2657,6 +2728,13 @@
 
             if (overlay) {
                 overlay.style.opacity = '0';
+
+                // Reveal the background image behind the curtains
+                const openingBackground = document.getElementById('openingBackground');
+                if (openingBackground) {
+                    openingBackground.classList.add('visible');
+                }
+
                 setTimeout(() => {
                     if (overlay && overlay.parentNode) {
                         overlay.parentNode.removeChild(overlay);
@@ -2687,6 +2765,9 @@
             initializeConfigDependentValues();
             initializeContentData();
             initializeSettings();
+
+            // Load and prepare background image
+            loadOpeningBackgroundImage();
 
             // Apply system mood CSS class to explore page
             const explorePage = document.querySelector('.explore-page');
@@ -2886,6 +2967,11 @@
 
     <!-- Film Grain Overlay -->
     <div id="filmGrain" class="film-grain-overlay"></div>
+
+    <!-- Opening Sequence Background Image (behind curtains, revealed after boot) -->
+    <div id="openingBackground" class="opening-background">
+        <img id="openingBackgroundImage" class="opening-background-image" alt="Background">
+    </div>
 
     <!-- Splash Screen (revealed after curtain rises) -->
     <div id="splashScreen" class="splash-screen">
