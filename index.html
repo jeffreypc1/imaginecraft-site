@@ -2760,8 +2760,53 @@
                 }, curtainDuration * 1000);
             }
 
+            // Function to show splash screen and wait for user interaction
+            function showSplashScreen(callback) {
+                const splashScreen = document.getElementById('splashScreen');
+                const splashClickPrompt = document.getElementById('splashClickPrompt');
+
+                if (!splashScreen) {
+                    // If splash screen doesn't exist, proceed immediately
+                    if (callback) callback();
+                    return;
+                }
+
+                // Show the splash screen
+                splashScreen.classList.add('active');
+
+                // Timer to show "Click to Enter" prompt after 5 seconds
+                const promptTimer = setTimeout(() => {
+                    if (splashClickPrompt) {
+                        splashClickPrompt.classList.add('visible');
+                    }
+                }, 5000);
+
+                // Click handler to fade out splash and proceed
+                function handleSplashClick() {
+                    // Clear the prompt timer
+                    clearTimeout(promptTimer);
+
+                    // Start fade out animation
+                    splashScreen.classList.add('fading-out');
+                    splashScreen.classList.remove('active');
+
+                    // Remove click listener to prevent multiple triggers
+                    splashScreen.removeEventListener('click', handleSplashClick);
+
+                    // After fade out completes, proceed to callback
+                    setTimeout(() => {
+                        // Hide splash screen completely
+                        splashScreen.style.display = 'none';
+                        if (callback) callback();
+                    }, 800); // Match CSS transition duration
+                }
+
+                // Add click event listener
+                splashScreen.addEventListener('click', handleSplashClick);
+            }
+
             // Function to proceed with boot sequence or terminal
-            function proceedAfterCurtain() {
+            function proceedAfterSplash() {
                 // Check if boot sequence should run
                 const shouldRunBootSequence = bootSequenceEnabled &&
                                               !hasBootSequencePlayedThisSession() &&
@@ -2777,7 +2822,13 @@
                 }
             }
 
-            // Start with curtain rise, then proceed to boot/terminal
+            // Function to proceed after curtain rises
+            function proceedAfterCurtain() {
+                // Show splash screen, then proceed to boot/terminal after click
+                showSplashScreen(proceedAfterSplash);
+            }
+
+            // Start with curtain rise, then splash screen, then terminal
             raiseCurtain(proceedAfterCurtain);
 
         });
@@ -2785,6 +2836,14 @@
 
     <!-- Film Grain Overlay -->
     <div id="filmGrain" class="film-grain-overlay"></div>
+
+    <!-- Splash Screen (revealed after curtain rises) -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-image-container">
+            <img src="assets/mystery_image.png" alt="Welcome" class="splash-image">
+        </div>
+        <div class="splash-click-prompt" id="splashClickPrompt">Click to Enter</div>
+    </div>
 
     <!-- Theater Curtain Overlay -->
     <div id="theaterCurtain" class="theater-curtain">
