@@ -1193,12 +1193,12 @@
             activeStates = loadActiveStates();
             randomizeEnabled = loadRandomizeEnabled();
 
-            // If config not loaded, show loading state
+            // If config not loaded, show initialization message
             if (!allThoughts || !allResponses || !heroText) {
-                console.warn('Config not loaded, showing loading state');
-                allThoughts = ['Loading...'];
-                allResponses = ['Please wait while we load the configuration...'];
-                heroText = 'Loading...';
+                console.warn('Config not loaded from Firebase, showing initialization state');
+                allThoughts = ['System Initializing...'];
+                allResponses = ['No configuration data found. Please contact the administrator.'];
+                heroText = 'SYSTEM INITIALIZING...';
                 actions = [{ type: 'none', url: '', logo: '', linkText: 'Click here' }];
                 activeStates = [true];
                 randomizeEnabled = false;

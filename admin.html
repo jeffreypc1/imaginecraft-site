@@ -952,7 +952,7 @@
             <h1>Remote Config Generator</h1>
             <div class="dashboard-actions">
                 <button class="btn btn-success" onclick="downloadConfig()">Push Live Update</button>
-                <button class="btn btn-danger" onclick="factoryReset()">Reset to Defaults</button>
+                <button class="btn btn-danger" onclick="factoryReset()" disabled style="opacity: 0.5; cursor: not-allowed;">Reset to Defaults (Disabled)</button>
             </div>
         </div>
 
@@ -1146,7 +1146,7 @@
         // Firebase Configuration
         // ========================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Initialize Firebase with your project credentials
         const firebaseConfig = {
@@ -1165,62 +1165,50 @@
         // Remote configuration (loaded from config.json)
         let remoteConfig = null;
 
-        // Fallback hardcoded defaults (used if config.json fetch fails)
-        const fallbackThoughts = [
-            "I have ideas.",
-            "I don't know where to start.",
-            "Our tools don't fit us.",
-            "I want software that matches how we work.",
-            "Help us think this through.",
-            "Who are you?",
-            "I need something custom.",
-            "Our budget is limited.",
-            "We've tried this before.",
-            "How long will it take?",
-            "Can you work with our team?",
-            "What makes you different?"
-        ];
+        // Hard-coded defaults removed - Firebase is the sole source of truth
+        const fallbackThoughts = [];
 
-        const fallbackResponses = [
-            "Starting is the hardest part. We will figure out the first step together.",
-            "Who we are is less important than what we can build together.",
-            "The right tools don't exist yet; we have to invent them.",
-            "Complexity is the enemy. We specialize in radical simplicity.",
-            "Your vision is the blueprint. Our code is the foundation.",
-            "We're builders who believe software should feel inevitable.",
-            "Custom is our specialty. Every solution we build is tailored.",
-            "Great work doesn't require a fortune. Let's find what's possible.",
-            "Past failures are lessons. We learn what didn't work and build better.",
-            "Quality takes time, but we move with purpose. Let's set expectations.",
-            "Collaboration is core to how we work. Your team becomes ours.",
-            "We listen first. Then we build what actually matters to you."
-        ];
+        const fallbackResponses = [];
 
-        const fallbackHeroText = 'WHY ARE YOU HERE?';
+        const fallbackHeroText = '';
 
-        // Helper functions to get defaults (from remote config or fallback)
+        // Helper functions to get data from Firebase only (no fallbacks)
         function getDefaultThoughts() {
-            return remoteConfig && remoteConfig.thoughts ? [...remoteConfig.thoughts] : [...fallbackThoughts];
+            if (remoteConfig && remoteConfig.thoughts) {
+                return [...remoteConfig.thoughts];
+            }
+            // If no Firebase data, return a single empty thought to show one empty field
+            return [''];
         }
         function getDefaultResponses() {
-            return remoteConfig && remoteConfig.responses ? [...remoteConfig.responses] : [...fallbackResponses];
+            if (remoteConfig && remoteConfig.responses) {
+                return [...remoteConfig.responses];
+            }
+            // If no Firebase data, return a single empty response
+            return [''];
         }
         function getDefaultHeroText() {
-            return remoteConfig && remoteConfig.heroText ? remoteConfig.heroText : fallbackHeroText;
+            return remoteConfig && remoteConfig.heroText ? remoteConfig.heroText : '';
         }
         function getDefaultActions() {
             if (remoteConfig && remoteConfig.actions) {
                 return remoteConfig.actions.map(a => ({...a}));
             }
-            return Array(12).fill(null).map(() => ({ type: 'none', url: '', logo: '', linkText: 'Click here' }));
+            // If no Firebase data, return a single empty action
+            return [{ type: 'none', url: '', logo: '', linkText: 'Click here' }];
         }
         function getDefaultActiveStates() {
-            return remoteConfig && remoteConfig.activeStates ? [...remoteConfig.activeStates] : Array(12).fill(true);
+            if (remoteConfig && remoteConfig.activeStates) {
+                return [...remoteConfig.activeStates];
+            }
+            // If no Firebase data, return a single active state
+            return [true];
         }
         function getDefaultSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
             }
+            // Default settings if no Firebase data
             return {
                 typingSpeed: 150,
                 choiceButtonsEnabled: false,
@@ -1236,31 +1224,34 @@
             if (remoteConfig && remoteConfig.secretCommands) {
                 return remoteConfig.secretCommands.map(cmd => ({...cmd}));
             }
-            return [
-                { keyword: 'FOREST', action: 'earthquake', enabled: true, description: 'Triggers Earthquake & Split to reveal background' },
-                { keyword: 'MATRIX', action: 'matrix', enabled: true, description: 'Toggles digital rain animation on/off' },
-                { keyword: 'ADMIN', action: 'redirect', url: 'admin.html', enabled: true, description: 'Navigates to Admin Dashboard' },
-                { keyword: 'WARP', action: 'warp', enabled: true, description: 'Star Wars style hyperspace jump to a distant galaxy' },
-                { keyword: 'TRANSPARENT', action: 'transparent', enabled: true, description: 'Fades terminal to reveal the builders behind the screen' }
-            ];
+            // If no Firebase data, return empty array (user can add commands)
+            return [];
         }
         function getDefaultBuildersMedia() {
             return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : { type: 'image', url: '' };
         }
 
-        // Fetch remote configuration with cache busting
+        // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
-            try {
-                const response = await fetch('config.json?v=' + Date.now());
-                if (!response.ok) {
-                    throw new Error('Failed to fetch config.json: ' + response.status);
-                }
-                remoteConfig = await response.json();
-                console.log('Remote config loaded successfully');
-            } catch (e) {
-                console.warn('Failed to load remote config, using fallback defaults:', e);
-                remoteConfig = null;
-            }
+            return new Promise((resolve) => {
+                const configRef = ref(db, 'siteConfig');
+
+                onValue(configRef, (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        remoteConfig = data;
+                        console.log('Firebase config loaded successfully');
+                    } else {
+                        console.warn('No config data found in Firebase');
+                        remoteConfig = null;
+                    }
+                    resolve();
+                }, (error) => {
+                    console.error('Failed to load Firebase config:', error);
+                    remoteConfig = null;
+                    resolve();
+                }, { onlyOnce: true });
+            });
         }
 
         // App version - must match index.html. Increment to force localStorage data refresh
@@ -2059,23 +2050,10 @@
                 });
         }
 
-        // Reset to defaults - reloads config from config.json
+        // Reset to defaults - DISABLED (Firebase is sole source of truth)
         function factoryReset() {
-            if (!confirm('Are you sure you want to reset to the current config.json defaults?\n\nThis will discard all your current edits in this session.')) {
-                return;
-            }
-
-            try {
-                showToast('Resetting to defaults. Reloading...', 'success');
-
-                // Reload after a brief delay to show the toast
-                setTimeout(function() {
-                    window.location.reload();
-                }, 1000);
-            } catch (e) {
-                console.error('Reset failed:', e);
-                showToast('Reset failed. Please try again.', 'error');
-            }
+            showToast('Reset to Defaults is disabled. Firebase is the sole source of truth.', 'error');
+            return;
         }
 
         // Expose functions to global scope for onclick handlers
