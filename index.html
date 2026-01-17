@@ -23,10 +23,7 @@
     <!-- Boot Sequence Overlay -->
     <div id="bootSequenceOverlay" class="boot-sequence-overlay">
         <div class="boot-diagnostics" id="bootDiagnostics">
-            <!-- Boot lines will be dynamically generated from Firebase bootScript -->
-        </div>
-        <div class="boot-progress-container" id="bootProgressContainer">
-            <div class="boot-progress-bar" id="bootProgressBar">[--------------------] 0%</div>
+            <!-- Boot lines will be dynamically typed character-by-character from Firebase bootScript -->
         </div>
     </div>
 
@@ -241,7 +238,8 @@
             z-index: 9999;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
+            align-items: center;
             padding: 40px;
             font-family: 'VT323', monospace;
             opacity: 1;
@@ -261,15 +259,18 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            align-items: center;
+            text-align: center;
         }
 
         .boot-line {
             font-size: 1.2rem;
             color: #34ff35;
             text-shadow: 0 0 8px rgba(52, 255, 53, 0.6);
-            opacity: 0;
-            transform: translateX(-10px);
-            transition: opacity 0.1s ease, transform 0.1s ease;
+            opacity: 1;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 90%;
         }
 
         .boot-line.visible {
@@ -291,23 +292,6 @@
             50% { opacity: 0.7; transform: translateX(-1px); }
             75% { opacity: 1; transform: translateX(0); }
             100% { opacity: 1; transform: translateX(0); }
-        }
-
-        .boot-progress-container {
-            margin-top: 30px;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-
-        .boot-progress-container.visible {
-            opacity: 1;
-        }
-
-        .boot-progress-bar {
-            font-size: 1.2rem;
-            color: #34ff35;
-            text-shadow: 0 0 8px rgba(52, 255, 53, 0.6);
-            letter-spacing: 2px;
         }
 
         /* CRT scanline effect for boot sequence */
@@ -2622,8 +2606,6 @@
             console.log('runBootSequence started');
             const overlay = document.getElementById('bootSequenceOverlay');
             const diagnostics = document.getElementById('bootDiagnostics');
-            const progressContainer = document.getElementById('bootProgressContainer');
-            const progressBar = document.getElementById('bootProgressBar');
             const explorePage = document.querySelector('.explore-page');
 
             if (!overlay) {
@@ -2639,83 +2621,78 @@
                 explorePage.classList.add('boot-hidden');
             }
 
-            // Load boot script from Firebase and generate boot lines dynamically
+            // 3-second fallback timeout - ensure overlay fades even if script fails
+            let hasCompleted = false;
+            const fallbackTimeout = setTimeout(() => {
+                if (!hasCompleted) {
+                    console.warn('Boot sequence fallback timeout triggered');
+                    hasCompleted = true;
+                    finishBootSequence();
+                }
+            }, 3000);
+
+            // Load boot script from Firebase
             const bootScript = loadBootScript();
             const bootScriptLines = bootScript.split('\n').filter(line => line.trim() !== '');
             console.log('Boot script lines:', bootScriptLines.length);
 
-            // Clear existing content and generate new boot lines
+            // Get fast typing speed from admin settings
+            const settings = getConfigSettings();
+            const baseSpeed = settings && settings.typingSpeed ? settings.typingSpeed : 150;
+            // Fast typing: use 20-40ms range (similar to "urgent" mode)
+            const fastTypeMin = 20;
+            const fastTypeMax = 40;
+
+            // Clear existing content and create container for typed output
             diagnostics.innerHTML = '';
-            bootScriptLines.forEach((line, index) => {
-                const bootLineDiv = document.createElement('div');
-                bootLineDiv.className = 'boot-line';
-                bootLineDiv.setAttribute('data-line', index);
-                bootLineDiv.textContent = line;
-                diagnostics.appendChild(bootLineDiv);
-            });
 
-            const bootLines = diagnostics.querySelectorAll('.boot-line');
-            let currentLine = 0;
+            let currentLineIndex = 0;
+            let currentCharIndex = 0;
+            let currentLineElement = null;
 
-            // Phase 1: Show diagnostic lines with flicker effect
-            function showNextDiagnosticLine() {
-                if (currentLine < bootLines.length) {
-                    const line = bootLines[currentLine];
-                    line.classList.add('flicker');
+            // Type out boot script character by character
+            function typeNextCharacter() {
+                // Check if we're done with all lines
+                if (currentLineIndex >= bootScriptLines.length) {
+                    clearTimeout(fallbackTimeout);
+                    hasCompleted = true;
+                    // Small delay after final character before fading overlay
+                    setTimeout(finishBootSequence, 200);
+                    return;
+                }
 
-                    // After flicker animation, make it visible
-                    setTimeout(() => {
-                        line.classList.add('visible');
-                        line.classList.remove('flicker');
-                        currentLine++;
+                // Get current line text
+                const currentLineText = bootScriptLines[currentLineIndex];
 
-                        // Random delay between lines (80-200ms) for that mechanical feel
-                        const delay = Math.floor(Math.random() * 120) + 80;
-                        setTimeout(showNextDiagnosticLine, delay);
-                    }, 150);
+                // Create new line element if needed
+                if (!currentLineElement) {
+                    currentLineElement = document.createElement('div');
+                    currentLineElement.className = 'boot-line';
+                    currentLineElement.textContent = '';
+                    diagnostics.appendChild(currentLineElement);
+                }
+
+                // Type next character
+                if (currentCharIndex < currentLineText.length) {
+                    currentLineElement.textContent += currentLineText[currentCharIndex];
+                    currentCharIndex++;
+
+                    // Random delay for typing speed variation
+                    const delay = Math.floor(Math.random() * (fastTypeMax - fastTypeMin + 1)) + fastTypeMin;
+                    setTimeout(typeNextCharacter, delay);
                 } else {
-                    // All diagnostic lines shown, start progress bar
-                    setTimeout(startProgressBar, 300);
+                    // Current line complete, move to next line
+                    currentLineIndex++;
+                    currentCharIndex = 0;
+                    currentLineElement = null;
+
+                    // Small delay between lines (100-150ms)
+                    const lineDelay = Math.floor(Math.random() * 50) + 100;
+                    setTimeout(typeNextCharacter, lineDelay);
                 }
             }
 
-            // Phase 2: Animate the progress bar
-            function startProgressBar() {
-                console.log('Starting progress bar animation');
-                progressContainer.classList.add('visible');
-
-                let progress = 0;
-                const totalDuration = 1800; // 1.8 seconds total
-                const updateInterval = 50; // Update every 50ms
-                const steps = totalDuration / updateInterval;
-                const progressPerStep = 100 / steps;
-
-                const progressInterval = setInterval(() => {
-                    progress += progressPerStep;
-                    if (progress >= 100) {
-                        progress = 100;
-                        clearInterval(progressInterval);
-
-                        // Update final progress bar
-                        updateProgressBar(100);
-                        console.log('Progress bar complete at 100%');
-
-                        // Phase 3: Fade out and transition to main terminal
-                        setTimeout(finishBootSequence, 200);
-                    } else {
-                        updateProgressBar(Math.floor(progress));
-                    }
-                }, updateInterval);
-            }
-
-            function updateProgressBar(percent) {
-                const filled = Math.floor(percent / 5); // 20 characters total
-                const empty = 20 - filled;
-                const bar = '[' + '#'.repeat(filled) + '-'.repeat(empty) + '] ' + percent + '%';
-                progressBar.textContent = bar;
-            }
-
-            // Phase 3: Finish boot sequence and reveal main terminal
+            // Finish boot sequence and reveal main terminal
             function finishBootSequence() {
                 console.log('Finishing boot sequence - fading out overlay');
                 // Fade out the overlay using style.opacity for reliable animation
@@ -2732,7 +2709,7 @@
                     explorePage.classList.remove('boot-hidden');
                 }
 
-                // After fade transition, remove overlay completely from DOM
+                // After fade transition completes (300ms), remove overlay and start terminal
                 setTimeout(() => {
                     console.log('Removing boot overlay from DOM');
                     // Remove the overlay element completely
@@ -2744,13 +2721,14 @@
                     markBootSequencePlayed();
 
                     console.log('Boot sequence complete, calling terminal initialization');
-                    // Trigger the callback (start main terminal)
+                    // NOW trigger the callback (start hero text and terminal)
+                    // This ensures hero text only appears AFTER overlay has cleared
                     if (callback) callback();
                 }, 300);
             }
 
-            // Start the boot sequence
-            showNextDiagnosticLine();
+            // Start typing the boot sequence
+            typeNextCharacter();
         }
 
         function skipBootSequence() {
