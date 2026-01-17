@@ -23,11 +23,7 @@
     <!-- Boot Sequence Overlay -->
     <div id="bootSequenceOverlay" class="boot-sequence-overlay">
         <div class="boot-diagnostics" id="bootDiagnostics">
-            <div class="boot-line" data-line="0">CORE_INIT: <span class="status">OK</span></div>
-            <div class="boot-line" data-line="1">MEM_LOAD: <span class="status">1024KB</span></div>
-            <div class="boot-line" data-line="2">DRV_MOUNT: <span class="status">/assets</span></div>
-            <div class="boot-line" data-line="3">NET_STACK: <span class="status">READY</span></div>
-            <div class="boot-line" data-line="4">SYS_CHECK: <span class="status">COMPLETE</span></div>
+            <!-- Boot lines will be dynamically generated from Firebase bootScript -->
         </div>
         <div class="boot-progress-container" id="bootProgressContainer">
             <div class="boot-progress-bar" id="bootProgressBar">[--------------------] 0%</div>
@@ -624,6 +620,9 @@
         function getConfigBuildersMedia() {
             return remoteConfig && remoteConfig.buildersMedia ? {...remoteConfig.buildersMedia} : null;
         }
+        function getConfigBootScript() {
+            return remoteConfig && remoteConfig.bootScript ? remoteConfig.bootScript : null;
+        }
 
         // Firebase real-time listener for configuration
         let configLoaded = false;
@@ -701,6 +700,13 @@
         function loadBootSequenceEnabled() {
             const settings = getConfigSettings();
             return settings ? (settings.bootSequenceEnabled !== undefined ? settings.bootSequenceEnabled : true) : true;
+        }
+
+        function loadBootScript() {
+            const bootScript = getConfigBootScript();
+            // Default boot script if none in config
+            const defaultBootScript = 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
+            return bootScript || defaultBootScript;
         }
 
         // Check if boot sequence has already played this session
@@ -2510,6 +2516,20 @@
             if (explorePage) {
                 explorePage.classList.add('boot-hidden');
             }
+
+            // Load boot script from Firebase and generate boot lines dynamically
+            const bootScript = loadBootScript();
+            const bootScriptLines = bootScript.split('\n').filter(line => line.trim() !== '');
+
+            // Clear existing content and generate new boot lines
+            diagnostics.innerHTML = '';
+            bootScriptLines.forEach((line, index) => {
+                const bootLineDiv = document.createElement('div');
+                bootLineDiv.className = 'boot-line';
+                bootLineDiv.setAttribute('data-line', index);
+                bootLineDiv.textContent = line;
+                diagnostics.appendChild(bootLineDiv);
+            });
 
             const bootLines = diagnostics.querySelectorAll('.boot-line');
             let currentLine = 0;
