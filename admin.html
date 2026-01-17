@@ -1146,7 +1146,7 @@
         // Firebase Configuration
         // ========================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Initialize Firebase with your project credentials
         const firebaseConfig = {
@@ -1306,14 +1306,22 @@
             }
         }
 
-        // Initialize the app after fetching remote config
-        async function initializeWithRemoteConfig() {
+        // Initialize the app - prioritize Firebase over config.json
+        async function initializeApp() {
+            // First, fetch config.json for fallback defaults
             await fetchRemoteConfig();
-            checkDataVersion();
+
+            // Try to load from Firebase first (primary source)
+            const loadedFromFirebase = await loadFromFirebase();
+
+            // If Firebase is empty, use fallback defaults from config.json
+            if (!loadedFromFirebase) {
+                loadFallbackDefaults();
+            }
         }
 
-        // Start fetching config immediately
-        const configPromise = initializeWithRemoteConfig();
+        // Start initialization immediately
+        const initPromise = initializeApp();
 
         // Action types
         const ACTION_TYPES = [
@@ -1356,9 +1364,61 @@
             return getDefaultActions();
         }
 
-        // Load data from config.json (no localStorage)
-        function loadFromConfig() {
+        // Load data from Firebase (primary source)
+        async function loadFromFirebase() {
+            try {
+                const snapshot = await get(ref(db, 'siteConfig'));
+
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    console.log('Loaded data from Firebase');
+
+                    // Load all data from Firebase
+                    currentThoughts = data.thoughts || getDefaultThoughts();
+                    currentResponses = data.responses || getDefaultResponses();
+                    currentHeroText = data.heroText || getDefaultHeroText();
+                    currentActions = data.actions || initDefaultActions();
+                    currentActiveStates = data.activeStates || getDefaultActiveStates();
+                    currentSecretCommands = data.secretCommands || getDefaultSecretCommands();
+                    currentBuildersMedia = data.buildersMedia || getDefaultBuildersMedia();
+
+                    // Load settings
+                    const settings = data.settings || {};
+                    currentRandomizeEnabled = settings.randomizeEnabled || false;
+                    currentTypingSpeed = settings.typingSpeed || 150;
+                    currentChoiceButtonsEnabled = settings.choiceButtonsEnabled || false;
+                    currentMatrixFadeDuration = settings.matrixFadeDuration || 1.5;
+                    currentEarthquakeDuration = settings.earthquakeDuration || 1.5;
+                    currentEarthquakeEnabled = settings.earthquakeEnabled !== undefined ? settings.earthquakeEnabled : true;
+                    currentBootSequenceEnabled = settings.bootSequenceEnabled !== undefined ? settings.bootSequenceEnabled : true;
+                    currentSystemMood = settings.systemMood || 'stable';
+
+                    // Ensure all actions exist (based on thought count)
+                    const thoughtCount = currentThoughts.length;
+                    while (currentActions.length < thoughtCount) {
+                        currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
+                    }
+                    // Ensure all active states exist (default to true)
+                    while (currentActiveStates.length < thoughtCount) {
+                        currentActiveStates.push(true);
+                    }
+
+                    return true; // Successfully loaded from Firebase
+                } else {
+                    console.log('No data in Firebase, will use fallback defaults');
+                    return false; // No data in Firebase, use fallbacks
+                }
+            } catch (e) {
+                console.warn('Failed to load from Firebase:', e);
+                return false; // Error loading from Firebase, use fallbacks
+            }
+        }
+
+        // Load fallback data from config.json (only used when Firebase is empty)
+        function loadFallbackDefaults() {
             const defaults = getDefaultSettings();
+            console.log('Loading fallback defaults from config.json');
+
             try {
                 currentThoughts = getDefaultThoughts();
                 currentResponses = getDefaultResponses();
@@ -1386,7 +1446,8 @@
                     currentActiveStates.push(true);
                 }
             } catch (e) {
-                console.warn('Failed to load from config:', e);
+                console.warn('Failed to load fallback defaults:', e);
+                // If everything fails, use hardcoded fallbacks
                 currentThoughts = getDefaultThoughts();
                 currentResponses = getDefaultResponses();
                 currentHeroText = getDefaultHeroText();
@@ -2138,9 +2199,8 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for remote config to load before initializing
-            await configPromise;
-            loadFromConfig();
+            // Wait for app initialization (Firebase load + fallback config)
+            await initPromise;
             renderDashboard();
         });
     </script>
