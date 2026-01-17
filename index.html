@@ -632,6 +632,17 @@
         function initializeFirebaseListener() {
             return new Promise((resolve) => {
                 const configRef = ref(db, 'siteConfig');
+                let timeoutId;
+
+                // Set a 3-second timeout - if Firebase doesn't respond, proceed anyway
+                timeoutId = setTimeout(() => {
+                    if (!configLoaded) {
+                        console.warn('Firebase timeout after 3 seconds - proceeding with defaults');
+                        remoteConfig = null;
+                        configLoaded = true;
+                        resolve();
+                    }
+                }, 3000);
 
                 onValue(configRef, (snapshot) => {
                     const data = snapshot.val();
@@ -641,6 +652,7 @@
 
                         // If this is the first load, resolve the promise
                         if (!configLoaded) {
+                            clearTimeout(timeoutId);
                             configLoaded = true;
                             resolve();
                         } else {
@@ -653,6 +665,7 @@
                         console.warn('No config data found in Firebase');
                         remoteConfig = null;
                         if (!configLoaded) {
+                            clearTimeout(timeoutId);
                             configLoaded = true;
                             resolve();
                         }
@@ -661,6 +674,7 @@
                     console.error('Firebase listener error:', error);
                     remoteConfig = null;
                     if (!configLoaded) {
+                        clearTimeout(timeoutId);
                         configLoaded = true;
                         resolve();
                     }
@@ -2509,6 +2523,7 @@
         // Boot Sequence Animation
         // ========================================
         function runBootSequence(callback) {
+            console.log('runBootSequence started');
             const overlay = document.getElementById('bootSequenceOverlay');
             const diagnostics = document.getElementById('bootDiagnostics');
             const progressContainer = document.getElementById('bootProgressContainer');
@@ -2516,9 +2531,12 @@
             const explorePage = document.querySelector('.explore-page');
 
             if (!overlay) {
+                console.warn('Boot overlay not found, calling callback');
                 if (callback) callback();
                 return;
             }
+
+            console.log('Boot overlay found, proceeding with sequence');
 
             // Hide main content during boot
             if (explorePage) {
@@ -2528,6 +2546,7 @@
             // Load boot script from Firebase and generate boot lines dynamically
             const bootScript = loadBootScript();
             const bootScriptLines = bootScript.split('\n').filter(line => line.trim() !== '');
+            console.log('Boot script lines:', bootScriptLines.length);
 
             // Clear existing content and generate new boot lines
             diagnostics.innerHTML = '';
@@ -2566,6 +2585,7 @@
 
             // Phase 2: Animate the progress bar
             function startProgressBar() {
+                console.log('Starting progress bar animation');
                 progressContainer.classList.add('visible');
 
                 let progress = 0;
@@ -2582,6 +2602,7 @@
 
                         // Update final progress bar
                         updateProgressBar(100);
+                        console.log('Progress bar complete at 100%');
 
                         // Phase 3: Fade out and transition to main terminal
                         setTimeout(finishBootSequence, 200);
@@ -2600,21 +2621,27 @@
 
             // Phase 3: Finish boot sequence and reveal main terminal
             function finishBootSequence() {
-                // Fade out the overlay
-                overlay.classList.add('hidden');
+                console.log('Finishing boot sequence - fading out overlay');
+                // Fade out the overlay using style.opacity for reliable animation
+                overlay.style.opacity = '0';
 
                 // Show main content
                 if (explorePage) {
                     explorePage.classList.remove('boot-hidden');
                 }
 
-                // After fade transition, remove overlay completely
+                // After fade transition, remove overlay completely from DOM
                 setTimeout(() => {
-                    overlay.classList.add('removed');
+                    console.log('Removing boot overlay from DOM');
+                    // Remove the overlay element completely
+                    if (overlay && overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
 
                     // Mark as played for this session
                     markBootSequencePlayed();
 
+                    console.log('Boot sequence complete, calling terminal initialization');
                     // Trigger the callback (start main terminal)
                     if (callback) callback();
                 }, 300);
@@ -2629,7 +2656,12 @@
             const explorePage = document.querySelector('.explore-page');
 
             if (overlay) {
-                overlay.classList.add('removed');
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    if (overlay && overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
+                }, 300);
             }
             if (explorePage) {
                 explorePage.classList.remove('boot-hidden');
@@ -2640,8 +2672,16 @@
         // Initialize
         // ========================================
         document.addEventListener('DOMContentLoaded', async () => {
-            // Wait for remote config to load before initializing
-            await configPromise;
+            console.log('DOMContentLoaded - Starting initialization');
+
+            // Wait for remote config to load before initializing (with timeout)
+            try {
+                await configPromise;
+                console.log('Config loaded successfully');
+            } catch (error) {
+                console.error('Config loading error:', error);
+                // Continue anyway with defaults
+            }
 
             // Initialize all config-dependent values now that config is loaded
             initializeConfigDependentValues();
@@ -2807,15 +2847,25 @@
 
             // Function to proceed with boot sequence or terminal
             function proceedAfterSplash() {
+                console.log('proceedAfterSplash called');
                 // Check if boot sequence should run
                 const shouldRunBootSequence = bootSequenceEnabled &&
                                               !hasBootSequencePlayedThisSession() &&
                                               !prefersReducedMotion;
 
+                console.log('Boot sequence check:', {
+                    bootSequenceEnabled,
+                    hasPlayed: hasBootSequencePlayedThisSession(),
+                    prefersReducedMotion,
+                    shouldRunBootSequence
+                });
+
                 if (shouldRunBootSequence) {
+                    console.log('Starting boot sequence...');
                     // Run boot sequence, then initialize terminal
                     runBootSequence(initializeTerminal);
                 } else {
+                    console.log('Skipping boot sequence...');
                     // Skip boot sequence, initialize terminal immediately
                     skipBootSequence();
                     initializeTerminal();
