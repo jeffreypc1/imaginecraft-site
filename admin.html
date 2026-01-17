@@ -1108,6 +1108,21 @@ SYS_CHECK: COMPLETE</textarea>
             </div>
         </div>
 
+        <!-- Background Image Section -->
+        <div class="typing-speed-section">
+            <h2>Background Image URL</h2>
+            <p>Set the background image shown behind the curtains during the opening sequence. This image will be revealed when the boot sequence completes and the black overlay fades out.</p>
+            <div class="nav-links-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Background Image URL</label>
+                    <input type="url" id="backgroundImageUrl" placeholder="https://example.com/background.jpg">
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
+                Tip: For best results, use a high-resolution image. The image will be positioned behind the terminal text/buttons but in front of the black background. If the image takes more than 3 seconds to load, the site will continue anyway.
+            </p>
+        </div>
+
         <!-- Builders Media Section (for TRANSPARENT command) -->
         <div class="typing-speed-section">
             <h2>Builders Image/Video URL</h2>
@@ -1266,6 +1281,9 @@ SYS_CHECK: COMPLETE</textarea>
         function getDefaultBootScript() {
             return remoteConfig && remoteConfig.bootScript ? remoteConfig.bootScript : 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
         }
+        function getDefaultBackgroundImageUrl() {
+            return remoteConfig && remoteConfig.backgroundImageUrl ? remoteConfig.backgroundImageUrl : '';
+        }
 
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
@@ -1379,6 +1397,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentSecretCommands = [];
         let currentBuildersMedia = { type: 'image', url: '' };
         let currentBootScript = 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
+        let currentBackgroundImageUrl = '';
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1406,6 +1425,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentSecretCommands = getDefaultSecretCommands();
                 currentBuildersMedia = getDefaultBuildersMedia();
                 currentBootScript = getDefaultBootScript();
+                currentBackgroundImageUrl = getDefaultBackgroundImageUrl();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1435,6 +1455,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentSecretCommands = getDefaultSecretCommands();
                 currentBuildersMedia = getDefaultBuildersMedia();
                 currentBootScript = getDefaultBootScript();
+                currentBackgroundImageUrl = getDefaultBackgroundImageUrl();
             }
         }
 
@@ -1568,6 +1589,12 @@ SYS_CHECK: COMPLETE</textarea>
             const bootScriptTextarea = document.getElementById('bootScriptTextarea');
             if (bootScriptTextarea) {
                 bootScriptTextarea.value = currentBootScript;
+            }
+
+            // Update background image URL
+            const backgroundImageUrlInput = document.getElementById('backgroundImageUrl');
+            if (backgroundImageUrlInput) {
+                backgroundImageUrlInput.value = currentBackgroundImageUrl;
             }
 
             renderThoughtCards();
@@ -2001,6 +2028,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentBootScript = bootScriptTextarea.value;
             }
 
+            // Collect background image URL
+            const backgroundImageUrlInput = document.getElementById('backgroundImageUrl');
+            if (backgroundImageUrlInput) {
+                currentBackgroundImageUrl = backgroundImageUrlInput.value;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2111,7 +2144,8 @@ SYS_CHECK: COMPLETE</textarea>
                 },
                 secretCommands: currentSecretCommands.map(cmd => ({...cmd})),
                 buildersMedia: {...currentBuildersMedia},
-                bootScript: currentBootScript
+                bootScript: currentBootScript,
+                backgroundImageUrl: currentBackgroundImageUrl
             };
 
             // Push to Firebase instead of downloading
