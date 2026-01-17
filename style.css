@@ -568,7 +568,7 @@ section p {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
+    padding: 0;
     position: relative;
     z-index: 2; /* Terminal layer: above main site (z:1), below split overlay (z:3) */
 }
@@ -581,6 +581,11 @@ section p {
     align-items: center;
     justify-content: center;
     text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 2rem;
 }
 
 /* Question Area */
@@ -2498,22 +2503,18 @@ body {
 
 /* Letterboxing - Safe Area Above Silhouettes */
 .explore-container {
-    padding-bottom: 30vh;
-    min-height: 100vh;
+    /* Centering now handled by absolute positioning and transform */
+    min-height: auto;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
 
 /* Ensure content is centered in the "screen" area */
 .explore-question-area {
-    margin-bottom: auto;
-    margin-top: auto;
+    margin: 0;
 }
 
 .explore-panels {
-    margin-bottom: auto;
+    margin: 0;
 }
 
 /* Additional Film Dust Particles */
@@ -2539,6 +2540,109 @@ body {
     100% { background-position: 100% 100%; }
 }
 
+/* ========================================
+   Theater Curtain Overlay
+   ======================================== */
+
+/* Theater Curtain - Splits or rises to reveal the terminal */
+.theater-curtain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000; /* Above everything including silhouette */
+    pointer-events: none;
+    display: flex;
+}
+
+/* Left and Right Curtain Panels */
+.curtain-left,
+.curtain-right {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        #8B0000 0%,
+        #A52A2A 8%,
+        #8B0000 16%,
+        #A52A2A 24%,
+        #8B0000 32%,
+        #A52A2A 40%,
+        #8B0000 48%,
+        #A52A2A 56%,
+        #8B0000 64%,
+        #A52A2A 72%,
+        #8B0000 80%,
+        #A52A2A 88%,
+        #8B0000 96%,
+        #A52A2A 100%
+    );
+    background-size: 40px 100%;
+    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+    transition: transform var(--curtain-duration, 4s) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.curtain-left {
+    left: 0;
+    border-right: 3px solid #5D0000;
+}
+
+.curtain-right {
+    right: 0;
+    border-left: 3px solid #5D0000;
+}
+
+/* Curtain Tassels - Decorative bottom border */
+.curtain-left::after,
+.curtain-right::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(139, 0, 0, 0.3) 20%,
+        #8B0000 40%,
+        #5D0000 100%
+    );
+    background-image:
+        repeating-linear-gradient(
+            90deg,
+            #8B0000 0px,
+            #A52A2A 10px,
+            #8B0000 20px,
+            #5D0000 30px,
+            #8B0000 40px
+        ),
+        linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(139, 0, 0, 0.8) 50%,
+            #5D0000 100%
+        );
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
+}
+
+/* Curtain Rise Animation */
+.theater-curtain.curtain-rising .curtain-left {
+    transform: translateX(-100%);
+}
+
+.theater-curtain.curtain-rising .curtain-right {
+    transform: translateX(100%);
+}
+
+/* Curtain completely hidden after animation */
+.theater-curtain.curtain-hidden {
+    display: none;
+}
+
 /* Responsive Theatre Silhouette */
 @media (max-width: 768px) {
     .mst3k-theatre {
@@ -2547,7 +2651,7 @@ body {
     }
 
     .explore-container {
-        padding-bottom: 25vh;
+        padding: 0 1.5rem;
     }
 }
 
@@ -2558,7 +2662,7 @@ body {
     }
 
     .explore-container {
-        padding-bottom: 20vh;
+        padding: 0 1rem;
     }
 }
 

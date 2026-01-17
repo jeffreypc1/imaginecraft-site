@@ -1034,6 +1034,22 @@
             </div>
         </div>
 
+        <!-- Curtain Rise Duration Section -->
+        <div class="typing-speed-section">
+            <h2>Curtain Rise Duration</h2>
+            <p>Adjust how long the theater curtain takes to split and reveal the terminal. The typing animation will begin only after the curtain has fully risen. Longer durations create more anticipation.</p>
+            <div class="slider-container">
+                <div class="slider-labels">
+                    <span>Quick (1s)</span>
+                    <span>Dramatic (10s)</span>
+                </div>
+                <input type="range" id="curtainDurationSlider" min="1" max="10" step="0.5" value="4" class="speed-slider">
+                <div class="slider-value">
+                    <span id="curtainDurationValue">4</span>s curtain rise
+                </div>
+            </div>
+        </div>
+
         <!-- Earthquake Transition Section -->
         <div class="typing-speed-section">
             <h2>Earthquake Transition</h2>
@@ -1230,6 +1246,7 @@ SYS_CHECK: COMPLETE</textarea>
                 choiceButtonsEnabled: false,
                 matrixFadeDuration: 1.5,
                 earthquakeDuration: 1.5,
+                curtainDuration: 4,
                 earthquakeEnabled: true,
                 bootSequenceEnabled: true,
                 randomizeEnabled: false,
@@ -1355,6 +1372,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentChoiceButtonsEnabled = false;
         let currentMatrixFadeDuration = 1.5;
         let currentEarthquakeDuration = 1.5;
+        let currentCurtainDuration = 4;
         let currentEarthquakeEnabled = true;
         let currentBootSequenceEnabled = true;
         let currentSystemMood = 'stable';
@@ -1381,6 +1399,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
                 currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
                 currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
+                currentCurtainDuration = defaults.curtainDuration || 4;
                 currentEarthquakeEnabled = defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true;
                 currentBootSequenceEnabled = defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
                 currentSystemMood = defaults.systemMood || 'stable';
@@ -1409,6 +1428,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
                 currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
                 currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
+                currentCurtainDuration = defaults.curtainDuration || 4;
                 currentEarthquakeEnabled = defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true;
                 currentBootSequenceEnabled = defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
                 currentSystemMood = defaults.systemMood || 'stable';
@@ -1475,6 +1495,19 @@ SYS_CHECK: COMPLETE</textarea>
                 // Add event listener for real-time value update
                 earthquakeDurationSlider.addEventListener('input', function() {
                     earthquakeDurationValue.textContent = this.value;
+                });
+            }
+
+            // Update curtain duration slider
+            const curtainDurationSlider = document.getElementById('curtainDurationSlider');
+            const curtainDurationValue = document.getElementById('curtainDurationValue');
+            if (curtainDurationSlider && curtainDurationValue) {
+                curtainDurationSlider.value = currentCurtainDuration;
+                curtainDurationValue.textContent = currentCurtainDuration;
+
+                // Add event listener for real-time value update
+                curtainDurationSlider.addEventListener('input', function() {
+                    curtainDurationValue.textContent = this.value;
                 });
             }
 
@@ -1922,6 +1955,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentEarthquakeDuration = parseFloat(earthquakeDurationSlider.value) || 1.5;
             }
 
+            // Collect curtain duration
+            const curtainDurationSlider = document.getElementById('curtainDurationSlider');
+            if (curtainDurationSlider) {
+                currentCurtainDuration = parseFloat(curtainDurationSlider.value) || 4;
+            }
+
             // Collect earthquake transition setting
             const earthquakeToggle = document.getElementById('earthquakeToggle');
             if (earthquakeToggle) {
@@ -2064,6 +2103,7 @@ SYS_CHECK: COMPLETE</textarea>
                     choiceButtonsEnabled: currentChoiceButtonsEnabled,
                     matrixFadeDuration: currentMatrixFadeDuration,
                     earthquakeDuration: currentEarthquakeDuration,
+                    curtainDuration: currentCurtainDuration,
                     earthquakeEnabled: currentEarthquakeEnabled,
                     bootSequenceEnabled: currentBootSequenceEnabled,
                     randomizeEnabled: currentRandomizeEnabled,
