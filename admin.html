@@ -85,6 +85,11 @@
             margin: 0 auto;
         }
 
+        .dashboard.loading {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -947,7 +952,7 @@
     </header>
 
     <!-- Dashboard Section -->
-    <div class="dashboard" id="dashboard">
+    <div class="dashboard loading" id="dashboard">
         <div class="dashboard-header">
             <h1>Remote Config Generator</h1>
             <div class="dashboard-actions">
@@ -970,7 +975,7 @@
         <div class="hero-section">
             <h2>Hero Heading</h2>
             <p>This is the main static heading displayed at the top. It does not cycle like the thoughts.</p>
-            <input type="text" id="heroText" placeholder="Enter hero heading..." value="WHY ARE YOU HERE?">
+            <input type="text" id="heroText" placeholder="Enter hero heading...">
         </div>
 
         <!-- Typing Speed Section -->
@@ -982,9 +987,9 @@
                     <span>Fast</span>
                     <span>Slow</span>
                 </div>
-                <input type="range" id="typingSpeedSlider" min="50" max="300" value="150" class="speed-slider">
+                <input type="range" id="typingSpeedSlider" min="50" max="300" class="speed-slider">
                 <div class="slider-value">
-                    <span id="typingSpeedValue">150</span>ms base delay
+                    <span id="typingSpeedValue"></span>ms base delay
                 </div>
             </div>
         </div>
@@ -998,7 +1003,7 @@
                     <input type="checkbox" id="choiceButtonsToggle">
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label" id="choiceButtonsToggleLabel">Disabled</span>
+                <span class="toggle-label" id="choiceButtonsToggleLabel"></span>
             </div>
         </div>
 
@@ -1011,9 +1016,9 @@
                     <span>Quick (0.5s)</span>
                     <span>Slow (5s)</span>
                 </div>
-                <input type="range" id="matrixFadeSlider" min="0.5" max="5" step="0.1" value="1.5" class="speed-slider">
+                <input type="range" id="matrixFadeSlider" min="0.5" max="5" step="0.1" class="speed-slider">
                 <div class="slider-value">
-                    <span id="matrixFadeValue">1.5</span>s fade duration
+                    <span id="matrixFadeValue"></span>s fade duration
                 </div>
             </div>
         </div>
@@ -1027,9 +1032,9 @@
                     <span>Quick (0.5s)</span>
                     <span>Long (5s)</span>
                 </div>
-                <input type="range" id="earthquakeDurationSlider" min="0.5" max="5" step="0.1" value="1.5" class="speed-slider">
+                <input type="range" id="earthquakeDurationSlider" min="0.5" max="5" step="0.1" class="speed-slider">
                 <div class="slider-value">
-                    <span id="earthquakeDurationValue">1.5</span>s shake duration
+                    <span id="earthquakeDurationValue"></span>s shake duration
                 </div>
             </div>
         </div>
@@ -1040,10 +1045,10 @@
             <p>When enabled, clicking "Enter Main Site" will trigger a dramatic earthquake shake and screen crack effect before navigating to the main site.</p>
             <div class="toggle-container">
                 <label class="toggle-switch">
-                    <input type="checkbox" id="earthquakeToggle" checked>
+                    <input type="checkbox" id="earthquakeToggle">
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label" id="earthquakeToggleLabel">Enabled</span>
+                <span class="toggle-label" id="earthquakeToggleLabel"></span>
             </div>
         </div>
 
@@ -1053,10 +1058,10 @@
             <p>When enabled, the site will display a "Power Up" boot sequence with system diagnostics and a progress bar on first load. The sequence only plays once per browser session.</p>
             <div class="toggle-container">
                 <label class="toggle-switch">
-                    <input type="checkbox" id="bootSequenceToggle" checked>
+                    <input type="checkbox" id="bootSequenceToggle">
                     <span class="toggle-slider"></span>
                 </label>
-                <span class="toggle-label" id="bootSequenceToggleLabel">Enabled</span>
+                <span class="toggle-label" id="bootSequenceToggleLabel"></span>
             </div>
         </div>
 
@@ -1468,6 +1473,12 @@
 
         // Render full dashboard
         function renderDashboard() {
+            // Remove loading class to show dashboard
+            const dashboard = document.getElementById('dashboard');
+            if (dashboard) {
+                dashboard.classList.remove('loading');
+            }
+
             // Update hero text field
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
@@ -1943,7 +1954,7 @@
             // Collect hero text
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
-                currentHeroText = heroInput.value || defaultHeroText;
+                currentHeroText = heroInput.value || getDefaultHeroText();
             }
 
             // Collect typing speed
