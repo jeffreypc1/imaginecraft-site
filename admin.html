@@ -85,11 +85,6 @@
             margin: 0 auto;
         }
 
-        .dashboard.loading {
-            opacity: 0;
-            pointer-events: none;
-        }
-
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -952,7 +947,7 @@
     </header>
 
     <!-- Dashboard Section -->
-    <div class="dashboard loading" id="dashboard">
+    <div class="dashboard" id="dashboard">
         <div class="dashboard-header">
             <h1>Remote Config Generator</h1>
             <div class="dashboard-actions">
@@ -1473,12 +1468,6 @@
 
         // Render full dashboard
         function renderDashboard() {
-            // Remove loading class to show dashboard
-            const dashboard = document.getElementById('dashboard');
-            if (dashboard) {
-                dashboard.classList.remove('loading');
-            }
-
             // Update hero text field
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
