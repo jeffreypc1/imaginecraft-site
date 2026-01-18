@@ -2764,6 +2764,10 @@
                     // Stop all cycling
                     stopCycling();
                     break;
+                case 'system-meltdown':
+                    // Trigger the system meltdown sequence
+                    executeMeltdown();
+                    break;
             }
         }
 
