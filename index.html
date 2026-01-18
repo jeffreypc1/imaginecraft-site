@@ -777,6 +777,10 @@
             return remoteConfig && remoteConfig.mst3kOverlayURL ? remoteConfig.mst3kOverlayURL : '';
         }
 
+        function loadMst3kGlowIntensity() {
+            return remoteConfig && remoteConfig.mst3kGlowIntensity !== undefined ? remoteConfig.mst3kGlowIntensity : 0.6;
+        }
+
         // Background image loading state
         let backgroundImageReady = false;
         let backgroundImageLoadPromise = null;
@@ -897,6 +901,7 @@
             const techDifficultyImageUrl = loadTechDifficultyImageUrl();
             const finImageUrl = loadFinImageUrl();
             const mst3kOverlayURL = loadMst3kOverlayURL();
+            const mst3kGlowIntensity = loadMst3kGlowIntensity();
 
             const intermissionImage = document.getElementById('intermissionImage');
             const techDifficultyImage = document.getElementById('techDifficultyImage');
@@ -907,10 +912,11 @@
             if (techDifficultyImage) techDifficultyImage.src = techDifficultyImageUrl;
             if (finImage) finImage.src = finImageUrl;
 
-            // Initialize MST3K overlay - show if URL is provided
+            // Initialize MST3K overlay - show if URL is provided and apply glow effect
             if (mst3kOverlay && mst3kOverlayURL) {
                 mst3kOverlay.src = mst3kOverlayURL;
                 mst3kOverlay.style.display = 'block';
+                mst3kOverlay.style.filter = `drop-shadow(0 -10px 15px rgba(0, 255, 0, ${mst3kGlowIntensity}))`;
             }
 
             console.log('Cinematic overlays initialized:', {
@@ -3820,7 +3826,6 @@
             // Function to set up splash screen interaction (already visible behind curtain)
             function setupSplashScreen(callback) {
                 const splashScreen = document.getElementById('splashScreen');
-                const splashClickPrompt = document.getElementById('splashClickPrompt');
 
                 if (!splashScreen) {
                     // If splash screen doesn't exist, proceed immediately
@@ -3828,17 +3833,8 @@
                     return;
                 }
 
-                // Timer to show "Click to Enter" prompt after 5 seconds
-                const promptTimer = setTimeout(() => {
-                    if (splashClickPrompt) {
-                        splashClickPrompt.classList.add('visible');
-                    }
-                }, 5000);
-
                 // Click handler to fade out splash and proceed
                 function handleSplashClick() {
-                    // Clear the prompt timer
-                    clearTimeout(promptTimer);
 
                     // Start fade out animation
                     splashScreen.classList.add('fading-out');
@@ -3928,7 +3924,6 @@
         <div class="splash-image-container">
             <img src="assets/mysteryimage.png" alt="Welcome" class="splash-image">
         </div>
-        <div class="splash-click-prompt" id="splashClickPrompt">Click to Enter</div>
     </div>
 
     <!-- Theater Curtain Overlay -->

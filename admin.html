@@ -985,6 +985,13 @@
                         Transparent PNG overlay for the MST3K theater silhouettes (positioned at bottom of screen)
                     </p>
                 </div>
+                <div class="form-group">
+                    <label>MST3K Screen Glow Intensity</label>
+                    <input type="number" id="mst3kGlowIntensity" placeholder="0.6" min="0" max="1" step="0.1">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Controls the green glow transparency (0 = no glow, 1 = maximum glow)
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -1392,6 +1399,10 @@ SYS_CHECK: COMPLETE</textarea>
             return remoteConfig && remoteConfig.mst3kOverlayURL ? remoteConfig.mst3kOverlayURL : '';
         }
 
+        function getDefaultMst3kGlowIntensity() {
+            return remoteConfig && remoteConfig.mst3kGlowIntensity !== undefined ? remoteConfig.mst3kGlowIntensity : 0.6;
+        }
+
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
             return new Promise((resolve) => {
@@ -1517,6 +1528,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentMeltdownMessage = 'CRITICAL SYSTEM FAILURE - INITIATING EMERGENCY SHUTDOWN';
         let currentMeltdownAudioURL = '';
         let currentMst3kOverlayURL = '';
+        let currentMst3kGlowIntensity = 0.6;
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1553,6 +1565,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMeltdownMessage = getDefaultMeltdownMessage();
                 currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
                 currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
+                currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1598,6 +1611,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMeltdownMessage = getDefaultMeltdownMessage();
                 currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
                 currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
+                currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
             }
         }
 
@@ -1767,6 +1781,12 @@ SYS_CHECK: COMPLETE</textarea>
             const mst3kOverlayURLInput = document.getElementById('mst3kOverlayURL');
             if (mst3kOverlayURLInput) {
                 mst3kOverlayURLInput.value = currentMst3kOverlayURL;
+            }
+
+            // Update MST3K glow intensity
+            const mst3kGlowIntensityInput = document.getElementById('mst3kGlowIntensity');
+            if (mst3kGlowIntensityInput) {
+                mst3kGlowIntensityInput.value = currentMst3kGlowIntensity;
             }
 
             renderThoughtCards();
@@ -2261,6 +2281,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMst3kOverlayURL = mst3kOverlayURLInput.value;
             }
 
+            // Collect MST3K glow intensity
+            const mst3kGlowIntensityInput = document.getElementById('mst3kGlowIntensity');
+            if (mst3kGlowIntensityInput) {
+                currentMst3kGlowIntensity = parseFloat(mst3kGlowIntensityInput.value) || 0.6;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2390,7 +2416,8 @@ SYS_CHECK: COMPLETE</textarea>
                 finImageUrl: currentFinImageUrl,
                 meltdownMessage: currentMeltdownMessage,
                 meltdownAudioURL: currentMeltdownAudioURL,
-                mst3kOverlayURL: currentMst3kOverlayURL
+                mst3kOverlayURL: currentMst3kOverlayURL,
+                mst3kGlowIntensity: currentMst3kGlowIntensity
             };
 
             // Push to Firebase instead of downloading
