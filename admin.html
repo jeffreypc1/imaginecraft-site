@@ -992,6 +992,13 @@
                         Controls the green glow transparency (0 = no glow, 1 = maximum glow)
                     </p>
                 </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Theater Frame URL</label>
+                    <input type="url" id="theaterFrameURL" placeholder="https://example.com/curtainbkg.png">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Permanent theater curtain frame overlay (positioned as full-screen background behind silhouettes)
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -1403,6 +1410,10 @@ SYS_CHECK: COMPLETE</textarea>
             return remoteConfig && remoteConfig.mst3kGlowIntensity !== undefined ? remoteConfig.mst3kGlowIntensity : 0.6;
         }
 
+        function getDefaultTheaterFrameURL() {
+            return remoteConfig && remoteConfig.theaterFrameURL ? remoteConfig.theaterFrameURL : '';
+        }
+
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
             return new Promise((resolve) => {
@@ -1529,6 +1540,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentMeltdownAudioURL = '';
         let currentMst3kOverlayURL = '';
         let currentMst3kGlowIntensity = 0.6;
+        let currentTheaterFrameURL = '';
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1566,6 +1578,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
                 currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
                 currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
+                currentTheaterFrameURL = getDefaultTheaterFrameURL();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1612,6 +1625,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
                 currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
                 currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
+                currentTheaterFrameURL = getDefaultTheaterFrameURL();
             }
         }
 
@@ -1787,6 +1801,12 @@ SYS_CHECK: COMPLETE</textarea>
             const mst3kGlowIntensityInput = document.getElementById('mst3kGlowIntensity');
             if (mst3kGlowIntensityInput) {
                 mst3kGlowIntensityInput.value = currentMst3kGlowIntensity;
+            }
+
+            // Update Theater Frame URL
+            const theaterFrameURLInput = document.getElementById('theaterFrameURL');
+            if (theaterFrameURLInput) {
+                theaterFrameURLInput.value = currentTheaterFrameURL;
             }
 
             renderThoughtCards();
@@ -2287,6 +2307,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMst3kGlowIntensity = parseFloat(mst3kGlowIntensityInput.value) || 0.6;
             }
 
+            // Collect Theater Frame URL
+            const theaterFrameURLInput = document.getElementById('theaterFrameURL');
+            if (theaterFrameURLInput) {
+                currentTheaterFrameURL = theaterFrameURLInput.value;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2417,7 +2443,8 @@ SYS_CHECK: COMPLETE</textarea>
                 meltdownMessage: currentMeltdownMessage,
                 meltdownAudioURL: currentMeltdownAudioURL,
                 mst3kOverlayURL: currentMst3kOverlayURL,
-                mst3kGlowIntensity: currentMst3kGlowIntensity
+                mst3kGlowIntensity: currentMst3kGlowIntensity,
+                theaterFrameURL: currentTheaterFrameURL
             };
 
             // Push to Firebase instead of downloading

@@ -556,6 +556,19 @@
             transform: scale(1.1);
         }
 
+        /* Theater Frame Overlay - Permanent curtain frame */
+        #theater-frame-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: fill;
+            z-index: 9998;
+            pointer-events: none;
+            opacity: 1;
+        }
+
         /* MST3K Theater Overlay - Permanent silhouettes at bottom */
         #global-mst3k-overlay {
             position: fixed;
@@ -563,7 +576,7 @@
             left: 0;
             width: 100%;
             height: auto;
-            z-index: 10002;
+            z-index: 9999;
             pointer-events: none;
             opacity: 1;
         }
@@ -781,6 +794,10 @@
             return remoteConfig && remoteConfig.mst3kGlowIntensity !== undefined ? remoteConfig.mst3kGlowIntensity : 0.6;
         }
 
+        function loadTheaterFrameURL() {
+            return remoteConfig && remoteConfig.theaterFrameURL ? remoteConfig.theaterFrameURL : '';
+        }
+
         // Background image loading state
         let backgroundImageReady = false;
         let backgroundImageLoadPromise = null;
@@ -902,11 +919,13 @@
             const finImageUrl = loadFinImageUrl();
             const mst3kOverlayURL = loadMst3kOverlayURL();
             const mst3kGlowIntensity = loadMst3kGlowIntensity();
+            const theaterFrameURL = loadTheaterFrameURL();
 
             const intermissionImage = document.getElementById('intermissionImage');
             const techDifficultyImage = document.getElementById('techDifficultyImage');
             const finImage = document.getElementById('finImage');
             const mst3kOverlay = document.getElementById('global-mst3k-overlay');
+            const theaterFrame = document.getElementById('theater-frame-overlay');
 
             if (intermissionImage) intermissionImage.src = intermissionImageUrl;
             if (techDifficultyImage) techDifficultyImage.src = techDifficultyImageUrl;
@@ -919,11 +938,19 @@
                 mst3kOverlay.style.filter = `drop-shadow(0 -10px 15px rgba(0, 255, 0, ${mst3kGlowIntensity}))`;
             }
 
+            // Initialize Theater Frame overlay - show if URL is provided and apply glow effect
+            if (theaterFrame && theaterFrameURL) {
+                theaterFrame.src = theaterFrameURL;
+                theaterFrame.style.display = 'block';
+                theaterFrame.style.filter = `drop-shadow(0 5px 15px rgba(0, 255, 0, ${mst3kGlowIntensity}))`;
+            }
+
             console.log('Cinematic overlays initialized:', {
                 intermissionImageUrl,
                 techDifficultyImageUrl,
                 finImageUrl,
-                mst3kOverlayURL
+                mst3kOverlayURL,
+                theaterFrameURL
             });
         }
 
@@ -3942,6 +3969,9 @@
     <div id="finOverlay" class="cinematic-overlay" style="display: none;">
         <img id="finImage" src="" alt="Fin" class="cinematic-image">
     </div>
+
+    <!-- Theater Frame Overlay (permanent curtain frame) -->
+    <img id="theater-frame-overlay" src="" alt="Theater Frame Overlay" style="display: none;">
 
     <!-- MST3K Overlay (permanent theater silhouettes) -->
     <img id="global-mst3k-overlay" src="" alt="MST3K Theater Overlay" style="display: none;">
