@@ -2795,7 +2795,7 @@ body {
    Splash Screen
    ======================================== */
 
-/* Splash Screen - Appears after curtain rises, before terminal */
+/* Splash Screen - Visible from start behind curtain, before terminal */
 .splash-screen {
     position: fixed;
     top: 0;
@@ -2808,8 +2808,8 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    opacity: 0;
-    visibility: hidden;
+    opacity: 1;
+    visibility: visible;
     transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
     cursor: pointer;
 }

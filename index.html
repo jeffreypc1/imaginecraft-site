@@ -3203,11 +3203,9 @@
             }
 
             // Function to handle curtain rise animation
-            function raiseCurtain(callback) {
+            function raiseCurtain() {
                 const curtainElement = document.getElementById('theaterCurtain');
                 if (!curtainElement) {
-                    // If curtain element doesn't exist, proceed immediately
-                    if (callback) callback();
                     return;
                 }
 
@@ -3217,15 +3215,14 @@
                 // Start curtain rise animation
                 curtainElement.classList.add('curtain-rising');
 
-                // After curtain has fully risen, hide it and proceed
+                // After curtain has fully risen, hide it
                 setTimeout(() => {
                     curtainElement.classList.add('curtain-hidden');
-                    if (callback) callback();
                 }, curtainDuration * 1000);
             }
 
-            // Function to show splash screen and wait for user interaction
-            function showSplashScreen(callback) {
+            // Function to set up splash screen interaction (already visible behind curtain)
+            function setupSplashScreen(callback) {
                 const splashScreen = document.getElementById('splashScreen');
                 const splashClickPrompt = document.getElementById('splashClickPrompt');
 
@@ -3234,9 +3231,6 @@
                     if (callback) callback();
                     return;
                 }
-
-                // Show the splash screen
-                splashScreen.classList.add('active');
 
                 // Timer to show "Click to Enter" prompt after 5 seconds
                 const promptTimer = setTimeout(() => {
@@ -3252,7 +3246,6 @@
 
                     // Start fade out animation
                     splashScreen.classList.add('fading-out');
-                    splashScreen.classList.remove('active');
 
                     // Remove click listener to prevent multiple triggers
                     splashScreen.removeEventListener('click', handleSplashClick);
@@ -3300,14 +3293,11 @@
                 }
             }
 
-            // Function to proceed after curtain rises
-            function proceedAfterCurtain() {
-                // Show splash screen, then proceed to boot/terminal after click
-                showSplashScreen(proceedAfterSplash);
-            }
+            // Set up splash screen interaction (already visible behind curtain)
+            setupSplashScreen(proceedAfterSplash);
 
-            // Start with curtain rise, then splash screen, then terminal
-            raiseCurtain(proceedAfterCurtain);
+            // Raise curtain to reveal the splash screen
+            raiseCurtain();
 
         });
     </script>
