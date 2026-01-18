@@ -1168,6 +1168,96 @@
             typeMeltdownChar();
         }
 
+        // Trigger meltdown from Yes/No button clicks
+        function triggerMeltdown() {
+            console.log('SYSTEM MELTDOWN TRIGGERED FROM BUTTON CLICK!');
+
+            // Immediately disable Yes/No buttons to prevent double-clicks
+            const yesBtn = document.getElementById('choiceBtnYes');
+            const noBtn = document.getElementById('choiceBtnNo');
+            if (yesBtn) {
+                yesBtn.disabled = true;
+                yesBtn.style.pointerEvents = 'none';
+            }
+            if (noBtn) {
+                noBtn.disabled = true;
+                noBtn.style.pointerEvents = 'none';
+            }
+
+            // Stop all animations and input immediately
+            state.isUserTyping = true;
+            state.isSelected = true;
+            state.isAnimating = false;
+            state.waitingForChoice = false;
+            stopCycling();
+
+            // Clear any existing timeouts
+            if (state.animationTimeout) clearTimeout(state.animationTimeout);
+            if (state.cycleTimeout) clearTimeout(state.cycleTimeout);
+            if (state.idleTimeout) clearTimeout(state.idleTimeout);
+
+            // Hide cursor
+            const cursorElement = document.getElementById('exploreCursor');
+            if (cursorElement) {
+                cursorElement.classList.remove('visible');
+            }
+
+            // Hide choice buttons
+            const choiceContainer = document.getElementById('choiceButtonsContainer');
+            if (choiceContainer) {
+                choiceContainer.style.display = 'none';
+            }
+
+            // Clear terminal and prepare for meltdown message
+            const thoughtElement = document.getElementById('currentThought');
+            if (thoughtElement) {
+                thoughtElement.textContent = '';
+                thoughtElement.classList.remove('fade-out', 'fade-in');
+                thoughtElement.classList.add('visible', 'meltdown-text');
+            }
+
+            // Reset state text
+            state.currentText = '';
+
+            // Rapidly type the meltdown message in red
+            let charIndex = 0;
+            const typingSpeed = 20; // Very fast typing (20ms per character)
+
+            function typeMeltdownChar() {
+                if (charIndex < meltdownMessage.length) {
+                    thoughtElement.textContent += meltdownMessage[charIndex];
+                    charIndex++;
+                    setTimeout(typeMeltdownChar, typingSpeed);
+                } else {
+                    // After message is typed, apply pixel-melt CSS class and trigger melt
+                    setTimeout(() => {
+                        // Apply pixel-melt class to terminal container
+                        const terminalBody = document.getElementById('terminal-body');
+                        const terminalContainer = document.getElementById('terminal-container');
+                        const explorePage = document.querySelector('.explore-page');
+
+                        if (terminalBody) {
+                            terminalBody.classList.add('pixel-melt');
+                        }
+                        if (terminalContainer) {
+                            terminalContainer.classList.add('pixel-melt');
+                        }
+                        if (explorePage) {
+                            explorePage.classList.add('pixel-melt');
+                        }
+                        if (thoughtElement) {
+                            thoughtElement.classList.add('pixel-melt');
+                        }
+
+                        // Trigger full pixel melt sequence
+                        triggerPixelMelt();
+                    }, 500);
+                }
+            }
+
+            typeMeltdownChar();
+        }
+
         // Trigger pixel melt animation and display overlay
         function triggerPixelMelt() {
             const explorePage = document.querySelector('.explore-page');
@@ -2288,6 +2378,14 @@
         function handleChoiceYes() {
             if (!state.waitingForChoice) return;
 
+            // CRITICAL: Check for System Meltdown action type FIRST
+            const originalIndex = getOriginalIndex(state.currentIndex);
+            const currentAction = (typeof originalIndex === 'number' && actions[originalIndex]) ? actions[originalIndex] : null;
+            if (currentAction && currentAction.type === 'system-meltdown') {
+                triggerMeltdown();
+                return;
+            }
+
             // Immediately prevent multiple clicks
             state.waitingForChoice = false;
 
@@ -2451,6 +2549,16 @@
 
         // Handle No button click - backspace and move to next thought
         function handleChoiceNo() {
+            if (!state.waitingForChoice) return;
+
+            // CRITICAL: Check for System Meltdown action type FIRST
+            const originalIndex = getOriginalIndex(state.currentIndex);
+            const currentAction = (typeof originalIndex === 'number' && actions[originalIndex]) ? actions[originalIndex] : null;
+            if (currentAction && currentAction.type === 'system-meltdown') {
+                triggerMeltdown();
+                return;
+            }
+
             triggerBackspaceAndNext(false);
         }
 
