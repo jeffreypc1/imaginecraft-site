@@ -605,6 +605,12 @@
         function getConfigActiveStates() {
             return remoteConfig && remoteConfig.activeStates ? [...remoteConfig.activeStates] : null;
         }
+        function getConfigYesRedirectIndices() {
+            return remoteConfig && remoteConfig.yesRedirectIndices ? [...remoteConfig.yesRedirectIndices] : null;
+        }
+        function getConfigNoRedirectIndices() {
+            return remoteConfig && remoteConfig.noRedirectIndices ? [...remoteConfig.noRedirectIndices] : null;
+        }
         function getConfigSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
@@ -704,6 +710,14 @@
 
         function loadActiveStates() {
             return getConfigActiveStates();
+        }
+
+        function loadYesRedirectIndices() {
+            return getConfigYesRedirectIndices();
+        }
+
+        function loadNoRedirectIndices() {
+            return getConfigNoRedirectIndices();
         }
 
         function loadRandomizeEnabled() {
@@ -1602,6 +1616,10 @@
         let activeIndices = [];
         let thoughts = [];
         let responses = [];
+        let allYesRedirectIndices = [];
+        let allNoRedirectIndices = [];
+        let yesRedirectIndices = [];
+        let noRedirectIndices = [];
 
         // Function to load and process thoughts/responses data
         function initializeContentData() {
@@ -1610,6 +1628,8 @@
             heroText = loadHeroText();
             actions = loadActions();
             activeStates = loadActiveStates();
+            allYesRedirectIndices = loadYesRedirectIndices();
+            allNoRedirectIndices = loadNoRedirectIndices();
             randomizeEnabled = loadRandomizeEnabled();
 
             // If config not loaded, show initialization message
@@ -1620,6 +1640,8 @@
                 heroText = 'SYSTEM INITIALIZING...';
                 actions = [{ type: 'none', url: '', logo: '', linkText: 'Click here' }];
                 activeStates = [true];
+                allYesRedirectIndices = [''];
+                allNoRedirectIndices = [''];
                 randomizeEnabled = false;
             }
 
@@ -1627,6 +1649,8 @@
             activeIndices = [];
             thoughts = [];
             responses = [];
+            yesRedirectIndices = [];
+            noRedirectIndices = [];
 
             // Filter to only include active thoughts and track their original indices
             for (let i = 0; i < allThoughts.length; i++) {
@@ -1635,6 +1659,8 @@
                     activeIndices.push(i);
                     thoughts.push(allThoughts[i]);
                     responses.push(allResponses[i]);
+                    yesRedirectIndices.push(allYesRedirectIndices[i] || '');
+                    noRedirectIndices.push(allNoRedirectIndices[i] || '');
                 }
             }
 
@@ -1654,16 +1680,22 @@
                 const newActiveIndices = [];
                 const newThoughts = [];
                 const newResponses = [];
+                const newYesRedirectIndices = [];
+                const newNoRedirectIndices = [];
 
                 for (const idx of selectedIndices) {
                     newActiveIndices.push(activeIndices[idx]);
                     newThoughts.push(thoughts[idx]);
                     newResponses.push(responses[idx]);
+                    newYesRedirectIndices.push(yesRedirectIndices[idx]);
+                    newNoRedirectIndices.push(noRedirectIndices[idx]);
                 }
 
                 activeIndices = newActiveIndices;
                 thoughts = newThoughts;
                 responses = newResponses;
+                yesRedirectIndices = newYesRedirectIndices;
+                noRedirectIndices = newNoRedirectIndices;
             }
 
             // Extract meltdown triggers from all thoughts (including inactive ones)
@@ -2239,7 +2271,7 @@
             }
         }
 
-        // Handle Yes button click - trigger the response
+        // Handle Yes button click - trigger the response or redirect
         function handleChoiceYes() {
             if (!state.waitingForChoice) return;
 
@@ -2259,11 +2291,44 @@
                 }, 150);
             }
 
-            // Mark selection made and highlight Yes button (don't hide buttons)
-            markChoiceSelection('yes');
+            // Check if there's a redirect index configured
+            const redirectIndex = yesRedirectIndices[state.currentIndex];
+            if (redirectIndex && redirectIndex !== '') {
+                // Convert to 0-based index (admin shows 1-based)
+                const targetIndex = parseInt(redirectIndex) - 1;
 
-            // Trigger the thought selection (shows response panel)
-            selectThought(state.currentIndex);
+                // Validate the target index
+                if (targetIndex >= 0 && targetIndex < thoughts.length) {
+                    // Mark selection made
+                    markChoiceSelection('yes');
+
+                    // Hide choice buttons
+                    hideChoiceButtons();
+
+                    // Immediately clear the screen
+                    thoughtElement.textContent = '';
+                    state.currentText = '';
+
+                    // Reset choice buttons for next thought
+                    setTimeout(() => {
+                        resetChoiceButtons();
+
+                        // Jump to the specified index
+                        state.currentIndex = targetIndex;
+                        state.isAnimating = false;
+                        showThought(state.currentIndex);
+                    }, 100);
+                } else {
+                    console.warn('Invalid yes redirect index:', redirectIndex);
+                    // Fall back to default behavior
+                    markChoiceSelection('yes');
+                    selectThought(state.currentIndex);
+                }
+            } else {
+                // No redirect configured - use default behavior (show response)
+                markChoiceSelection('yes');
+                selectThought(state.currentIndex);
+            }
         }
 
         // Unified function to trigger backspace animation and move to next thought
@@ -2304,7 +2369,7 @@
                     });
                 }, 500); // Match the CSS fade-out transition duration
             } else {
-                // User clicked "No": show flash feedback, keep visible but disabled
+                // User clicked "No": check for redirect or use default behavior
                 const noBtn = document.getElementById('choiceBtnNo');
                 const yesBtn = document.getElementById('choiceBtnYes');
 
@@ -2323,15 +2388,51 @@
                 if (noBtn) noBtn.classList.add('disabled');
                 if (yesBtn) yesBtn.classList.add('disabled');
 
-                // Immediately start backspace animation after flash
-                setTimeout(() => {
-                    backspaceCharacter(() => {
-                        state.isAnimating = false;
-                        // Move to next thought
-                        state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                        showThought(state.currentIndex);
-                    });
-                }, 200);
+                // Check if there's a redirect index configured
+                const redirectIndex = noRedirectIndices[state.currentIndex];
+                if (redirectIndex && redirectIndex !== '') {
+                    // Convert to 0-based index (admin shows 1-based)
+                    const targetIndex = parseInt(redirectIndex) - 1;
+
+                    // Validate the target index
+                    if (targetIndex >= 0 && targetIndex < thoughts.length) {
+                        // Hide choice buttons
+                        hideChoiceButtons();
+
+                        // Immediately clear the screen and jump to target
+                        setTimeout(() => {
+                            thoughtElement.textContent = '';
+                            state.currentText = '';
+
+                            // Reset choice buttons for next thought
+                            resetChoiceButtons();
+
+                            // Jump to the specified index
+                            state.currentIndex = targetIndex;
+                            state.isAnimating = false;
+                            showThought(state.currentIndex);
+                        }, 200);
+                    } else {
+                        console.warn('Invalid no redirect index:', redirectIndex);
+                        // Fall back to default behavior (backspace and next)
+                        setTimeout(() => {
+                            backspaceCharacter(() => {
+                                state.isAnimating = false;
+                                state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                                showThought(state.currentIndex);
+                            });
+                        }, 200);
+                    }
+                } else {
+                    // No redirect configured - use default behavior (backspace and move to next)
+                    setTimeout(() => {
+                        backspaceCharacter(() => {
+                            state.isAnimating = false;
+                            state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                            showThought(state.currentIndex);
+                        });
+                    }, 200);
+                }
             }
         }
 
