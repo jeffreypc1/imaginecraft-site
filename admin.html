@@ -1308,6 +1308,20 @@ SYS_CHECK: COMPLETE</textarea>
             // If no Firebase data, return a single active state
             return [true];
         }
+        function getDefaultYesRedirectIndices() {
+            if (remoteConfig && remoteConfig.yesRedirectIndices) {
+                return [...remoteConfig.yesRedirectIndices];
+            }
+            // If no Firebase data, return a single empty redirect
+            return [''];
+        }
+        function getDefaultNoRedirectIndices() {
+            if (remoteConfig && remoteConfig.noRedirectIndices) {
+                return [...remoteConfig.noRedirectIndices];
+            }
+            // If no Firebase data, return a single empty redirect
+            return [''];
+        }
         function getDefaultSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
@@ -1462,6 +1476,8 @@ SYS_CHECK: COMPLETE</textarea>
         let currentHeroText = '';
         let currentActions = [];
         let currentActiveStates = [];
+        let currentYesRedirectIndices = [];
+        let currentNoRedirectIndices = [];
         let currentRandomizeEnabled = false;
         let currentTypingSpeed = 150;
         let currentChoiceButtonsEnabled = false;
@@ -1495,6 +1511,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentHeroText = getDefaultHeroText();
                 currentActions = initDefaultActions();
                 currentActiveStates = getDefaultActiveStates();
+                currentYesRedirectIndices = getDefaultYesRedirectIndices();
+                currentNoRedirectIndices = getDefaultNoRedirectIndices();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
                 currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
@@ -1523,6 +1541,13 @@ SYS_CHECK: COMPLETE</textarea>
                 while (currentActiveStates.length < thoughtCount) {
                     currentActiveStates.push(true);
                 }
+                // Ensure all redirect indices exist (default to empty string)
+                while (currentYesRedirectIndices.length < thoughtCount) {
+                    currentYesRedirectIndices.push('');
+                }
+                while (currentNoRedirectIndices.length < thoughtCount) {
+                    currentNoRedirectIndices.push('');
+                }
             } catch (e) {
                 console.warn('Failed to load from config:', e);
                 currentThoughts = getDefaultThoughts();
@@ -1530,6 +1555,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentHeroText = getDefaultHeroText();
                 currentActions = initDefaultActions();
                 currentActiveStates = getDefaultActiveStates();
+                currentYesRedirectIndices = getDefaultYesRedirectIndices();
+                currentNoRedirectIndices = getDefaultNoRedirectIndices();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
                 currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
@@ -1883,6 +1910,8 @@ SYS_CHECK: COMPLETE</textarea>
             currentResponses.push('');
             currentActions.push({ type: 'none', url: '', logo: '', linkText: 'Click here' });
             currentActiveStates.push(true);
+            currentYesRedirectIndices.push('');
+            currentNoRedirectIndices.push('');
 
             renderThoughtCards();
 
@@ -1911,6 +1940,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentResponses.splice(index, 1);
                 currentActions.splice(index, 1);
                 currentActiveStates.splice(index, 1);
+                currentYesRedirectIndices.splice(index, 1);
+                currentNoRedirectIndices.splice(index, 1);
                 renderThoughtCards();
             }
         }
@@ -1958,6 +1989,14 @@ SYS_CHECK: COMPLETE</textarea>
                     <div class="form-group">
                         <label>Response</label>
                         <textarea id="response-${i}" placeholder="Enter response...">${escapeHtml(currentResponses[i] || '')}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Yes Button → Jump to Index (leave blank for next)</label>
+                        <input type="number" id="yes-redirect-${i}" value="${escapeHtml(currentYesRedirectIndices[i] || '')}" placeholder="e.g., 3" min="1" max="${thoughtCount}">
+                    </div>
+                    <div class="form-group">
+                        <label>No Button → Jump to Index (leave blank for next)</label>
+                        <input type="number" id="no-redirect-${i}" value="${escapeHtml(currentNoRedirectIndices[i] || '')}" placeholder="e.g., 5" min="1" max="${thoughtCount}">
                     </div>
                     <div class="form-group">
                         <label>Action Type</label>
@@ -2229,6 +2268,16 @@ SYS_CHECK: COMPLETE</textarea>
                     currentActiveStates[i] = activeCheckbox.checked;
                 }
 
+                // Collect redirect indices
+                const yesRedirectInput = document.getElementById(`yes-redirect-${i}`);
+                const noRedirectInput = document.getElementById(`no-redirect-${i}`);
+                if (yesRedirectInput) {
+                    currentYesRedirectIndices[i] = yesRedirectInput.value;
+                }
+                if (noRedirectInput) {
+                    currentNoRedirectIndices[i] = noRedirectInput.value;
+                }
+
                 const actionTypeSelect = document.getElementById(`action-type-${i}`);
                 const actionType = actionTypeSelect ? actionTypeSelect.value : 'none';
                 if (!currentActions[i]) {
@@ -2282,6 +2331,8 @@ SYS_CHECK: COMPLETE</textarea>
                 responses: [...currentResponses],
                 actions: currentActions.map(a => ({...a})),
                 activeStates: [...currentActiveStates],
+                yesRedirectIndices: [...currentYesRedirectIndices],
+                noRedirectIndices: [...currentNoRedirectIndices],
                 settings: {
                     typingSpeed: currentTypingSpeed,
                     choiceButtonsEnabled: currentChoiceButtonsEnabled,
