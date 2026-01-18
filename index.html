@@ -226,6 +226,22 @@
         </div>
     </div>
 
+    <!-- Name Capture Modal -->
+    <div class="modal-overlay" id="nameModal" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content name-modal-content" role="dialog" aria-modal="true" aria-labelledby="nameModalTitle">
+            <button class="modal-close" onclick="closeNameModal()" aria-label="Close modal">&times;</button>
+            <h2 id="nameModalTitle">Identity Recognition</h2>
+            <p class="name-modal-subtitle">Please enter your designation for system records.</p>
+            <form class="modal-form" onsubmit="saveUserName(event)">
+                <div class="form-group">
+                    <label for="userName">Name</label>
+                    <input type="text" id="userName" name="userName" placeholder="Enter your name" required autofocus>
+                </div>
+                <button type="submit" class="cta-button">Confirm</button>
+            </form>
+        </div>
+    </div>
+
     <style>
         /* Boot Sequence Styles */
         .boot-sequence-overlay {
@@ -1538,6 +1554,16 @@
             return segments;
         }
 
+        // Helper function to replace {{name}} placeholder with user's name
+        function replaceName(text) {
+            if (!text.includes('{{name}}')) return text;
+
+            const userName = sessionStorage.getItem('imaginecraft_user_name');
+            const replacement = userName || 'friend';
+
+            return text.replace(/\{\{name\}\}/g, replacement);
+        }
+
         // Helper function to strip backspace syntax from text for direct display
         // Removes {text} portions to show the final intended text
         function stripBackspaceSyntax(text) {
@@ -1699,7 +1725,8 @@
             if (state.isUserTyping || state.isSelected || state.isAnimating) return;
 
             state.isAnimating = true;
-            const thought = thoughts[index];
+            const originalThought = thoughts[index];
+            const thought = replaceName(originalThought);
             state.targetText = thought;
             thoughtElement.dataset.index = index;
 
@@ -2052,7 +2079,7 @@
 
             // If we're selecting a cycling thought, show the full text (without backspace syntax)
             if (typeof index === 'number' && thoughts[index]) {
-                const cleanText = stripBackspaceSyntax(thoughts[index]);
+                const cleanText = replaceName(stripBackspaceSyntax(thoughts[index]));
                 thoughtElement.textContent = cleanText;
                 state.currentText = cleanText;
             }
@@ -2120,7 +2147,8 @@
 
                         // Start sequential typing: response -> action button
                         // Pass original index for action lookup
-                        typePanelResponse(textEl, actionsEl, actionBtn, fullResponse, 0, originalIndex);
+                        const processedResponse = replaceName(fullResponse);
+                        typePanelResponse(textEl, actionsEl, actionBtn, processedResponse, 0, originalIndex);
                     }
 
                     // Focus the panel for accessibility
@@ -2186,7 +2214,7 @@
                     actionsEl.classList.add('visible');
                 }
 
-                const actionLinkText = action.linkText || 'Click here';
+                const actionLinkText = replaceName(action.linkText || 'Click here');
                 actionBtn.classList.remove('hidden');
 
                 // Type out the action button text
@@ -2263,6 +2291,9 @@
                     break;
                 case 'contact':
                     openContactModal();
+                    break;
+                case 'capture-name':
+                    openNameModal();
                     break;
                 case 'audio':
                     // Play the pre-loaded audio when user clicks the trigger text
@@ -2657,15 +2688,40 @@
             document.body.style.overflow = '';
         }
 
+        function openNameModal() {
+            document.getElementById('nameModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('userName').focus();
+        }
+
+        function closeNameModal() {
+            document.getElementById('nameModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function saveUserName(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('userName');
+            const userName = nameInput.value.trim();
+
+            if (userName) {
+                sessionStorage.setItem('imaginecraft_user_name', userName);
+                closeNameModal();
+                nameInput.value = '';
+            }
+        }
+
         function closeModalOnOverlay(event) {
             if (event.target === event.currentTarget) {
                 closeContactModal();
+                closeNameModal();
             }
         }
 
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 closeContactModal();
+                closeNameModal();
                 closeMultimediaModal();
             }
         });
@@ -3050,7 +3106,8 @@
 
             // Type out hero text character by character
             function typeHeroText(callback) {
-                const fullText = heroElement.dataset.fullText || heroText;
+                const originalText = heroElement.dataset.fullText || heroText;
+                const fullText = replaceName(originalText);
                 let index = 0;
 
                 function typeNextChar() {

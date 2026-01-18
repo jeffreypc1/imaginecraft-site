@@ -407,6 +407,20 @@ section p {
     color: rgba(255, 255, 255, 1);
 }
 
+/* Name Modal Custom Styling */
+.name-modal-content {
+    max-width: 380px;
+    padding: 2.5rem;
+}
+
+.name-modal-subtitle {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    text-align: center;
+    margin: -1rem 0 1.5rem 0;
+    font-family: 'Courier New', monospace;
+}
+
 .modal-content h2 {
     color: var(--off-white);
     font-size: 1.75rem;
