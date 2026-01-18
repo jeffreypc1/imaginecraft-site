@@ -1398,7 +1398,8 @@
             matrixActive: false,
             matrixAnimationId: null,
             waitingForChoice: false,  // Whether we're waiting for Yes/No button click
-            heroTyped: false          // Whether the hero text has been typed
+            heroTyped: false,         // Whether the hero text has been typed
+            currentAudio: null        // Pre-loaded audio object for manual playback
         };
 
         function loadTypingSpeed() {
@@ -2067,6 +2068,19 @@
             // Get the original index for panel lookup
             const originalIndex = getOriginalIndex(index);
 
+            // Pre-load audio if this thought has an audio action
+            const action = (typeof originalIndex === 'number' && actions[originalIndex]) ? actions[originalIndex] : null;
+            if (action && action.type === 'audio' && action.url) {
+                // Stop any previously loaded audio
+                if (state.currentAudio) {
+                    state.currentAudio.pause();
+                    state.currentAudio = null;
+                }
+                // Pre-load the audio file (will not play automatically)
+                state.currentAudio = new Audio(action.url);
+                state.currentAudio.preload = 'auto';
+            }
+
             // Show the corresponding panel using original index
             showPanel(index, originalIndex);
         }
@@ -2249,6 +2263,23 @@
                     break;
                 case 'contact':
                     openContactModal();
+                    break;
+                case 'audio':
+                    // Play the pre-loaded audio when user clicks the trigger text
+                    if (state.currentAudio) {
+                        // Reset to beginning if already played
+                        state.currentAudio.currentTime = 0;
+                        // Play the audio (user-initiated, not automatic)
+                        state.currentAudio.play().catch(err => {
+                            console.warn('Audio playback failed:', err);
+                        });
+                    } else if (action.url) {
+                        // Fallback: create and play if not pre-loaded
+                        const audio = new Audio(action.url);
+                        audio.play().catch(err => {
+                            console.warn('Audio playback failed:', err);
+                        });
+                    }
                     break;
             }
         }
@@ -2492,6 +2523,12 @@
             // Clear any pending timeouts
             clearTimeout(state.idleTimeout);
             state.idleTimeout = null;
+            // Stop and cleanup any playing audio
+            if (state.currentAudio) {
+                state.currentAudio.pause();
+                state.currentAudio.currentTime = 0;
+                state.currentAudio = null;
+            }
             // Advance to the next thought in sequence (don't reset to 0)
             state.currentIndex = (state.currentIndex + 1) % thoughts.length;
             state.selectedIndex = null;

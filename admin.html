@@ -1367,7 +1367,8 @@ SYS_CHECK: COMPLETE</textarea>
             { value: 'image', label: 'Static Image' },
             { value: 'logo', label: 'Logo' },
             { value: 'matrix', label: 'The Matrix' },
-            { value: 'contact', label: 'Contact Us Form' }
+            { value: 'contact', label: 'Contact Us Form' },
+            { value: 'audio', label: 'Audio Clip' }
         ];
 
         // Secret command action types
@@ -1912,6 +1913,17 @@ SYS_CHECK: COMPLETE</textarea>
                             <textarea id="action-logo-${index}" placeholder="Enter ASCII art...">${escapeHtml(action.logo || '')}</textarea>
                         </div>
                     `;
+                case 'audio':
+                    return `
+                        <div class="form-group">
+                            <label>Audio Trigger Text (clickable link)</label>
+                            <input type="text" id="action-linktext-${index}" value="${escapeHtml(action.linkText || 'Play Audio')}" placeholder="Play Audio">
+                        </div>
+                        <div class="form-group">
+                            <label>Audio File URL (.wav, .mp3, etc.)</label>
+                            <input type="url" id="action-url-${index}" value="${escapeHtml(action.url || '')}" placeholder="https://example.com/audio.wav">
+                        </div>
+                    `;
                 case 'matrix':
                     return linkTextField;
                 case 'contact':
@@ -2092,7 +2104,7 @@ SYS_CHECK: COMPLETE</textarea>
                         currentActions[i].linkText = linkTextInput.value || 'Click here';
                     }
 
-                    if (actionType === 'video' || actionType === 'image') {
+                    if (actionType === 'video' || actionType === 'image' || actionType === 'audio') {
                         const urlInput = document.getElementById(`action-url-${i}`);
                         if (urlInput) {
                             currentActions[i].url = urlInput.value;
