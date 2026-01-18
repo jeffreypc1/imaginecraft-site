@@ -1039,13 +1039,18 @@
 
         // Strip meltdown triggers from thought text for display
         function stripMeltdownTriggers(text) {
-            return text.replace(/\[([^\]]+)\]/g, '$1');
+            // Remove brackets AND content inside them to hide the trigger words
+            return text.replace(/\[([^\]]+)\]/g, '');
         }
 
         // Keystroke buffer for command detection
         let keystrokeBuffer = '';
         const maxBufferSize = 20; // Maximum characters to track
         let matrixToggleState = false; // Track matrix toggle state
+
+        // Track consecutive invalid secret command attempts (Trigger A for meltdown)
+        let invalidSecretCommandCounter = 0;
+        const minCommandLength = 5; // Minimum length for a command pattern
 
         // Meltdown triggers extracted from thoughts
         let meltdownTriggers = [];
@@ -1067,6 +1072,9 @@
         // Execute secret command action
         function executeSecretCommand(command) {
             showCommandFeedback();
+
+            // Reset invalid command counter on successful command execution
+            invalidSecretCommandCounter = 0;
 
             switch (command.action) {
                 case 'earthquake':
@@ -1552,6 +1560,57 @@
             return false;
         }
 
+        // Check for invalid secret command attempts (Trigger A for meltdown)
+        function checkInvalidCommandAttempt() {
+            const buffer = keystrokeBuffer.toUpperCase();
+
+            // Look for sequences of consecutive letters at the end of the buffer
+            // that could be command attempts (5+ letters)
+            const commandPattern = /[A-Z]{5,}$/;
+            const match = buffer.match(commandPattern);
+
+            if (match) {
+                const potentialCommand = match[0];
+
+                // Check if this matches any valid secret command
+                let isValidCommand = false;
+                for (const command of secretCommands) {
+                    if (command.enabled && command.keyword.toUpperCase() === potentialCommand) {
+                        isValidCommand = true;
+                        break;
+                    }
+                }
+
+                // Check if this matches any meltdown trigger
+                let isMeltdownTrigger = false;
+                for (const trigger of meltdownTriggers) {
+                    if (trigger === potentialCommand) {
+                        isMeltdownTrigger = true;
+                        break;
+                    }
+                }
+
+                // If it's not valid and not a meltdown trigger, it's an invalid attempt
+                if (!isValidCommand && !isMeltdownTrigger) {
+                    invalidSecretCommandCounter++;
+                    console.log(`Invalid command attempt #${invalidSecretCommandCounter}: ${potentialCommand}`);
+
+                    // Clear the attempted command from buffer
+                    keystrokeBuffer = keystrokeBuffer.slice(0, -potentialCommand.length);
+
+                    // Trigger meltdown after 3 consecutive invalid attempts
+                    if (invalidSecretCommandCounter >= 3) {
+                        console.log('MELTDOWN: 3 consecutive invalid secret commands detected!');
+                        invalidSecretCommandCounter = 0;
+                        executeMeltdown();
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         // Global keydown listener for secret commands
         document.addEventListener('keydown', (event) => {
             // Track user activity for inactivity detection
@@ -1579,7 +1638,26 @@
                 if (meltdownMatched) {
                     return;
                 }
+
+                // Check for invalid command attempts (Trigger A for meltdown)
+                const invalidAttempt = checkInvalidCommandAttempt();
+                if (invalidAttempt) {
+                    return;
+                }
             }
+        });
+
+        // Global mousemove listener for hiding intermission overlay and tracking activity
+        document.addEventListener('mousemove', () => {
+            // If intermission overlay is visible, hide it on mouse move
+            const overlay = document.getElementById('intermissionOverlay');
+            if (overlay && overlay.classList.contains('active')) {
+                hideIntermissionOverlay();
+                console.log('Intermission overlay hidden due to mouse movement');
+            }
+
+            // Track user activity for inactivity detection
+            trackUserActivity();
         });
 
         // Fisher-Yates shuffle algorithm
@@ -2649,6 +2727,10 @@
                     showFinOverlay();
                     // Stop all cycling
                     stopCycling();
+                    // Auto-hide after 5 seconds
+                    setTimeout(() => {
+                        hideFinOverlay();
+                    }, 5000);
                     break;
             }
         }
