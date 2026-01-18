@@ -208,7 +208,7 @@
         <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <button class="modal-close" onclick="closeContactModal()" aria-label="Close modal">&times;</button>
             <h2 id="modalTitle">Get in Touch</h2>
-            <form class="modal-form" action="mailto:hello@imaginecraft.studio" method="GET" enctype="text/plain">
+            <form class="modal-form">
                 <div class="form-group">
                     <label for="modalName">Name</label>
                     <input type="text" id="modalName" name="name" placeholder="Your name" required>
@@ -1632,12 +1632,25 @@
             allNoRedirectIndices = loadNoRedirectIndices();
             randomizeEnabled = loadRandomizeEnabled();
 
-            // If config not loaded, show initialization message
-            if (!allThoughts || !allResponses || !heroText) {
+            // Comprehensive null checks - ensure ALL data exists before processing
+            if (!allThoughts || !allResponses || !heroText || !activeStates || !allYesRedirectIndices || !allNoRedirectIndices) {
                 console.warn('Config not loaded from Firebase, showing initialization state');
                 allThoughts = ['System Initializing...'];
                 allResponses = ['No configuration data found. Please contact the administrator.'];
                 heroText = 'SYSTEM INITIALIZING...';
+                actions = [{ type: 'none', url: '', logo: '', linkText: 'Click here' }];
+                activeStates = [true];
+                allYesRedirectIndices = [''];
+                allNoRedirectIndices = [''];
+                randomizeEnabled = false;
+            }
+
+            // Additional safety check: ensure arrays have valid length
+            if (!Array.isArray(allThoughts) || allThoughts.length === 0) {
+                console.error('Invalid thoughts data, using fallback');
+                allThoughts = ['System Offline'];
+                allResponses = ['Unable to load content. Please try again later.'];
+                heroText = 'SYSTEM OFFLINE';
                 actions = [{ type: 'none', url: '', logo: '', linkText: 'Click here' }];
                 activeStates = [true];
                 allYesRedirectIndices = [''];
@@ -3528,7 +3541,25 @@
 
             // Initialize all config-dependent values now that config is loaded
             initializeConfigDependentValues();
-            initializeContentData();
+
+            // Wrap content initialization in try-catch to prevent errors from blocking the UI
+            try {
+                initializeContentData();
+            } catch (error) {
+                console.error('Error initializing content data:', error);
+                // Set emergency fallback data
+                allThoughts = ['System Error'];
+                allResponses = ['An error occurred during initialization. Please refresh the page.'];
+                heroText = 'SYSTEM ERROR';
+                actions = [{ type: 'none', url: '', logo: '', linkText: 'Click here' }];
+                activeStates = [true];
+                allYesRedirectIndices = [''];
+                allNoRedirectIndices = [''];
+                randomizeEnabled = false;
+                thoughts = allThoughts;
+                responses = allResponses;
+            }
+
             initializeSettings();
 
             // Load and prepare background image
@@ -3724,8 +3755,25 @@
             // Set up splash screen interaction (already visible behind curtain)
             setupSplashScreen(proceedAfterSplash);
 
+            // Emergency fail-safe: Force curtain to rise after 5 seconds if initialization hangs
+            let curtainRaised = false;
+            const emergencyCurtainTimer = setTimeout(() => {
+                if (!curtainRaised) {
+                    console.warn('Emergency curtain trigger activated after 5 seconds');
+                    raiseCurtain();
+                    curtainRaised = true;
+                }
+            }, 5000);
+
             // Raise curtain to reveal the splash screen
-            raiseCurtain();
+            try {
+                raiseCurtain();
+                curtainRaised = true;
+                clearTimeout(emergencyCurtainTimer);
+            } catch (error) {
+                console.error('Error raising curtain:', error);
+                // Emergency timer will handle it
+            }
 
         });
     </script>
