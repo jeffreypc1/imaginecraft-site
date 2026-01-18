@@ -1458,7 +1458,8 @@ SYS_CHECK: COMPLETE</textarea>
             { value: 'contact', label: 'Contact Us Form' },
             { value: 'audio', label: 'Audio Clip' },
             { value: 'capture-name', label: 'Capture Name' },
-            { value: 'trigger-fin', label: 'Trigger Fin (The End)' }
+            { value: 'trigger-fin', label: 'Trigger Fin (The End)' },
+            { value: 'system-meltdown', label: 'System Meltdown' }
         ];
 
         // Secret command action types
@@ -2081,6 +2082,8 @@ SYS_CHECK: COMPLETE</textarea>
                 case 'matrix':
                     return linkTextField;
                 case 'contact':
+                    return linkTextField;
+                case 'system-meltdown':
                     return linkTextField;
                 default:
                     return '';
