@@ -973,6 +973,21 @@
             <input type="text" id="heroText" placeholder="Enter hero heading..." value="WHY ARE YOU HERE?">
         </div>
 
+        <!-- Site Configuration Section -->
+        <div class="hero-section">
+            <h2>Site Configuration</h2>
+            <p>Configure global site settings and visual elements.</p>
+            <div class="nav-links-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>MST3K Overlay URL</label>
+                    <input type="url" id="mst3kOverlayURL" placeholder="https://example.com/mst3k-silhouettes.png">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Transparent PNG overlay for the MST3K theater silhouettes (positioned at bottom of screen)
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Typing Speed Section -->
         <div class="typing-speed-section">
             <h2>Typing Animation Speed</h2>
@@ -1373,6 +1388,10 @@ SYS_CHECK: COMPLETE</textarea>
             return remoteConfig && remoteConfig.meltdownAudioURL ? remoteConfig.meltdownAudioURL : '';
         }
 
+        function getDefaultMst3kOverlayURL() {
+            return remoteConfig && remoteConfig.mst3kOverlayURL ? remoteConfig.mst3kOverlayURL : '';
+        }
+
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
             return new Promise((resolve) => {
@@ -1497,6 +1516,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentFinImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
         let currentMeltdownMessage = 'CRITICAL SYSTEM FAILURE - INITIATING EMERGENCY SHUTDOWN';
         let currentMeltdownAudioURL = '';
+        let currentMst3kOverlayURL = '';
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1532,6 +1552,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentFinImageUrl = getDefaultFinImageUrl();
                 currentMeltdownMessage = getDefaultMeltdownMessage();
                 currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
+                currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1576,6 +1597,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentFinImageUrl = getDefaultFinImageUrl();
                 currentMeltdownMessage = getDefaultMeltdownMessage();
                 currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
+                currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
             }
         }
 
@@ -1739,6 +1761,12 @@ SYS_CHECK: COMPLETE</textarea>
             const meltdownAudioURLInput = document.getElementById('meltdownAudioURL');
             if (meltdownAudioURLInput) {
                 meltdownAudioURLInput.value = currentMeltdownAudioURL;
+            }
+
+            // Update MST3K overlay URL
+            const mst3kOverlayURLInput = document.getElementById('mst3kOverlayURL');
+            if (mst3kOverlayURLInput) {
+                mst3kOverlayURLInput.value = currentMst3kOverlayURL;
             }
 
             renderThoughtCards();
@@ -2227,6 +2255,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMeltdownAudioURL = meltdownAudioURLInput.value;
             }
 
+            // Collect MST3K overlay URL
+            const mst3kOverlayURLInput = document.getElementById('mst3kOverlayURL');
+            if (mst3kOverlayURLInput) {
+                currentMst3kOverlayURL = mst3kOverlayURLInput.value;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2355,7 +2389,8 @@ SYS_CHECK: COMPLETE</textarea>
                 techDifficultyImageUrl: currentTechDifficultyImageUrl,
                 finImageUrl: currentFinImageUrl,
                 meltdownMessage: currentMeltdownMessage,
-                meltdownAudioURL: currentMeltdownAudioURL
+                meltdownAudioURL: currentMeltdownAudioURL,
+                mst3kOverlayURL: currentMst3kOverlayURL
             };
 
             // Push to Firebase instead of downloading
