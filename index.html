@@ -1500,35 +1500,172 @@
             return randomDelay(baseMin, baseMax);
         }
 
-        function typeCharacter(text, index, callback) {
+        // Helper function to parse text with {backspace} syntax
+        // Returns array of segments: { type: 'regular'|'backspace', text: string }
+        function parseBackspaceSegments(text) {
+            const segments = [];
+            let currentPos = 0;
+            const regex = /\{([^}]+)\}/g;
+            let match;
+
+            while ((match = regex.exec(text)) !== null) {
+                // Add regular text before the match
+                if (match.index > currentPos) {
+                    segments.push({
+                        type: 'regular',
+                        text: text.substring(currentPos, match.index)
+                    });
+                }
+
+                // Add backspace segment
+                segments.push({
+                    type: 'backspace',
+                    text: match[1]
+                });
+
+                currentPos = regex.lastIndex;
+            }
+
+            // Add remaining text
+            if (currentPos < text.length) {
+                segments.push({
+                    type: 'regular',
+                    text: text.substring(currentPos)
+                });
+            }
+
+            return segments;
+        }
+
+        // Helper function to process segments and type them with backspace effects
+        function typeWithBackspaceEffect(segments, segmentIndex, charIndex, callback) {
             if (state.isUserTyping || state.isSelected) return;
 
-            if (index <= text.length) {
-                state.currentText = text.substring(0, index);
-                thoughtElement.textContent = state.currentText;
+            // If we've processed all segments, call the callback
+            if (segmentIndex >= segments.length) {
+                if (callback) callback();
+                return;
+            }
 
-                // Calculate delay - longer after punctuation, variable otherwise
-                let delay = 0;
-                if (!prefersReducedMotion) {
-                    const lastChar = text.charAt(index - 1);
-                    if (isPunctuation(lastChar)) {
-                        // Glitchy mood has random punctuation pauses
-                        delay = systemMood === 'glitchy'
-                            ? (Math.random() > 0.5 ? timing.punctuationPause * 1.5 : timing.punctuationPause * 0.3)
-                            : timing.punctuationPause;
-                    } else {
-                        // Use glitchy delay for glitchy mood
+            const segment = segments[segmentIndex];
+
+            if (segment.type === 'regular') {
+                // Type regular text character by character
+                if (charIndex < segment.text.length) {
+                    state.currentText += segment.text[charIndex];
+                    thoughtElement.textContent = state.currentText;
+
+                    // Calculate delay - longer after punctuation, variable otherwise
+                    let delay = 0;
+                    if (!prefersReducedMotion) {
+                        const currentChar = segment.text[charIndex];
+                        if (isPunctuation(currentChar)) {
+                            delay = systemMood === 'glitchy'
+                                ? (Math.random() > 0.5 ? timing.punctuationPause * 1.5 : timing.punctuationPause * 0.3)
+                                : timing.punctuationPause;
+                        } else {
+                            delay = systemMood === 'glitchy'
+                                ? getGlitchyDelay(timing.typeSpeedMin, timing.typeSpeedMax)
+                                : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
+                        }
+                    }
+
+                    state.animationTimeout = setTimeout(() => {
+                        typeWithBackspaceEffect(segments, segmentIndex, charIndex + 1, callback);
+                    }, delay);
+                } else {
+                    // Move to next segment
+                    typeWithBackspaceEffect(segments, segmentIndex + 1, 0, callback);
+                }
+            } else if (segment.type === 'backspace') {
+                // Type the mistake, pause, then backspace it
+                if (charIndex < segment.text.length) {
+                    // Typing the mistake
+                    state.currentText += segment.text[charIndex];
+                    thoughtElement.textContent = state.currentText;
+
+                    let delay = 0;
+                    if (!prefersReducedMotion) {
                         delay = systemMood === 'glitchy'
                             ? getGlitchyDelay(timing.typeSpeedMin, timing.typeSpeedMax)
                             : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
                     }
+
+                    state.animationTimeout = setTimeout(() => {
+                        typeWithBackspaceEffect(segments, segmentIndex, charIndex + 1, callback);
+                    }, delay);
+                } else {
+                    // Finished typing the mistake, now pause and backspace
+                    const mistakeLength = segment.text.length;
+
+                    state.animationTimeout = setTimeout(() => {
+                        // Backspace the mistake character by character (faster than typing)
+                        backspaceNCharacters(mistakeLength, () => {
+                            // Move to next segment after backspacing
+                            typeWithBackspaceEffect(segments, segmentIndex + 1, 0, callback);
+                        });
+                    }, 500); // 500ms pause before backspacing
                 }
+            }
+        }
+
+        // Helper function to backspace N characters quickly
+        function backspaceNCharacters(count, callback) {
+            if (state.isUserTyping || state.isSelected) return;
+
+            if (count > 0 && state.currentText.length > 0) {
+                state.currentText = state.currentText.substring(0, state.currentText.length - 1);
+                thoughtElement.textContent = state.currentText;
+
+                // Backspace is faster than typing
+                const delay = prefersReducedMotion ? 0 : randomDelay(timing.backspaceSpeedMin, timing.backspaceSpeedMax);
 
                 state.animationTimeout = setTimeout(() => {
-                    typeCharacter(text, index + 1, callback);
+                    backspaceNCharacters(count - 1, callback);
                 }, delay);
             } else {
                 if (callback) callback();
+            }
+        }
+
+        function typeCharacter(text, index, callback) {
+            if (state.isUserTyping || state.isSelected) return;
+
+            // Check if text contains backspace syntax
+            if (text.includes('{')) {
+                // Parse and type with backspace effect
+                const segments = parseBackspaceSegments(text);
+                state.currentText = ''; // Reset current text
+                typeWithBackspaceEffect(segments, 0, 0, callback);
+            } else {
+                // Original typing logic for text without backspace syntax
+                if (index <= text.length) {
+                    state.currentText = text.substring(0, index);
+                    thoughtElement.textContent = state.currentText;
+
+                    // Calculate delay - longer after punctuation, variable otherwise
+                    let delay = 0;
+                    if (!prefersReducedMotion) {
+                        const lastChar = text.charAt(index - 1);
+                        if (isPunctuation(lastChar)) {
+                            // Glitchy mood has random punctuation pauses
+                            delay = systemMood === 'glitchy'
+                                ? (Math.random() > 0.5 ? timing.punctuationPause * 1.5 : timing.punctuationPause * 0.3)
+                                : timing.punctuationPause;
+                        } else {
+                            // Use glitchy delay for glitchy mood
+                            delay = systemMood === 'glitchy'
+                                ? getGlitchyDelay(timing.typeSpeedMin, timing.typeSpeedMax)
+                                : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
+                        }
+                    }
+
+                    state.animationTimeout = setTimeout(() => {
+                        typeCharacter(text, index + 1, callback);
+                    }, delay);
+                } else {
+                    if (callback) callback();
+                }
             }
         }
 
