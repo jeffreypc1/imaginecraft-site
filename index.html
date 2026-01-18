@@ -1415,7 +1415,9 @@
             matrixAnimationId: null,
             waitingForChoice: false,  // Whether we're waiting for Yes/No button click
             heroTyped: false,         // Whether the hero text has been typed
-            currentAudio: null        // Pre-loaded audio object for manual playback
+            currentAudio: null,       // Pre-loaded audio object for manual playback
+            capturingName: false,     // Whether we're capturing user's name
+            userName: ''              // Global variable to store captured user name
         };
 
         function loadTypingSpeed() {
@@ -2293,7 +2295,21 @@
                     openContactModal();
                     break;
                 case 'capture-name':
-                    openNameModal();
+                    // Activate name capture mode directly in terminal
+                    stopCycling();
+                    state.capturingName = true;
+                    state.isSelected = true; // Lock the thought
+
+                    // Display the prompt in the thought element
+                    thoughtElement.textContent = '> ENTER YOUR NAME:';
+                    thoughtElement.classList.add('selected', 'visible');
+                    thoughtElement.classList.remove('fade-out', 'fade-in');
+                    cursorElement.classList.remove('visible');
+
+                    // Clear and focus the input
+                    inputElement.value = '';
+                    inputElement.focus();
+                    inputElement.classList.add('active');
                     break;
                 case 'audio':
                     // Play the pre-loaded audio when user clicks the trigger text
@@ -2614,6 +2630,11 @@
         // Input Handling
         // ========================================
         function handleInputChange() {
+            // Don't handle normal input changes when capturing name
+            if (state.capturingName) {
+                return;
+            }
+
             const hasValue = inputElement.value.trim().length > 0;
 
             if (hasValue && !state.isUserTyping) {
@@ -2635,7 +2656,37 @@
         function handleInputKeydown(event) {
             if (event.key === 'Enter' && inputElement.value.trim()) {
                 event.preventDefault();
-                selectThought('custom');
+
+                // Check if we're in name capture mode
+                if (state.capturingName) {
+                    const capturedName = inputElement.value.trim();
+
+                    // Save to global state variable
+                    state.userName = capturedName;
+
+                    // Save to sessionStorage for replaceName function
+                    sessionStorage.setItem('imaginecraft_user_name', capturedName);
+
+                    // Display confirmation message
+                    thoughtElement.textContent = `> Name captured: ${capturedName}`;
+
+                    // Clear the input
+                    inputElement.value = '';
+                    inputElement.classList.remove('active');
+
+                    // Reset capture mode after a brief delay
+                    setTimeout(() => {
+                        state.capturingName = false;
+                        state.isSelected = false;
+                        thoughtElement.classList.remove('selected');
+
+                        // Resume cycling
+                        startCycling();
+                    }, 2000); // Show confirmation for 2 seconds
+                } else {
+                    // Normal custom thought selection
+                    selectThought('custom');
+                }
             }
         }
 
