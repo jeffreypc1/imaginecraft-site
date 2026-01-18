@@ -3173,3 +3173,61 @@ body {
     }
 }
 
+/* ========================================
+   MELTDOWN SEQUENCE STYLES
+   ======================================== */
+
+/* Meltdown text - high alert red */
+.meltdown-text {
+    color: #ff0000 !important;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8),
+                 0 0 20px rgba(255, 0, 0, 0.6),
+                 0 0 30px rgba(255, 0, 0, 0.4) !important;
+    font-weight: bold !important;
+    animation: urgentFlash 0.3s infinite alternate;
+}
+
+/* Urgent flashing effect for meltdown text */
+@keyframes urgentFlash {
+    0% {
+        opacity: 1;
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.8),
+                     0 0 20px rgba(255, 0, 0, 0.6),
+                     0 0 30px rgba(255, 0, 0, 0.4);
+    }
+    100% {
+        opacity: 0.85;
+        text-shadow: 0 0 15px rgba(255, 0, 0, 1),
+                     0 0 25px rgba(255, 0, 0, 0.8),
+                     0 0 35px rgba(255, 0, 0, 0.6);
+    }
+}
+
+/* Pixel melt animation - text slides down */
+.pixel-melt {
+    animation: pixelMeltDown 1s ease-in forwards;
+}
+
+@keyframes pixelMeltDown {
+    0% {
+        transform: translateY(0) scaleY(1);
+        opacity: 1;
+        filter: blur(0px);
+    }
+    30% {
+        transform: translateY(10px) scaleY(1.1);
+        opacity: 0.9;
+        filter: blur(1px);
+    }
+    60% {
+        transform: translateY(50px) scaleY(0.8);
+        opacity: 0.6;
+        filter: blur(3px);
+    }
+    100% {
+        transform: translateY(150px) scaleY(0.3);
+        opacity: 0;
+        filter: blur(8px);
+    }
+}
+

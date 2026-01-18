@@ -1177,6 +1177,31 @@ SYS_CHECK: COMPLETE</textarea>
             </p>
         </div>
 
+        <!-- Meltdown Configuration Section -->
+        <div class="typing-speed-section">
+            <h2>Meltdown Configuration</h2>
+            <p>Configure hidden meltdown triggers using [] brackets in Cycling Thoughts. When a user types a bracketed keyword, it triggers a critical system meltdown sequence.</p>
+            <div class="nav-links-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Meltdown Message</label>
+                    <input type="text" id="meltdownMessage" placeholder="CRITICAL SYSTEM FAILURE - INITIATING EMERGENCY SHUTDOWN">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        The high-alert red text that rapidly types during a meltdown sequence
+                    </p>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Meltdown Audio URL</label>
+                    <input type="url" id="meltdownAudioURL" placeholder="https://example.com/alarm.mp3">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Audio/music to play during the meltdown sequence (10 seconds)
+                    </p>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
+                Tip: Use [] brackets in Cycling Thoughts to define hidden meltdown triggers. Example: "What is [DESTROY]?" will trigger meltdown when user types "DESTROY".
+            </p>
+        </div>
+
         <!-- Managed Secret Commands Section -->
         <div class="secret-commands-section">
             <h2>Managed Secret Commands</h2>
@@ -1326,6 +1351,14 @@ SYS_CHECK: COMPLETE</textarea>
             return remoteConfig && remoteConfig.finImageUrl ? remoteConfig.finImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
         }
 
+        function getDefaultMeltdownMessage() {
+            return remoteConfig && remoteConfig.meltdownMessage ? remoteConfig.meltdownMessage : 'CRITICAL SYSTEM FAILURE - INITIATING EMERGENCY SHUTDOWN';
+        }
+
+        function getDefaultMeltdownAudioURL() {
+            return remoteConfig && remoteConfig.meltdownAudioURL ? remoteConfig.meltdownAudioURL : '';
+        }
+
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
             return new Promise((resolve) => {
@@ -1445,6 +1478,8 @@ SYS_CHECK: COMPLETE</textarea>
         let currentIntermissionImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
         let currentTechDifficultyImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
         let currentFinImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        let currentMeltdownMessage = 'CRITICAL SYSTEM FAILURE - INITIATING EMERGENCY SHUTDOWN';
+        let currentMeltdownAudioURL = '';
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1476,6 +1511,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentIntermissionImageUrl = getDefaultIntermissionImageUrl();
                 currentTechDifficultyImageUrl = getDefaultTechDifficultyImageUrl();
                 currentFinImageUrl = getDefaultFinImageUrl();
+                currentMeltdownMessage = getDefaultMeltdownMessage();
+                currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1509,6 +1546,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentIntermissionImageUrl = getDefaultIntermissionImageUrl();
                 currentTechDifficultyImageUrl = getDefaultTechDifficultyImageUrl();
                 currentFinImageUrl = getDefaultFinImageUrl();
+                currentMeltdownMessage = getDefaultMeltdownMessage();
+                currentMeltdownAudioURL = getDefaultMeltdownAudioURL();
             }
         }
 
@@ -1662,6 +1701,16 @@ SYS_CHECK: COMPLETE</textarea>
             const finImageUrlInput = document.getElementById('finImageUrl');
             if (finImageUrlInput) {
                 finImageUrlInput.value = currentFinImageUrl;
+            }
+
+            // Update meltdown configuration
+            const meltdownMessageInput = document.getElementById('meltdownMessage');
+            if (meltdownMessageInput) {
+                meltdownMessageInput.value = currentMeltdownMessage;
+            }
+            const meltdownAudioURLInput = document.getElementById('meltdownAudioURL');
+            if (meltdownAudioURLInput) {
+                meltdownAudioURLInput.value = currentMeltdownAudioURL;
             }
 
             renderThoughtCards();
@@ -2126,6 +2175,16 @@ SYS_CHECK: COMPLETE</textarea>
                 currentFinImageUrl = finImageUrlInput.value;
             }
 
+            // Collect meltdown configuration
+            const meltdownMessageInput = document.getElementById('meltdownMessage');
+            if (meltdownMessageInput) {
+                currentMeltdownMessage = meltdownMessageInput.value;
+            }
+            const meltdownAudioURLInput = document.getElementById('meltdownAudioURL');
+            if (meltdownAudioURLInput) {
+                currentMeltdownAudioURL = meltdownAudioURLInput.value;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2240,7 +2299,9 @@ SYS_CHECK: COMPLETE</textarea>
                 backgroundImageUrl: currentBackgroundImageUrl,
                 intermissionImageUrl: currentIntermissionImageUrl,
                 techDifficultyImageUrl: currentTechDifficultyImageUrl,
-                finImageUrl: currentFinImageUrl
+                finImageUrl: currentFinImageUrl,
+                meltdownMessage: currentMeltdownMessage,
+                meltdownAudioURL: currentMeltdownAudioURL
             };
 
             // Push to Firebase instead of downloading

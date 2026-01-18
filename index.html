@@ -739,6 +739,14 @@
             return remoteConfig && remoteConfig.finImageUrl ? remoteConfig.finImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
         }
 
+        function loadMeltdownMessage() {
+            return remoteConfig && remoteConfig.meltdownMessage ? remoteConfig.meltdownMessage : 'CRITICAL SYSTEM FAILURE - INITIATING EMERGENCY SHUTDOWN';
+        }
+
+        function loadMeltdownAudioURL() {
+            return remoteConfig && remoteConfig.meltdownAudioURL ? remoteConfig.meltdownAudioURL : '';
+        }
+
         // Background image loading state
         let backgroundImageReady = false;
         let backgroundImageLoadPromise = null;
@@ -1007,12 +1015,42 @@
             bootSequenceEnabled = loadBootSequenceEnabled();
             systemMood = loadSystemMood();
             secretCommands = loadSecretCommands();
+            meltdownMessage = loadMeltdownMessage();
+            meltdownAudioURL = loadMeltdownAudioURL();
+        }
+
+        // Extract meltdown triggers from thoughts with [] brackets
+        function extractMeltdownTriggers(thoughts) {
+            const triggers = [];
+            const bracketRegex = /\[([^\]]+)\]/g;
+
+            for (const thought of thoughts) {
+                let match;
+                while ((match = bracketRegex.exec(thought)) !== null) {
+                    const trigger = match[1].toUpperCase().trim();
+                    if (trigger && !triggers.includes(trigger)) {
+                        triggers.push(trigger);
+                    }
+                }
+            }
+
+            return triggers;
+        }
+
+        // Strip meltdown triggers from thought text for display
+        function stripMeltdownTriggers(text) {
+            return text.replace(/\[([^\]]+)\]/g, '$1');
         }
 
         // Keystroke buffer for command detection
         let keystrokeBuffer = '';
         const maxBufferSize = 20; // Maximum characters to track
         let matrixToggleState = false; // Track matrix toggle state
+
+        // Meltdown triggers extracted from thoughts
+        let meltdownTriggers = [];
+        let meltdownMessage = '';
+        let meltdownAudioURL = '';
 
         // Secret command visual feedback
         function showCommandFeedback() {
@@ -1061,6 +1099,95 @@
                     }
                     break;
             }
+        }
+
+        // Execute meltdown sequence
+        function executeMeltdown() {
+            console.log('MELTDOWN TRIGGERED!');
+
+            // Stop all animations and input immediately
+            state.isUserTyping = true;
+            state.isSelected = true;
+            state.isAnimating = false;
+            stopCycling();
+
+            // Clear any existing timeouts
+            if (state.animationTimeout) clearTimeout(state.animationTimeout);
+            if (state.cycleTimeout) clearTimeout(state.cycleTimeout);
+            if (state.idleTimeout) clearTimeout(state.idleTimeout);
+
+            // Hide cursor
+            const cursorElement = document.getElementById('cursor');
+            if (cursorElement) {
+                cursorElement.classList.remove('visible');
+            }
+
+            // Hide choice buttons if visible
+            const choiceContainer = document.querySelector('.choice-buttons-container');
+            if (choiceContainer) {
+                choiceContainer.style.display = 'none';
+            }
+
+            // Clear thought element and prepare for meltdown message
+            const thoughtElement = document.getElementById('thought');
+            thoughtElement.classList.remove('fade-out', 'fade-in');
+            thoughtElement.classList.add('visible', 'meltdown-text');
+            thoughtElement.textContent = '';
+
+            // Rapidly type the meltdown message in red
+            let charIndex = 0;
+            const typingSpeed = 20; // Very fast typing (20ms per character)
+
+            function typeMeltdownChar() {
+                if (charIndex < meltdownMessage.length) {
+                    thoughtElement.textContent += meltdownMessage[charIndex];
+                    charIndex++;
+                    setTimeout(typeMeltdownChar, typingSpeed);
+                } else {
+                    // After message is typed, trigger pixel melt
+                    setTimeout(() => {
+                        triggerPixelMelt();
+                    }, 500);
+                }
+            }
+
+            typeMeltdownChar();
+        }
+
+        // Trigger pixel melt animation and display overlay
+        function triggerPixelMelt() {
+            const explorePage = document.querySelector('.explore-page');
+            const thoughtElement = document.getElementById('thought');
+
+            // Add melt animation class
+            if (explorePage) {
+                explorePage.classList.add('pixel-melt');
+            }
+            if (thoughtElement) {
+                thoughtElement.classList.add('pixel-melt');
+            }
+
+            // Wait for melt animation to complete (1 second)
+            setTimeout(() => {
+                // Show tech difficulty overlay
+                const overlay = document.getElementById('techDifficultyOverlay');
+                if (overlay) {
+                    overlay.classList.add('active');
+                    overlay.style.display = 'flex';
+                }
+
+                // Play meltdown audio if URL is provided
+                if (meltdownAudioURL) {
+                    const audio = new Audio(meltdownAudioURL);
+                    audio.volume = 0.5;
+                    audio.play().catch(e => console.warn('Failed to play meltdown audio:', e));
+                }
+
+                // Auto-refresh page after 10 seconds
+                setTimeout(() => {
+                    location.reload();
+                }, 10000);
+            }, 1000);
         }
 
         // Trigger earthquake without navigation (for secret command)
@@ -1410,6 +1537,21 @@
             return false;
         }
 
+        // Check keystroke buffer for meltdown triggers
+        function checkMeltdownTriggers() {
+            const buffer = keystrokeBuffer.toUpperCase();
+
+            for (const trigger of meltdownTriggers) {
+                if (buffer.endsWith(trigger)) {
+                    // Meltdown trigger matched! Clear buffer and execute
+                    keystrokeBuffer = '';
+                    executeMeltdown();
+                    return true;
+                }
+            }
+            return false;
+        }
+
         // Global keydown listener for secret commands
         document.addEventListener('keydown', (event) => {
             // Track user activity for inactivity detection
@@ -1429,6 +1571,13 @@
                 if (commandMatched) {
                     // Reset error counter on successful command
                     resetTerminalErrors();
+                    return;
+                }
+
+                // Check for meltdown triggers (only if no secret command matched)
+                const meltdownMatched = checkMeltdownTriggers();
+                if (meltdownMatched) {
+                    return;
                 }
             }
         });
@@ -1516,6 +1665,10 @@
                 thoughts = newThoughts;
                 responses = newResponses;
             }
+
+            // Extract meltdown triggers from all thoughts (including inactive ones)
+            meltdownTriggers = extractMeltdownTriggers(allThoughts);
+            console.log('Meltdown triggers extracted:', meltdownTriggers);
         }
 
         function loadMatrixFadeDuration() {
@@ -1885,7 +2038,8 @@
 
             state.isAnimating = true;
             const originalThought = thoughts[index];
-            const thought = replaceName(originalThought);
+            // Strip meltdown triggers before displaying
+            const thought = replaceName(stripMeltdownTriggers(originalThought));
             state.targetText = thought;
             thoughtElement.dataset.index = index;
 
@@ -2241,9 +2395,9 @@
             }
             stopCycling();
 
-            // If we're selecting a cycling thought, show the full text (without backspace syntax)
+            // If we're selecting a cycling thought, show the full text (without backspace syntax and meltdown triggers)
             if (typeof index === 'number' && thoughts[index]) {
-                const cleanText = replaceName(stripBackspaceSyntax(thoughts[index]));
+                const cleanText = replaceName(stripBackspaceSyntax(stripMeltdownTriggers(thoughts[index])));
                 thoughtElement.textContent = cleanText;
                 state.currentText = cleanText;
             }
