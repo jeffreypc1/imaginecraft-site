@@ -1145,6 +1145,38 @@ SYS_CHECK: COMPLETE</textarea>
             </p>
         </div>
 
+        <!-- Cinematic States Section -->
+        <div class="typing-speed-section">
+            <h2>Cinematic State Overlays</h2>
+            <p>Configure the images displayed during automated cinematic states. These overlays are triggered automatically based on user interaction patterns.</p>
+            <div class="nav-links-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Intermission Image URL</label>
+                    <input type="url" id="intermissionImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Intermission">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Triggered after 120 seconds of user inactivity
+                    </p>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Technical Difficulties Image URL</label>
+                    <input type="url" id="techDifficultyImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Technical+Difficulties">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Triggered after 3 consecutive terminal input errors
+                    </p>
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Fin (The End) Image URL</label>
+                    <input type="url" id="finImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Fin">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Triggered by the "Trigger Fin" action type in cycling thoughts
+                    </p>
+                </div>
+            </div>
+            <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
+                Tip: Use placeholder URLs until your final cinematic images are ready. Once you update these URLs, the site will automatically pull the new images.
+            </p>
+        </div>
+
         <!-- Managed Secret Commands Section -->
         <div class="secret-commands-section">
             <h2>Managed Secret Commands</h2>
@@ -1284,6 +1316,15 @@ SYS_CHECK: COMPLETE</textarea>
         function getDefaultBackgroundImageUrl() {
             return remoteConfig && remoteConfig.backgroundImageUrl ? remoteConfig.backgroundImageUrl : '';
         }
+        function getDefaultIntermissionImageUrl() {
+            return remoteConfig && remoteConfig.intermissionImageUrl ? remoteConfig.intermissionImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        }
+        function getDefaultTechDifficultyImageUrl() {
+            return remoteConfig && remoteConfig.techDifficultyImageUrl ? remoteConfig.techDifficultyImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        }
+        function getDefaultFinImageUrl() {
+            return remoteConfig && remoteConfig.finImageUrl ? remoteConfig.finImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        }
 
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
@@ -1369,7 +1410,8 @@ SYS_CHECK: COMPLETE</textarea>
             { value: 'matrix', label: 'The Matrix' },
             { value: 'contact', label: 'Contact Us Form' },
             { value: 'audio', label: 'Audio Clip' },
-            { value: 'capture-name', label: 'Capture Name' }
+            { value: 'capture-name', label: 'Capture Name' },
+            { value: 'trigger-fin', label: 'Trigger Fin (The End)' }
         ];
 
         // Secret command action types
@@ -1400,6 +1442,9 @@ SYS_CHECK: COMPLETE</textarea>
         let currentBuildersMedia = { type: 'image', url: '' };
         let currentBootScript = 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
         let currentBackgroundImageUrl = '';
+        let currentIntermissionImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        let currentTechDifficultyImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        let currentFinImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1428,6 +1473,9 @@ SYS_CHECK: COMPLETE</textarea>
                 currentBuildersMedia = getDefaultBuildersMedia();
                 currentBootScript = getDefaultBootScript();
                 currentBackgroundImageUrl = getDefaultBackgroundImageUrl();
+                currentIntermissionImageUrl = getDefaultIntermissionImageUrl();
+                currentTechDifficultyImageUrl = getDefaultTechDifficultyImageUrl();
+                currentFinImageUrl = getDefaultFinImageUrl();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1458,6 +1506,9 @@ SYS_CHECK: COMPLETE</textarea>
                 currentBuildersMedia = getDefaultBuildersMedia();
                 currentBootScript = getDefaultBootScript();
                 currentBackgroundImageUrl = getDefaultBackgroundImageUrl();
+                currentIntermissionImageUrl = getDefaultIntermissionImageUrl();
+                currentTechDifficultyImageUrl = getDefaultTechDifficultyImageUrl();
+                currentFinImageUrl = getDefaultFinImageUrl();
             }
         }
 
@@ -1597,6 +1648,20 @@ SYS_CHECK: COMPLETE</textarea>
             const backgroundImageUrlInput = document.getElementById('backgroundImageUrl');
             if (backgroundImageUrlInput) {
                 backgroundImageUrlInput.value = currentBackgroundImageUrl;
+            }
+
+            // Update cinematic state image URLs
+            const intermissionImageUrlInput = document.getElementById('intermissionImageUrl');
+            if (intermissionImageUrlInput) {
+                intermissionImageUrlInput.value = currentIntermissionImageUrl;
+            }
+            const techDifficultyImageUrlInput = document.getElementById('techDifficultyImageUrl');
+            if (techDifficultyImageUrlInput) {
+                techDifficultyImageUrlInput.value = currentTechDifficultyImageUrl;
+            }
+            const finImageUrlInput = document.getElementById('finImageUrl');
+            if (finImageUrlInput) {
+                finImageUrlInput.value = currentFinImageUrl;
             }
 
             renderThoughtCards();
@@ -2047,6 +2112,20 @@ SYS_CHECK: COMPLETE</textarea>
                 currentBackgroundImageUrl = backgroundImageUrlInput.value;
             }
 
+            // Collect cinematic state image URLs
+            const intermissionImageUrlInput = document.getElementById('intermissionImageUrl');
+            if (intermissionImageUrlInput) {
+                currentIntermissionImageUrl = intermissionImageUrlInput.value;
+            }
+            const techDifficultyImageUrlInput = document.getElementById('techDifficultyImageUrl');
+            if (techDifficultyImageUrlInput) {
+                currentTechDifficultyImageUrl = techDifficultyImageUrlInput.value;
+            }
+            const finImageUrlInput = document.getElementById('finImageUrl');
+            if (finImageUrlInput) {
+                currentFinImageUrl = finImageUrlInput.value;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2158,7 +2237,10 @@ SYS_CHECK: COMPLETE</textarea>
                 secretCommands: currentSecretCommands.map(cmd => ({...cmd})),
                 buildersMedia: {...currentBuildersMedia},
                 bootScript: currentBootScript,
-                backgroundImageUrl: currentBackgroundImageUrl
+                backgroundImageUrl: currentBackgroundImageUrl,
+                intermissionImageUrl: currentIntermissionImageUrl,
+                techDifficultyImageUrl: currentTechDifficultyImageUrl,
+                finImageUrl: currentFinImageUrl
             };
 
             // Push to Firebase instead of downloading

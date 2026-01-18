@@ -727,6 +727,18 @@
             return remoteConfig && remoteConfig.backgroundImageUrl ? remoteConfig.backgroundImageUrl : '';
         }
 
+        function loadIntermissionImageUrl() {
+            return remoteConfig && remoteConfig.intermissionImageUrl ? remoteConfig.intermissionImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        }
+
+        function loadTechDifficultyImageUrl() {
+            return remoteConfig && remoteConfig.techDifficultyImageUrl ? remoteConfig.techDifficultyImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        }
+
+        function loadFinImageUrl() {
+            return remoteConfig && remoteConfig.finImageUrl ? remoteConfig.finImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        }
+
         // Background image loading state
         let backgroundImageReady = false;
         let backgroundImageLoadPromise = null;
@@ -835,6 +847,141 @@
             } catch (e) {
                 console.warn('Failed to mark boot sequence as played:', e);
             }
+        }
+
+        // ========================================
+        // Cinematic State Overlays
+        // ========================================
+
+        // Initialize cinematic overlay images from Firebase config
+        function initializeCinematicOverlays() {
+            const intermissionImageUrl = loadIntermissionImageUrl();
+            const techDifficultyImageUrl = loadTechDifficultyImageUrl();
+            const finImageUrl = loadFinImageUrl();
+
+            const intermissionImage = document.getElementById('intermissionImage');
+            const techDifficultyImage = document.getElementById('techDifficultyImage');
+            const finImage = document.getElementById('finImage');
+
+            if (intermissionImage) intermissionImage.src = intermissionImageUrl;
+            if (techDifficultyImage) techDifficultyImage.src = techDifficultyImageUrl;
+            if (finImage) finImage.src = finImageUrl;
+
+            console.log('Cinematic overlays initialized:', {
+                intermissionImageUrl,
+                techDifficultyImageUrl,
+                finImageUrl
+            });
+        }
+
+        // Show intermission overlay
+        function showIntermissionOverlay() {
+            const overlay = document.getElementById('intermissionOverlay');
+            if (overlay) {
+                overlay.classList.add('active');
+                overlay.style.display = 'flex';
+                console.log('Intermission overlay shown');
+            }
+        }
+
+        // Hide intermission overlay
+        function hideIntermissionOverlay() {
+            const overlay = document.getElementById('intermissionOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 1000); // Wait for fade out transition
+                console.log('Intermission overlay hidden');
+            }
+        }
+
+        // Show technical difficulty overlay
+        function showTechDifficultyOverlay() {
+            const overlay = document.getElementById('techDifficultyOverlay');
+            if (overlay) {
+                overlay.classList.add('active');
+                overlay.style.display = 'flex';
+                console.log('Technical Difficulty overlay shown');
+            }
+        }
+
+        // Hide technical difficulty overlay
+        function hideTechDifficultyOverlay() {
+            const overlay = document.getElementById('techDifficultyOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 1000); // Wait for fade out transition
+                console.log('Technical Difficulty overlay hidden');
+            }
+        }
+
+        // Show fin overlay
+        function showFinOverlay() {
+            const overlay = document.getElementById('finOverlay');
+            if (overlay) {
+                overlay.classList.add('active');
+                overlay.style.display = 'flex';
+                console.log('Fin overlay shown');
+            }
+        }
+
+        // Hide fin overlay
+        function hideFinOverlay() {
+            const overlay = document.getElementById('finOverlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 1000); // Wait for fade out transition
+                console.log('Fin overlay hidden');
+            }
+        }
+
+        // Track terminal error (for tech difficulty overlay)
+        function trackTerminalError() {
+            state.consecutiveErrors++;
+            console.log('Terminal error tracked. Consecutive errors:', state.consecutiveErrors);
+
+            if (state.consecutiveErrors >= 3) {
+                console.log('3 consecutive errors detected! Triggering tech difficulty overlay.');
+                showTechDifficultyOverlay();
+                // Reset error counter
+                state.consecutiveErrors = 0;
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    hideTechDifficultyOverlay();
+                }, 5000);
+            }
+        }
+
+        // Reset error counter (when user has successful interaction)
+        function resetTerminalErrors() {
+            state.consecutiveErrors = 0;
+        }
+
+        // Track user activity (for intermission overlay)
+        function trackUserActivity() {
+            state.lastActivityTime = Date.now();
+
+            // Clear existing inactivity timeout
+            if (state.inactivityTimeout) {
+                clearTimeout(state.inactivityTimeout);
+            }
+
+            // Set new 120-second inactivity timeout
+            state.inactivityTimeout = setTimeout(() => {
+                console.log('120 seconds of inactivity detected! Triggering intermission overlay.');
+                showIntermissionOverlay();
+                // Auto-hide after 10 seconds
+                setTimeout(() => {
+                    hideIntermissionOverlay();
+                    // Restart inactivity tracking
+                    trackUserActivity();
+                }, 10000);
+            }, 120000); // 120 seconds = 2 minutes
         }
 
         // These will be initialized after config loads
@@ -1265,6 +1412,9 @@
 
         // Global keydown listener for secret commands
         document.addEventListener('keydown', (event) => {
+            // Track user activity for inactivity detection
+            trackUserActivity();
+
             // Only track printable characters
             if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
                 keystrokeBuffer += event.key;
@@ -1275,7 +1425,11 @@
                 }
 
                 // Check for command matches
-                checkSecretCommands();
+                const commandMatched = checkSecretCommands();
+                if (commandMatched) {
+                    // Reset error counter on successful command
+                    resetTerminalErrors();
+                }
             }
         });
 
@@ -1417,7 +1571,10 @@
             heroTyped: false,         // Whether the hero text has been typed
             currentAudio: null,       // Pre-loaded audio object for manual playback
             capturingName: false,     // Whether we're capturing user's name
-            userName: ''              // Global variable to store captured user name
+            userName: '',             // Global variable to store captured user name
+            consecutiveErrors: 0,     // Track consecutive terminal errors for tech difficulty overlay
+            inactivityTimeout: null,  // Timeout for 120s inactivity detection
+            lastActivityTime: Date.now() // Track last user activity
         };
 
         function loadTypingSpeed() {
@@ -2071,6 +2228,11 @@
         }
 
         function selectThought(index) {
+            // Track user activity
+            trackUserActivity();
+            // Reset error counter on successful interaction
+            resetTerminalErrors();
+
             state.isSelected = true;
             state.selectedIndex = index;
             // Sync currentIndex for sequential cycling continuity
@@ -2327,6 +2489,12 @@
                             console.warn('Audio playback failed:', err);
                         });
                     }
+                    break;
+                case 'trigger-fin':
+                    // Show the Fin (The End) overlay
+                    showFinOverlay();
+                    // Stop all cycling
+                    stopCycling();
                     break;
             }
         }
@@ -3111,6 +3279,9 @@
             // Load and prepare background image
             loadOpeningBackgroundImage();
 
+            // Initialize cinematic overlay images
+            initializeCinematicOverlays();
+
             // Apply system mood CSS class to explore page
             const explorePage = document.querySelector('.explore-page');
             if (explorePage && systemMood !== 'stable') {
@@ -3198,6 +3369,8 @@
                     setTimeout(() => {
                         // Now start cycling thoughts
                         startCycling();
+                        // Start inactivity tracking for intermission overlay
+                        trackUserActivity();
                     }, 1500);
                 });
             }
@@ -3322,6 +3495,17 @@
     <div id="theaterCurtain" class="theater-curtain">
         <div class="curtain-left"></div>
         <div class="curtain-right"></div>
+    </div>
+
+    <!-- Cinematic State Overlays -->
+    <div id="intermissionOverlay" class="cinematic-overlay" style="display: none;">
+        <img id="intermissionImage" src="" alt="Intermission" class="cinematic-image">
+    </div>
+    <div id="techDifficultyOverlay" class="cinematic-overlay" style="display: none;">
+        <img id="techDifficultyImage" src="" alt="Technical Difficulties" class="cinematic-image">
+    </div>
+    <div id="finOverlay" class="cinematic-overlay" style="display: none;">
+        <img id="finImage" src="" alt="Fin" class="cinematic-image">
     </div>
 
 </body>
