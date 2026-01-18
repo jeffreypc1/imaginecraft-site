@@ -1537,6 +1537,13 @@
             return segments;
         }
 
+        // Helper function to strip backspace syntax from text for direct display
+        // Removes {text} portions to show the final intended text
+        function stripBackspaceSyntax(text) {
+            // Replace {text} with empty string to show only the final text
+            return text.replace(/\{[^}]+\}/g, '');
+        }
+
         // Helper function to process segments and type them with backspace effects
         function typeWithBackspaceEffect(segments, segmentIndex, charIndex, callback) {
             if (state.isUserTyping || state.isSelected) return;
@@ -2042,10 +2049,11 @@
             }
             stopCycling();
 
-            // If we're selecting a cycling thought, show the full text
+            // If we're selecting a cycling thought, show the full text (without backspace syntax)
             if (typeof index === 'number' && thoughts[index]) {
-                thoughtElement.textContent = thoughts[index];
-                state.currentText = thoughts[index];
+                const cleanText = stripBackspaceSyntax(thoughts[index]);
+                thoughtElement.textContent = cleanText;
+                state.currentText = cleanText;
             }
 
             // Lock the thought in place
