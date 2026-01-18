@@ -2604,134 +2604,153 @@
         // ========================================
         function runBootSequence(callback) {
             console.log('runBootSequence started');
-            const overlay = document.getElementById('bootSequenceOverlay');
-            const diagnostics = document.getElementById('bootDiagnostics');
-            const explorePage = document.querySelector('.explore-page');
 
-            if (!overlay) {
-                console.warn('Boot overlay not found, calling callback');
-                if (callback) callback();
-                return;
-            }
+            try {
+                const overlay = document.getElementById('bootSequenceOverlay');
+                const diagnostics = document.getElementById('bootDiagnostics');
+                const explorePage = document.querySelector('.explore-page');
 
-            console.log('Boot overlay found, proceeding with sequence');
-
-            // Hide main content during boot
-            if (explorePage) {
-                explorePage.classList.add('boot-hidden');
-            }
-
-            // 3-second fallback timeout - ensure overlay fades even if script fails
-            let hasCompleted = false;
-            const fallbackTimeout = setTimeout(() => {
-                if (!hasCompleted) {
-                    console.warn('Boot sequence fallback timeout triggered');
-                    hasCompleted = true;
-                    finishBootSequence();
-                }
-            }, 3000);
-
-            // Load boot script from Firebase
-            const bootScript = loadBootScript();
-            const bootScriptLines = bootScript.split('\n').filter(line => line.trim() !== '');
-            console.log('Boot script lines:', bootScriptLines.length);
-
-            // Get fast typing speed from admin settings
-            const settings = getConfigSettings();
-            const baseSpeed = settings && settings.typingSpeed ? settings.typingSpeed : 150;
-            // Fast typing: use 20-40ms range (similar to "urgent" mode)
-            const fastTypeMin = 20;
-            const fastTypeMax = 40;
-
-            // Clear existing content and create container for typed output
-            diagnostics.innerHTML = '';
-
-            let currentLineIndex = 0;
-            let currentCharIndex = 0;
-            let currentLineElement = null;
-
-            // Type out boot script character by character
-            function typeNextCharacter() {
-                // Check if we're done with all lines
-                if (currentLineIndex >= bootScriptLines.length) {
-                    clearTimeout(fallbackTimeout);
-                    hasCompleted = true;
-                    // Small delay after final character before fading overlay
-                    setTimeout(finishBootSequence, 200);
+                if (!overlay) {
+                    console.warn('Boot overlay not found, calling callback');
+                    if (callback) callback();
                     return;
                 }
 
-                // Get current line text
-                const currentLineText = bootScriptLines[currentLineIndex];
+                console.log('Boot overlay found, proceeding with sequence');
 
-                // Create new line element if needed
-                if (!currentLineElement) {
-                    currentLineElement = document.createElement('div');
-                    currentLineElement.className = 'boot-line';
-                    currentLineElement.textContent = '';
-                    diagnostics.appendChild(currentLineElement);
-                }
-
-                // Type next character
-                if (currentCharIndex < currentLineText.length) {
-                    currentLineElement.textContent += currentLineText[currentCharIndex];
-                    currentCharIndex++;
-
-                    // Random delay for typing speed variation
-                    const delay = Math.floor(Math.random() * (fastTypeMax - fastTypeMin + 1)) + fastTypeMin;
-                    setTimeout(typeNextCharacter, delay);
-                } else {
-                    // Current line complete, move to next line
-                    currentLineIndex++;
-                    currentCharIndex = 0;
-                    currentLineElement = null;
-
-                    // Small delay between lines (100-150ms)
-                    const lineDelay = Math.floor(Math.random() * 50) + 100;
-                    setTimeout(typeNextCharacter, lineDelay);
-                }
-            }
-
-            // Finish boot sequence and reveal main terminal
-            function finishBootSequence() {
-                console.log('Finishing boot sequence - fading out overlay');
-                // Fade out the overlay using style.opacity for reliable animation
-                overlay.style.opacity = '0';
-
-                // Reveal the background image behind the curtains
-                const openingBackground = document.getElementById('openingBackground');
-                if (openingBackground) {
-                    openingBackground.classList.add('visible');
-                }
-
-                // Show main content
+                // Hide main content during boot
                 if (explorePage) {
-                    explorePage.classList.remove('boot-hidden');
+                    explorePage.classList.add('boot-hidden');
                 }
 
-                // After fade transition completes (300ms), remove overlay and start terminal
-                setTimeout(() => {
-                    console.log('Removing boot overlay from DOM');
-                    // Remove the overlay element completely
-                    if (overlay && overlay.parentNode) {
-                        overlay.parentNode.removeChild(overlay);
+                // 3-second fallback timeout - ensure overlay fades even if script fails
+                let hasCompleted = false;
+                const fallbackTimeout = setTimeout(() => {
+                    if (!hasCompleted) {
+                        console.warn('Boot sequence fallback timeout triggered');
+                        hasCompleted = true;
+                        finishBootSequence();
+                    }
+                }, 3000);
+
+                // Load boot script from Firebase
+                const bootScript = loadBootScript();
+                const bootScriptLines = bootScript.split('\n').filter(line => line.trim() !== '');
+                console.log('Boot script lines:', bootScriptLines.length);
+
+                // Get fast typing speed from admin settings
+                const settings = getConfigSettings();
+                const baseSpeed = settings && settings.typingSpeed ? settings.typingSpeed : 150;
+                // Fast typing: use 20-40ms range (similar to "urgent" mode)
+                const fastTypeMin = 20;
+                const fastTypeMax = 40;
+
+                // Clear existing content and create container for typed output
+                diagnostics.innerHTML = '';
+
+                let currentLineIndex = 0;
+                let currentCharIndex = 0;
+                let currentLineElement = null;
+
+                // Type out boot script character by character
+                function typeNextCharacter() {
+                    // Check if we're done with all lines
+                    if (currentLineIndex >= bootScriptLines.length) {
+                        clearTimeout(fallbackTimeout);
+                        hasCompleted = true;
+                        // Small delay after final character before fading overlay
+                        setTimeout(finishBootSequence, 200);
+                        return;
                     }
 
-                    // Mark as played for this session
-                    markBootSequencePlayed();
+                    // Get current line text
+                    const currentLineText = bootScriptLines[currentLineIndex];
 
-                    console.log('Boot sequence complete, calling terminal initialization');
-                    // NOW trigger the callback (start hero text and terminal)
-                    // This ensures hero text only appears AFTER overlay has cleared
-                    if (callback) callback();
-                }, 300);
+                    // Create new line element if needed
+                    if (!currentLineElement) {
+                        currentLineElement = document.createElement('div');
+                        currentLineElement.className = 'boot-line';
+                        currentLineElement.textContent = '';
+                        diagnostics.appendChild(currentLineElement);
+                    }
+
+                    // Type next character
+                    if (currentCharIndex < currentLineText.length) {
+                        currentLineElement.textContent += currentLineText[currentCharIndex];
+                        currentCharIndex++;
+
+                        // Random delay for typing speed variation
+                        const delay = Math.floor(Math.random() * (fastTypeMax - fastTypeMin + 1)) + fastTypeMin;
+                        setTimeout(typeNextCharacter, delay);
+                    } else {
+                        // Current line complete, move to next line
+                        currentLineIndex++;
+                        currentCharIndex = 0;
+                        currentLineElement = null;
+
+                        // Small delay between lines (100-150ms)
+                        const lineDelay = Math.floor(Math.random() * 50) + 100;
+                        setTimeout(typeNextCharacter, lineDelay);
+                    }
+                }
+
+                // Finish boot sequence and reveal main terminal
+                function finishBootSequence() {
+                    console.log('Finishing boot sequence - fading out overlay');
+                    // Fade out the overlay using style.opacity for reliable animation
+                    overlay.style.opacity = '0';
+
+                    // Reveal the background image behind the curtains
+                    const openingBackground = document.getElementById('openingBackground');
+                    if (openingBackground) {
+                        openingBackground.classList.add('visible');
+                    }
+
+                    // Show main content
+                    if (explorePage) {
+                        explorePage.classList.remove('boot-hidden');
+                    }
+
+                    // After fade transition completes (300ms), remove overlay and start terminal
+                    setTimeout(() => {
+                        console.log('Removing boot overlay from DOM');
+                        // Remove the overlay element completely
+                        if (overlay && overlay.parentNode) {
+                            overlay.parentNode.removeChild(overlay);
+                        }
+
+                        // Mark as played for this session
+                        markBootSequencePlayed();
+
+                        console.log('Boot sequence complete, calling terminal initialization');
+                        // NOW trigger the callback (start hero text and terminal)
+                        // This ensures hero text only appears AFTER overlay has cleared
+                        try {
+                            if (callback) callback();
+                        } catch (error) {
+                            // Handle any errors from callback execution (e.g., message channel issues)
+                            console.warn('Error during terminal initialization (continuing locally):', error);
+                        }
+                    }, 300);
+                }
+
+                // Start typing the boot sequence
+                typeNextCharacter();
+            } catch (error) {
+                // Handle any synchronous errors in boot sequence
+                console.error('Boot sequence error:', error);
+                // Ensure callback is still called to prevent hang
+                if (callback) {
+                    try {
+                        callback();
+                    } catch (callbackError) {
+                        console.warn('Error during callback execution:', callbackError);
+                    }
+                }
             }
-
-            // Start typing the boot sequence
-            typeNextCharacter();
         }
 
-        function skipBootSequence() {
+        function skipBootSequence(callback) {
             const overlay = document.getElementById('bootSequenceOverlay');
             const explorePage = document.querySelector('.explore-page');
 
@@ -2748,7 +2767,28 @@
                     if (overlay && overlay.parentNode) {
                         overlay.parentNode.removeChild(overlay);
                     }
+
+                    // Mark as skipped/played for this session
+                    markBootSequencePlayed();
+
+                    // Call the callback after overlay is fully removed
+                    if (callback) {
+                        try {
+                            callback();
+                        } catch (error) {
+                            console.warn('Error during callback execution:', error);
+                        }
+                    }
                 }, 300);
+            } else {
+                // If no overlay, call callback immediately
+                if (callback) {
+                    try {
+                        callback();
+                    } catch (error) {
+                        console.warn('Error during callback execution:', error);
+                    }
+                }
             }
             if (explorePage) {
                 explorePage.classList.remove('boot-hidden');
@@ -2952,13 +2992,17 @@
 
                 if (shouldRunBootSequence) {
                     console.log('Starting boot sequence...');
-                    // Run boot sequence, then initialize terminal
-                    runBootSequence(initializeTerminal);
+                    // Run boot sequence with error handling for message channel issues
+                    try {
+                        runBootSequence(initializeTerminal);
+                    } catch (error) {
+                        // If message channel closes or any error occurs, continue locally
+                        console.warn('Boot sequence error (continuing locally):', error);
+                        skipBootSequence(initializeTerminal);
+                    }
                 } else {
-                    console.log('Skipping boot sequence...');
-                    // Skip boot sequence, initialize terminal immediately
-                    skipBootSequence();
-                    initializeTerminal();
+                    // Skip boot sequence, initialize terminal after overlay fades
+                    skipBootSequence(initializeTerminal);
                 }
             }
 
