@@ -2810,7 +2810,6 @@ body {
     align-items: center;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
     cursor: pointer;
 }
 
@@ -2824,6 +2823,7 @@ body {
 .splash-screen.fading-out {
     opacity: 0;
     visibility: hidden;
+    transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out;
 }
 
 /* Splash image container - centers and contains the image */
