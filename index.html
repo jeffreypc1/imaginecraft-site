@@ -250,7 +250,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #002200 !important;
+            background-color: #000 !important;
             z-index: 9999;
             display: flex;
             flex-direction: column;
@@ -281,8 +281,8 @@
 
         .boot-line {
             font-size: 1.2rem;
-            color: #34ff35;
-            text-shadow: 0 0 8px rgba(52, 255, 53, 0.6);
+            color: var(--boot-text-color, #00ff00);
+            text-shadow: var(--boot-text-shadow, 0 0 8px rgba(0, 255, 0, 0.6));
             opacity: 1;
             white-space: pre-wrap;
             word-wrap: break-word;
@@ -299,7 +299,7 @@
         }
 
         .boot-line .status {
-            color: #34ff35;
+            color: var(--boot-text-color, #00ff00);
         }
 
         @keyframes crtFlicker {
@@ -3514,6 +3514,22 @@
                 }
 
                 console.log('Boot overlay found, proceeding with sequence');
+
+                // CRITICAL: Ensure overlay is visible with proper styling
+                overlay.style.display = 'flex';
+                overlay.style.opacity = '1';
+                overlay.style.visibility = 'visible';
+                overlay.style.backgroundColor = '#000';
+                overlay.classList.remove('hidden', 'removed');
+
+                // Apply mood-based styling to boot overlay
+                if (systemMood === 'urgent') {
+                    overlay.style.setProperty('--boot-text-color', '#ff3434');
+                    overlay.style.setProperty('--boot-text-shadow', '0 0 8px rgba(255, 52, 52, 0.6)');
+                } else {
+                    overlay.style.setProperty('--boot-text-color', '#00ff00');
+                    overlay.style.setProperty('--boot-text-shadow', '0 0 8px rgba(0, 255, 0, 0.6)');
+                }
 
                 // Hide main content during boot
                 if (explorePage) {
