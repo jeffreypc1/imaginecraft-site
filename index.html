@@ -3730,6 +3730,22 @@
             // Initialize all config-dependent values now that config is loaded
             initializeConfigDependentValues();
 
+            // Hide boot overlay immediately if boot sequence is disabled
+            if (!bootSequenceEnabled) {
+                const bootOverlay = document.getElementById('bootSequenceOverlay');
+                if (bootOverlay) {
+                    bootOverlay.style.display = 'none';
+                    console.log('Boot sequence disabled - hiding overlay immediately');
+                }
+
+                // Reveal the background image immediately
+                const openingBackground = document.getElementById('openingBackground');
+                if (openingBackground) {
+                    openingBackground.classList.add('visible');
+                    console.log('Boot sequence disabled - revealing mystery image immediately');
+                }
+            }
+
             // Wrap content initialization in try-catch to prevent errors from blocking the UI
             try {
                 initializeContentData();
