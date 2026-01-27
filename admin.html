@@ -1181,21 +1181,21 @@ SYS_CHECK: COMPLETE</textarea>
             <div class="nav-links-grid">
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Intermission Image URL</label>
-                    <input type="url" id="intermissionImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Intermission">
+                    <input type="url" id="intermissionImageUrl" placeholder="https://placehold.co/1920x1080/333/999?text=Intermission">
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Triggered after 120 seconds of user inactivity
                     </p>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Technical Difficulties Image URL</label>
-                    <input type="url" id="techDifficultyImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Technical+Difficulties">
+                    <input type="url" id="techDifficultyImageUrl" placeholder="https://placehold.co/1920x1080/333/999?text=Technical+Difficulties">
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Triggered after 3 consecutive terminal input errors
                     </p>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Fin (The End) Image URL</label>
-                    <input type="url" id="finImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Fin">
+                    <input type="url" id="finImageUrl" placeholder="https://placehold.co/1920x1080/333/999?text=Fin">
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Triggered by the "Trigger Fin" action type in cycling thoughts
                     </p>
@@ -1385,13 +1385,13 @@ SYS_CHECK: COMPLETE</textarea>
             return remoteConfig && remoteConfig.backgroundImageUrl ? remoteConfig.backgroundImageUrl : '';
         }
         function getDefaultIntermissionImageUrl() {
-            return remoteConfig && remoteConfig.intermissionImageUrl ? remoteConfig.intermissionImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+            return remoteConfig && remoteConfig.intermissionImageUrl ? remoteConfig.intermissionImageUrl : 'https://placehold.co/1920x1080/333/999?text=IMAGE+PENDING';
         }
         function getDefaultTechDifficultyImageUrl() {
-            return remoteConfig && remoteConfig.techDifficultyImageUrl ? remoteConfig.techDifficultyImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+            return remoteConfig && remoteConfig.techDifficultyImageUrl ? remoteConfig.techDifficultyImageUrl : 'https://placehold.co/1920x1080/333/999?text=IMAGE+PENDING';
         }
         function getDefaultFinImageUrl() {
-            return remoteConfig && remoteConfig.finImageUrl ? remoteConfig.finImageUrl : 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+            return remoteConfig && remoteConfig.finImageUrl ? remoteConfig.finImageUrl : 'https://placehold.co/1920x1080/333/999?text=IMAGE+PENDING';
         }
 
         function getDefaultMeltdownMessage() {
@@ -1533,9 +1533,9 @@ SYS_CHECK: COMPLETE</textarea>
         let currentBuildersMedia = { type: 'image', url: '' };
         let currentBootScript = 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
         let currentBackgroundImageUrl = '';
-        let currentIntermissionImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
-        let currentTechDifficultyImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
-        let currentFinImageUrl = 'https://via.placeholder.com/1920x1080?text=IMAGE+PENDING';
+        let currentIntermissionImageUrl = 'https://placehold.co/1920x1080/333/999?text=IMAGE+PENDING';
+        let currentTechDifficultyImageUrl = 'https://placehold.co/1920x1080/333/999?text=IMAGE+PENDING';
+        let currentFinImageUrl = 'https://placehold.co/1920x1080/333/999?text=IMAGE+PENDING';
         let currentMeltdownMessage = 'CRITICAL SYSTEM FAILURE - INITIATING EMERGENCY SHUTDOWN';
         let currentMeltdownAudioURL = '';
         let currentMst3kOverlayURL = '';
