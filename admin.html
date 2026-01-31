@@ -321,6 +321,13 @@
             resize: vertical;
         }
 
+        .thought-card textarea.thought-textarea {
+            min-height: 250px;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
         .thought-card .form-group {
             margin-bottom: 1rem;
         }
@@ -2083,12 +2090,12 @@ SYS_CHECK: COMPLETE</textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Thought</label>
-                        <input type="text" id="thought-${i}" value="${escapeHtml(currentThoughts[i] || '')}" placeholder="Enter thought...">
+                        <label>Story Text</label>
+                        <textarea id="thought-${i}" class="thought-textarea" rows="10" placeholder="Enter story paragraph... Use {misspelled} for backspace effect and {{name}} for user name.">${escapeHtml(currentThoughts[i] || '')}</textarea>
                     </div>
                     <div class="form-group">
-                        <label>Response</label>
-                        <textarea id="response-${i}" placeholder="Enter response...">${escapeHtml(currentResponses[i] || '')}</textarea>
+                        <label>Internal Notes (Hidden)</label>
+                        <textarea id="response-${i}" placeholder="Notes for yourself - not shown to user...">${escapeHtml(currentResponses[i] || '')}</textarea>
                     </div>
                     <div class="form-group">
                         <label>Choice A Text (leave blank for "Yes")</label>

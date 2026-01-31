@@ -2536,9 +2536,26 @@
                     selectThought(state.currentIndex);
                 }
             } else {
-                // No redirect configured - use default behavior (show response)
+                // No redirect configured - advance to next story block (single-field mode)
+                // Mark selection and advance to next thought (skip response panel)
                 markChoiceSelection('yes');
-                selectThought(state.currentIndex);
+
+                // Hide choice buttons
+                hideChoiceButtons();
+
+                // Clear the screen and advance to next thought
+                setTimeout(() => {
+                    thoughtElement.textContent = '';
+                    state.currentText = '';
+
+                    // Reset choice buttons for next thought
+                    resetChoiceButtons();
+
+                    // Advance to next thought in sequence
+                    state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                    state.isAnimating = false;
+                    showThought(state.currentIndex);
+                }, 200);
             }
         }
 
