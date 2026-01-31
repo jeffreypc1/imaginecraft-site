@@ -1009,6 +1009,21 @@
             </div>
         </div>
 
+        <!-- Global Ambient Audio Section -->
+        <div class="typing-speed-section">
+            <h2>Global Ambient Audio</h2>
+            <p>Set a background audio track that loops continuously after the user's first interaction. Scene-specific overrides can replace this audio temporarily.</p>
+            <div class="nav-links-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Global Ambient Audio URL</label>
+                    <input type="url" id="globalAmbientAudioURL" placeholder="https://example.com/ambient-loop.mp3">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        Audio will start on loop after the user clicks anywhere on the site for the first time.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Enable Choice Buttons Section -->
         <div class="typing-speed-section">
             <h2>Enable Choice Buttons</h2>
@@ -1429,6 +1444,18 @@ SYS_CHECK: COMPLETE</textarea>
             return remoteConfig && remoteConfig.theaterFrameURL ? remoteConfig.theaterFrameURL : '';
         }
 
+        function getDefaultGlobalAmbientAudioURL() {
+            return remoteConfig && remoteConfig.globalAmbientAudioURL ? remoteConfig.globalAmbientAudioURL : '';
+        }
+
+        function getDefaultSceneAudioOverrides() {
+            if (remoteConfig && remoteConfig.sceneAudioOverrides) {
+                return remoteConfig.sceneAudioOverrides.map(s => ({...s}));
+            }
+            // If no Firebase data, return empty array
+            return [];
+        }
+
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
             return new Promise((resolve) => {
@@ -1569,6 +1596,8 @@ SYS_CHECK: COMPLETE</textarea>
         let currentMst3kOverlayURL = '';
         let currentMst3kGlowIntensity = 0.6;
         let currentTheaterFrameURL = '';
+        let currentGlobalAmbientAudioURL = '';
+        let currentSceneAudioOverrides = [];  // Per-card audio overrides: { url: '', loop: true }
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1611,6 +1640,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
                 currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
                 currentTheaterFrameURL = getDefaultTheaterFrameURL();
+                currentGlobalAmbientAudioURL = getDefaultGlobalAmbientAudioURL();
+                currentSceneAudioOverrides = getDefaultSceneAudioOverrides();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1650,6 +1681,10 @@ SYS_CHECK: COMPLETE</textarea>
                 while (currentMoods.length < thoughtCount) {
                     currentMoods.push('stable');
                 }
+                // Ensure all per-card scene audio overrides exist (default to empty)
+                while (currentSceneAudioOverrides.length < thoughtCount) {
+                    currentSceneAudioOverrides.push({ url: '', loop: true });
+                }
             } catch (e) {
                 console.warn('Failed to load from config:', e);
                 currentThoughts = getDefaultThoughts();
@@ -1684,6 +1719,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMst3kOverlayURL = getDefaultMst3kOverlayURL();
                 currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
                 currentTheaterFrameURL = getDefaultTheaterFrameURL();
+                currentGlobalAmbientAudioURL = getDefaultGlobalAmbientAudioURL();
+                currentSceneAudioOverrides = getDefaultSceneAudioOverrides();
             }
         }
 
@@ -1839,6 +1876,12 @@ SYS_CHECK: COMPLETE</textarea>
             const theaterFrameURLInput = document.getElementById('theaterFrameURL');
             if (theaterFrameURLInput) {
                 theaterFrameURLInput.value = currentTheaterFrameURL;
+            }
+
+            // Update Global Ambient Audio URL
+            const globalAmbientAudioURLInput = document.getElementById('globalAmbientAudioURL');
+            if (globalAmbientAudioURLInput) {
+                globalAmbientAudioURLInput.value = currentGlobalAmbientAudioURL;
             }
 
             renderThoughtCards();
@@ -2019,6 +2062,7 @@ SYS_CHECK: COMPLETE</textarea>
             currentChoiceBActions.push({ type: 'none', endAction: false });
             currentTypingSpeeds.push(100);  // Default to 100ms (middle of 10-200 range)
             currentMoods.push('stable');     // Default to 'stable' mood
+            currentSceneAudioOverrides.push({ url: '', loop: true });  // Default to no override
 
             renderThoughtCards();
 
@@ -2055,6 +2099,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentChoiceBActions.splice(index, 1);
                 currentTypingSpeeds.splice(index, 1);
                 currentMoods.splice(index, 1);
+                currentSceneAudioOverrides.splice(index, 1);
                 renderThoughtCards();
             }
         }
@@ -2126,6 +2171,19 @@ SYS_CHECK: COMPLETE</textarea>
                                     <option value="urgent" ${mood === 'urgent' ? 'selected' : ''}>Urgent - Red, fast typing</option>
                                 </select>
                             </div>
+                        </div>
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(91, 95, 234, 0.2);">
+                            <div class="form-group" style="margin-bottom: 0.5rem;">
+                                <label>Override Ambient Audio URL</label>
+                                <input type="url" id="scene-audio-${i}" value="${escapeHtml(currentSceneAudioOverrides[i]?.url || '')}" placeholder="https://example.com/scene-audio.mp3">
+                            </div>
+                            <div class="active-toggle-container" style="margin-top: 0.5rem;">
+                                <input type="checkbox" id="scene-audio-loop-${i}" class="active-checkbox" ${currentSceneAudioOverrides[i]?.loop !== false ? 'checked' : ''}>
+                                <label for="scene-audio-loop-${i}" class="active-label">Loop Audio</label>
+                            </div>
+                            <p style="font-size: 0.7rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                                When set, this audio will cross-fade in when entering this scene. Leave empty to use global ambient.
+                            </p>
                         </div>
                     </div>
 
@@ -2439,6 +2497,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentTheaterFrameURL = theaterFrameURLInput.value;
             }
 
+            // Collect Global Ambient Audio URL
+            const globalAmbientAudioURLInput = document.getElementById('globalAmbientAudioURL');
+            if (globalAmbientAudioURLInput) {
+                currentGlobalAmbientAudioURL = globalAmbientAudioURLInput.value;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2541,6 +2605,19 @@ SYS_CHECK: COMPLETE</textarea>
                     currentMoods[i] = moodSelect.value || 'stable';
                 }
 
+                // Collect per-card scene audio override
+                const sceneAudioInput = document.getElementById(`scene-audio-${i}`);
+                const sceneAudioLoopCheckbox = document.getElementById(`scene-audio-loop-${i}`);
+                if (!currentSceneAudioOverrides[i]) {
+                    currentSceneAudioOverrides[i] = { url: '', loop: true };
+                }
+                if (sceneAudioInput) {
+                    currentSceneAudioOverrides[i].url = sceneAudioInput.value;
+                }
+                if (sceneAudioLoopCheckbox) {
+                    currentSceneAudioOverrides[i].loop = sceneAudioLoopCheckbox.checked;
+                }
+
                 // Legacy: Keep old action type for backwards compatibility (default to none)
                 if (!currentActions[i]) {
                     currentActions[i] = { type: 'none', url: '', logo: '', linkText: 'Click here' };
@@ -2600,7 +2677,9 @@ SYS_CHECK: COMPLETE</textarea>
                 meltdownAudioURL: currentMeltdownAudioURL,
                 mst3kOverlayURL: currentMst3kOverlayURL,
                 mst3kGlowIntensity: currentMst3kGlowIntensity,
-                theaterFrameURL: currentTheaterFrameURL
+                theaterFrameURL: currentTheaterFrameURL,
+                globalAmbientAudioURL: currentGlobalAmbientAudioURL,
+                sceneAudioOverrides: currentSceneAudioOverrides.map(s => ({...s}))
             };
 
             // Push to Firebase instead of downloading
