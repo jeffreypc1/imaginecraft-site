@@ -650,6 +650,12 @@
         function getConfigChoiceBActions() {
             return remoteConfig && remoteConfig.choiceBActions ? remoteConfig.choiceBActions.map(a => ({...a})) : null;
         }
+        function getConfigTypingSpeeds() {
+            return remoteConfig && remoteConfig.typingSpeeds ? [...remoteConfig.typingSpeeds] : null;
+        }
+        function getConfigMoods() {
+            return remoteConfig && remoteConfig.moods ? [...remoteConfig.moods] : null;
+        }
         function getConfigSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
@@ -779,6 +785,14 @@
 
         function loadChoiceBActions() {
             return getConfigChoiceBActions();
+        }
+
+        function loadTypingSpeeds() {
+            return getConfigTypingSpeeds();
+        }
+
+        function loadMoods() {
+            return getConfigMoods();
         }
 
         function loadRandomizeEnabled() {
@@ -1806,12 +1820,16 @@
         let allChoiceBTexts = [];
         let allChoiceAActions = [];
         let allChoiceBActions = [];
+        let allTypingSpeeds = [];
+        let allMoods = [];
         let yesRedirectIndices = [];
         let noRedirectIndices = [];
         let choiceATexts = [];
         let choiceBTexts = [];
         let choiceAActions = [];
         let choiceBActions = [];
+        let typingSpeeds = [];
+        let moods = [];
 
         // Function to load and process thoughts/responses data
         function initializeContentData() {
@@ -1826,6 +1844,8 @@
             allChoiceBTexts = loadChoiceBTexts() || [];
             allChoiceAActions = loadChoiceAActions() || [];
             allChoiceBActions = loadChoiceBActions() || [];
+            allTypingSpeeds = loadTypingSpeeds() || [];
+            allMoods = loadMoods() || [];
             randomizeEnabled = loadRandomizeEnabled();
 
             // Comprehensive null checks - ensure ALL data exists before processing
@@ -1842,6 +1862,8 @@
                 allChoiceBTexts = [''];
                 allChoiceAActions = [{ type: 'none', endAction: false }];
                 allChoiceBActions = [{ type: 'none', endAction: false }];
+                allTypingSpeeds = [100];
+                allMoods = ['stable'];
                 randomizeEnabled = false;
             }
 
@@ -1859,6 +1881,8 @@
                 allChoiceBTexts = [''];
                 allChoiceAActions = [{ type: 'none', endAction: false }];
                 allChoiceBActions = [{ type: 'none', endAction: false }];
+                allTypingSpeeds = [100];
+                allMoods = ['stable'];
                 randomizeEnabled = false;
             }
 
@@ -1872,6 +1896,8 @@
             choiceBTexts = [];
             choiceAActions = [];
             choiceBActions = [];
+            typingSpeeds = [];
+            moods = [];
 
             // Filter to only include active thoughts and track their original indices
             for (let i = 0; i < allThoughts.length; i++) {
@@ -1886,6 +1912,8 @@
                     choiceBTexts.push(allChoiceBTexts[i] || '');
                     choiceAActions.push(allChoiceAActions[i] || { type: 'none', endAction: false });
                     choiceBActions.push(allChoiceBActions[i] || { type: 'none', endAction: false });
+                    typingSpeeds.push(allTypingSpeeds[i] !== undefined ? allTypingSpeeds[i] : 100);
+                    moods.push(allMoods[i] || 'stable');
                 }
             }
 
@@ -1911,6 +1939,8 @@
                 const newChoiceBTexts = [];
                 const newChoiceAActions = [];
                 const newChoiceBActions = [];
+                const newTypingSpeeds = [];
+                const newMoods = [];
 
                 for (const idx of selectedIndices) {
                     newActiveIndices.push(activeIndices[idx]);
@@ -1922,6 +1952,8 @@
                     newChoiceBTexts.push(choiceBTexts[idx]);
                     newChoiceAActions.push(choiceAActions[idx]);
                     newChoiceBActions.push(choiceBActions[idx]);
+                    newTypingSpeeds.push(typingSpeeds[idx]);
+                    newMoods.push(moods[idx]);
                 }
 
                 activeIndices = newActiveIndices;
@@ -1933,6 +1965,8 @@
                 choiceBTexts = newChoiceBTexts;
                 choiceAActions = newChoiceAActions;
                 choiceBActions = newChoiceBActions;
+                typingSpeeds = newTypingSpeeds;
+                moods = newMoods;
             }
 
             // Extract meltdown triggers from all thoughts (including inactive ones)
@@ -2065,6 +2099,33 @@
             baseTypingSpeed = newSpeed;
             timing = getTimingConfig();
             console.log('Typing speed updated to:', newSpeed, 'ms, instant mode:', isInstantMode());
+        }
+
+        // Apply scene-specific atmosphere (per-page typing speed and mood)
+        function applySceneAtmosphere(index) {
+            // Get per-page typing speed (clamp to 10-200ms range)
+            const pageSpeed = typingSpeeds[index] !== undefined ? typingSpeeds[index] : 100;
+            baseTypingSpeed = Math.max(10, Math.min(200, pageSpeed));
+
+            // Get per-page mood
+            const pageMood = moods[index] || 'stable';
+            systemMood = pageMood;
+
+            // Recalculate timing based on new speed and mood
+            timing = getTimingConfig();
+
+            // Apply mood-specific CSS class to explore page
+            const explorePage = document.querySelector('.explore-page');
+            if (explorePage) {
+                // Remove all mood classes first
+                explorePage.classList.remove('mood-stable', 'mood-glitchy', 'mood-urgent');
+                // Apply the new mood class (don't add for stable - it's the default)
+                if (pageMood !== 'stable') {
+                    explorePage.classList.add(`mood-${pageMood}`);
+                }
+            }
+
+            console.log('Scene atmosphere applied - Speed:', baseTypingSpeed, 'ms, Mood:', pageMood);
         }
 
         // Helper function for random delay between min and max
@@ -2334,6 +2395,9 @@
 
         function showThought(index) {
             if (state.isUserTyping || state.isSelected || state.isAnimating) return;
+
+            // Apply scene-specific atmosphere (typing speed and mood) before typing begins
+            applySceneAtmosphere(index);
 
             state.isAnimating = true;
             const originalThought = thoughts[index];

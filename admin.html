@@ -1009,22 +1009,6 @@
             </div>
         </div>
 
-        <!-- Typing Speed Section -->
-        <div class="typing-speed-section">
-            <h2>Typing Animation Speed</h2>
-            <p>Adjust the base speed for typing animations. Lower values = faster typing. At 10ms (full left), text displays instantly. Under 30ms, stutter is minimized for a data-stream effect.</p>
-            <div class="slider-container">
-                <div class="slider-labels">
-                    <span>Fast</span>
-                    <span>Slow</span>
-                </div>
-                <input type="range" id="typingSpeedSlider" min="10" max="300" value="150" class="speed-slider">
-                <div class="slider-value">
-                    <span id="typingSpeedValue">150</span>ms base delay
-                </div>
-            </div>
-        </div>
-
         <!-- Enable Choice Buttons Section -->
         <div class="typing-speed-section">
             <h2>Enable Choice Buttons</h2>
@@ -1126,22 +1110,6 @@ SYS_CHECK: COMPLETE</textarea>
             <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
                 Tip: Keep lines short and tech-y for the best effect. Use colons and status words like OK, READY, COMPLETE, etc.
             </p>
-        </div>
-
-        <!-- AI System Mood Section -->
-        <div class="typing-speed-section">
-            <h2>AI System Mood</h2>
-            <p>Change the visual aesthetic of the terminal. Each mood affects text color, animations, and typing rhythm.</p>
-            <div class="mood-selector-container">
-                <select id="systemMoodSelect" class="mood-select">
-                    <option value="stable">Stable (Default) - Solid green, steady rhythm</option>
-                    <option value="glitchy">Glitchy - Flickering text, irregular typing</option>
-                    <option value="urgent">Urgent - High-alert red, fast typing</option>
-                </select>
-                <div class="mood-preview" id="moodPreview">
-                    <span class="mood-preview-text">Preview text appearance</span>
-                </div>
-            </div>
         </div>
 
         <!-- Background Image Section -->
@@ -1386,21 +1354,33 @@ SYS_CHECK: COMPLETE</textarea>
             // If no Firebase data, return a single default choice action
             return [{ type: 'none', endAction: false }];
         }
+        function getDefaultTypingSpeeds() {
+            if (remoteConfig && remoteConfig.typingSpeeds) {
+                return [...remoteConfig.typingSpeeds];
+            }
+            // If no Firebase data, return a single default speed (100ms - middle of 10-200 range)
+            return [100];
+        }
+        function getDefaultMoods() {
+            if (remoteConfig && remoteConfig.moods) {
+                return [...remoteConfig.moods];
+            }
+            // If no Firebase data, return a single default mood
+            return ['stable'];
+        }
         function getDefaultSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
             }
-            // Default settings if no Firebase data
+            // Default settings if no Firebase data (per-card typingSpeed and mood are now separate arrays)
             return {
-                typingSpeed: 150,
                 choiceButtonsEnabled: false,
                 matrixFadeDuration: 1.5,
                 earthquakeDuration: 1.5,
                 curtainDuration: 4,
                 earthquakeEnabled: true,
                 bootSequenceEnabled: true,
-                randomizeEnabled: false,
-                systemMood: 'stable'
+                randomizeEnabled: false
             };
         }
         function getDefaultSecretCommands() {
@@ -1568,15 +1548,15 @@ SYS_CHECK: COMPLETE</textarea>
         let currentChoiceBTexts = [];
         let currentChoiceAActions = [];
         let currentChoiceBActions = [];
+        let currentTypingSpeeds = [];  // Per-card typing speeds (10-200ms)
+        let currentMoods = [];          // Per-card AI moods (stable, glitchy, urgent)
         let currentRandomizeEnabled = false;
-        let currentTypingSpeed = 150;
         let currentChoiceButtonsEnabled = false;
         let currentMatrixFadeDuration = 1.5;
         let currentEarthquakeDuration = 1.5;
         let currentCurtainDuration = 4;
         let currentEarthquakeEnabled = true;
         let currentBootSequenceEnabled = true;
-        let currentSystemMood = 'stable';
         let currentSecretCommands = [];
         let currentBuildersMedia = { type: 'image', url: '' };
         let currentBootScript = 'CORE_INIT: OK\nMEM_LOAD: 1024KB\nDRV_MOUNT: /assets\nNET_STACK: READY\nSYS_CHECK: COMPLETE';
@@ -1610,15 +1590,15 @@ SYS_CHECK: COMPLETE</textarea>
                 currentChoiceBTexts = getDefaultChoiceBTexts();
                 currentChoiceAActions = getDefaultChoiceAActions();
                 currentChoiceBActions = getDefaultChoiceBActions();
+                currentTypingSpeeds = getDefaultTypingSpeeds();
+                currentMoods = getDefaultMoods();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
-                currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
                 currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
                 currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
                 currentCurtainDuration = defaults.curtainDuration || 4;
                 currentEarthquakeEnabled = defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true;
                 currentBootSequenceEnabled = defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
-                currentSystemMood = defaults.systemMood || 'stable';
                 currentSecretCommands = getDefaultSecretCommands();
                 currentBuildersMedia = getDefaultBuildersMedia();
                 currentBootScript = getDefaultBootScript();
@@ -1662,6 +1642,14 @@ SYS_CHECK: COMPLETE</textarea>
                 while (currentChoiceBActions.length < thoughtCount) {
                     currentChoiceBActions.push({ type: 'none', endAction: false });
                 }
+                // Ensure all per-card typing speeds exist (default to 100ms - middle of 10-200 range)
+                while (currentTypingSpeeds.length < thoughtCount) {
+                    currentTypingSpeeds.push(100);
+                }
+                // Ensure all per-card moods exist (default to 'stable')
+                while (currentMoods.length < thoughtCount) {
+                    currentMoods.push('stable');
+                }
             } catch (e) {
                 console.warn('Failed to load from config:', e);
                 currentThoughts = getDefaultThoughts();
@@ -1675,15 +1663,15 @@ SYS_CHECK: COMPLETE</textarea>
                 currentChoiceBTexts = getDefaultChoiceBTexts();
                 currentChoiceAActions = getDefaultChoiceAActions();
                 currentChoiceBActions = getDefaultChoiceBActions();
+                currentTypingSpeeds = getDefaultTypingSpeeds();
+                currentMoods = getDefaultMoods();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
-                currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
                 currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
                 currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
                 currentCurtainDuration = defaults.curtainDuration || 4;
                 currentEarthquakeEnabled = defaults.earthquakeEnabled !== undefined ? defaults.earthquakeEnabled : true;
                 currentBootSequenceEnabled = defaults.bootSequenceEnabled !== undefined ? defaults.bootSequenceEnabled : true;
-                currentSystemMood = defaults.systemMood || 'stable';
                 currentSecretCommands = getDefaultSecretCommands();
                 currentBuildersMedia = getDefaultBuildersMedia();
                 currentBootScript = getDefaultBootScript();
@@ -1705,19 +1693,6 @@ SYS_CHECK: COMPLETE</textarea>
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
                 heroInput.value = currentHeroText;
-            }
-
-            // Update typing speed slider
-            const typingSpeedSlider = document.getElementById('typingSpeedSlider');
-            const typingSpeedValue = document.getElementById('typingSpeedValue');
-            if (typingSpeedSlider && typingSpeedValue) {
-                typingSpeedSlider.value = currentTypingSpeed;
-                typingSpeedValue.textContent = currentTypingSpeed;
-
-                // Add event listener for real-time value update
-                typingSpeedSlider.addEventListener('input', function() {
-                    typingSpeedValue.textContent = this.value;
-                });
             }
 
             // Update choice buttons toggle
@@ -1801,19 +1776,6 @@ SYS_CHECK: COMPLETE</textarea>
                 // Add event listener for real-time label update
                 bootSequenceToggle.addEventListener('change', function() {
                     bootSequenceToggleLabel.textContent = this.checked ? 'Enabled' : 'Disabled';
-                });
-            }
-
-            // Update system mood selector
-            const systemMoodSelect = document.getElementById('systemMoodSelect');
-            const moodPreview = document.getElementById('moodPreview');
-            if (systemMoodSelect && moodPreview) {
-                systemMoodSelect.value = currentSystemMood;
-                updateMoodPreview(currentSystemMood);
-
-                // Add event listener for real-time preview update
-                systemMoodSelect.addEventListener('change', function() {
-                    updateMoodPreview(this.value);
                 });
             }
 
@@ -2055,6 +2017,8 @@ SYS_CHECK: COMPLETE</textarea>
             currentChoiceBTexts.push('');
             currentChoiceAActions.push({ type: 'none', endAction: false });
             currentChoiceBActions.push({ type: 'none', endAction: false });
+            currentTypingSpeeds.push(100);  // Default to 100ms (middle of 10-200 range)
+            currentMoods.push('stable');     // Default to 'stable' mood
 
             renderThoughtCards();
 
@@ -2089,6 +2053,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentChoiceBTexts.splice(index, 1);
                 currentChoiceAActions.splice(index, 1);
                 currentChoiceBActions.splice(index, 1);
+                currentTypingSpeeds.splice(index, 1);
+                currentMoods.splice(index, 1);
                 renderThoughtCards();
             }
         }
@@ -2105,7 +2071,7 @@ SYS_CHECK: COMPLETE</textarea>
             moodPreview.classList.add(mood);
         }
 
-        // Render thought cards - Simplified CYOA layout
+        // Render thought cards - Simplified CYOA layout with scene-specific atmosphere
         function renderThoughtCards() {
             const grid = document.getElementById('thoughtsGrid');
             grid.innerHTML = '';
@@ -2116,6 +2082,8 @@ SYS_CHECK: COMPLETE</textarea>
                 const isActive = currentActiveStates[i] !== false; // Default to true
                 const choiceAAction = currentChoiceAActions[i] || { type: 'none', endAction: false };
                 const choiceBAction = currentChoiceBActions[i] || { type: 'none', endAction: false };
+                const typingSpeed = currentTypingSpeeds[i] !== undefined ? currentTypingSpeeds[i] : 100;
+                const mood = currentMoods[i] || 'stable';
                 const card = document.createElement('div');
                 card.className = 'thought-card' + (isActive ? '' : ' inactive');
                 card.id = `thought-card-${i}`;
@@ -2133,6 +2101,32 @@ SYS_CHECK: COMPLETE</textarea>
                     <div class="form-group">
                         <label>Story Text</label>
                         <textarea id="thought-${i}" class="thought-textarea" rows="10" placeholder="Enter story paragraph... Use {misspelled} for backspace effect and {{name}} for user name.">${escapeHtml(currentThoughts[i] || '')}</textarea>
+                    </div>
+
+                    <!-- Scene Atmosphere Controls -->
+                    <div style="background: rgba(91, 95, 234, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 3px solid var(--accent);">
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.9rem; font-weight: 600; color: var(--accent);">Scene Atmosphere</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>Typing Speed (10ms-200ms)</label>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <input type="range" id="typing-speed-${i}" min="10" max="200" value="${typingSpeed}" class="speed-slider" style="flex: 1;" oninput="updateTypingSpeedDisplay(${i})">
+                                    <span id="typing-speed-value-${i}" style="min-width: 50px; text-align: right; font-weight: 600; color: var(--accent);">${typingSpeed}ms</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                                    <span>Instant</span>
+                                    <span>Slow</span>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label>AI System Mood</label>
+                                <select id="mood-${i}" class="mood-select">
+                                    <option value="stable" ${mood === 'stable' ? 'selected' : ''}>Stable - Steady rhythm</option>
+                                    <option value="glitchy" ${mood === 'glitchy' ? 'selected' : ''}>Glitchy - Irregular typing</option>
+                                    <option value="urgent" ${mood === 'urgent' ? 'selected' : ''}>Urgent - Red, fast typing</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Choice A Section -->
@@ -2237,6 +2231,15 @@ SYS_CHECK: COMPLETE</textarea>
             }
         }
 
+        // Update typing speed display value in real-time
+        function updateTypingSpeedDisplay(index) {
+            const slider = document.getElementById(`typing-speed-${index}`);
+            const display = document.getElementById(`typing-speed-value-${index}`);
+            if (slider && display) {
+                display.textContent = slider.value + 'ms';
+            }
+        }
+
         // Render action-specific fields
         function renderActionFields(index, action) {
             const linkTextField = `
@@ -2330,12 +2333,6 @@ SYS_CHECK: COMPLETE</textarea>
                 currentHeroText = heroInput.value || defaultHeroText;
             }
 
-            // Collect typing speed
-            const typingSpeedSlider = document.getElementById('typingSpeedSlider');
-            if (typingSpeedSlider) {
-                currentTypingSpeed = parseInt(typingSpeedSlider.value, 10) || 150;
-            }
-
             // Collect choice buttons setting
             const choiceButtonsToggle = document.getElementById('choiceButtonsToggle');
             if (choiceButtonsToggle) {
@@ -2376,12 +2373,6 @@ SYS_CHECK: COMPLETE</textarea>
             const bootSequenceToggle = document.getElementById('bootSequenceToggle');
             if (bootSequenceToggle) {
                 currentBootSequenceEnabled = bootSequenceToggle.checked;
-            }
-
-            // Collect system mood setting
-            const systemMoodSelect = document.getElementById('systemMoodSelect');
-            if (systemMoodSelect) {
-                currentSystemMood = systemMoodSelect.value;
             }
 
             // Collect builders media settings
@@ -2538,6 +2529,18 @@ SYS_CHECK: COMPLETE</textarea>
                     currentChoiceBActions[i].endAction = choiceBEndCheckbox.checked;
                 }
 
+                // Collect per-card typing speed (10-200ms range)
+                const typingSpeedSlider = document.getElementById(`typing-speed-${i}`);
+                if (typingSpeedSlider) {
+                    currentTypingSpeeds[i] = parseInt(typingSpeedSlider.value, 10) || 100;
+                }
+
+                // Collect per-card AI mood
+                const moodSelect = document.getElementById(`mood-${i}`);
+                if (moodSelect) {
+                    currentMoods[i] = moodSelect.value || 'stable';
+                }
+
                 // Legacy: Keep old action type for backwards compatibility (default to none)
                 if (!currentActions[i]) {
                     currentActions[i] = { type: 'none', url: '', logo: '', linkText: 'Click here' };
@@ -2575,16 +2578,16 @@ SYS_CHECK: COMPLETE</textarea>
                 choiceBTexts: [...currentChoiceBTexts],
                 choiceAActions: currentChoiceAActions.map(a => ({...a})),
                 choiceBActions: currentChoiceBActions.map(a => ({...a})),
+                typingSpeeds: [...currentTypingSpeeds],
+                moods: [...currentMoods],
                 settings: {
-                    typingSpeed: currentTypingSpeed,
                     choiceButtonsEnabled: currentChoiceButtonsEnabled,
                     matrixFadeDuration: currentMatrixFadeDuration,
                     earthquakeDuration: currentEarthquakeDuration,
                     curtainDuration: currentCurtainDuration,
                     earthquakeEnabled: currentEarthquakeEnabled,
                     bootSequenceEnabled: currentBootSequenceEnabled,
-                    randomizeEnabled: currentRandomizeEnabled,
-                    systemMood: currentSystemMood
+                    randomizeEnabled: currentRandomizeEnabled
                 },
                 secretCommands: currentSecretCommands.map(cmd => ({...cmd})),
                 buildersMedia: {...currentBuildersMedia},
@@ -2630,6 +2633,7 @@ SYS_CHECK: COMPLETE</textarea>
         window.handleActiveChange = handleActiveChange;
         window.handleActionTypeChange = handleActionTypeChange;
         window.handleChoiceActionChange = handleChoiceActionChange;
+        window.updateTypingSpeedDisplay = updateTypingSpeedDisplay;
         window.downloadConfig = downloadConfig;
         window.factoryReset = factoryReset;
 
