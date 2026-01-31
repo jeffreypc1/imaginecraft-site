@@ -1012,13 +1012,13 @@
         <!-- Typing Speed Section -->
         <div class="typing-speed-section">
             <h2>Typing Animation Speed</h2>
-            <p>Adjust the base speed for typing animations. Lower values = faster typing. The animation maintains a natural, stuttered rhythm.</p>
+            <p>Adjust the base speed for typing animations. Lower values = faster typing. At 10ms (full left), text displays instantly. Under 30ms, stutter is minimized for a data-stream effect.</p>
             <div class="slider-container">
                 <div class="slider-labels">
                     <span>Fast</span>
                     <span>Slow</span>
                 </div>
-                <input type="range" id="typingSpeedSlider" min="50" max="300" value="150" class="speed-slider">
+                <input type="range" id="typingSpeedSlider" min="10" max="300" value="150" class="speed-slider">
                 <div class="slider-value">
                     <span id="typingSpeedValue">150</span>ms base delay
                 </div>

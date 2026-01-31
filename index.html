@@ -692,6 +692,7 @@
                 onValue(configRef, (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
+                        const previousTypingSpeed = remoteConfig?.settings?.typingSpeed;
                         remoteConfig = data;
                         console.log('Firebase config loaded/updated successfully');
 
@@ -702,9 +703,14 @@
                             resolve();
                         } else {
                             // If config was already loaded, this is an update
-                            // Trigger a visual refresh
-                            console.log('Config updated in real-time, refreshing site...');
-                            location.reload();
+                            // Check if typing speed changed - update in real-time without reload
+                            const newTypingSpeed = data?.settings?.typingSpeed;
+                            if (newTypingSpeed !== undefined && newTypingSpeed !== previousTypingSpeed) {
+                                if (typeof updateTypingSpeed === 'function') {
+                                    updateTypingSpeed(newTypingSpeed);
+                                }
+                            }
+                            console.log('Config updated in real-time');
                         }
                     } else {
                         console.warn('No config data found in Firebase');
@@ -1998,51 +2004,68 @@
             return settings && settings.typingSpeed ? settings.typingSpeed : 150;
         }
 
-        const baseTypingSpeed = loadTypingSpeed();
+        let baseTypingSpeed = loadTypingSpeed();
+
+        // Check if instant mode is enabled (speed <= 10ms)
+        function isInstantMode() {
+            return baseTypingSpeed <= 10;
+        }
 
         // Timing configuration (in ms) - uses admin-configurable base speed
         // Adjusted based on system mood
+        // When baseTypingSpeed < 30ms, minimizes variance for data-stream effect
         function getTimingConfig() {
+            const isFastMode = baseTypingSpeed < 30;
+
+            // In fast mode (< 30ms), minimize variance for smooth data-stream effect
             const base = {
-                initialDelay: 3000,
-                typeSpeedMin: Math.max(50, baseTypingSpeed - 50),
-                typeSpeedMax: baseTypingSpeed + 100,
-                punctuationPause: 500,
-                backspaceSpeedMin: 50,
-                backspaceSpeedMax: 100,
+                initialDelay: isFastMode ? 500 : 3000,
+                typeSpeedMin: isFastMode ? baseTypingSpeed : Math.max(10, baseTypingSpeed - 50),
+                typeSpeedMax: isFastMode ? baseTypingSpeed + 5 : baseTypingSpeed + 100,
+                punctuationPause: isFastMode ? baseTypingSpeed * 2 : 500,
+                backspaceSpeedMin: isFastMode ? baseTypingSpeed : 50,
+                backspaceSpeedMax: isFastMode ? baseTypingSpeed + 5 : 100,
                 linger: 4000
             };
 
             switch (systemMood) {
                 case 'glitchy':
                     // Glitchy: More irregular, stuttered rhythm with wider variance
+                    // In fast mode, reduce the glitchy variance significantly
                     return {
                         ...base,
-                        typeSpeedMin: Math.max(30, baseTypingSpeed - 100),
-                        typeSpeedMax: baseTypingSpeed + 200, // Wider range for irregular feel
-                        punctuationPause: Math.random() > 0.5 ? 800 : 200, // Random pauses
-                        backspaceSpeedMin: 30,
-                        backspaceSpeedMax: 150,
+                        typeSpeedMin: isFastMode ? baseTypingSpeed : Math.max(10, baseTypingSpeed - 100),
+                        typeSpeedMax: isFastMode ? baseTypingSpeed + 10 : baseTypingSpeed + 200,
+                        punctuationPause: isFastMode ? baseTypingSpeed * 3 : (Math.random() > 0.5 ? 800 : 200),
+                        backspaceSpeedMin: isFastMode ? baseTypingSpeed : 30,
+                        backspaceSpeedMax: isFastMode ? baseTypingSpeed + 10 : 150,
                         linger: 3000
                     };
                 case 'urgent':
                     // Urgent: Much faster typing
                     return {
                         ...base,
-                        initialDelay: 1500, // Faster start
-                        typeSpeedMin: Math.max(20, Math.floor(baseTypingSpeed * 0.3)),
-                        typeSpeedMax: Math.floor(baseTypingSpeed * 0.5),
-                        punctuationPause: 150, // Minimal pause
-                        backspaceSpeedMin: 20,
-                        backspaceSpeedMax: 50,
-                        linger: 2000 // Shorter linger
+                        initialDelay: isFastMode ? 300 : 1500,
+                        typeSpeedMin: isFastMode ? baseTypingSpeed : Math.max(10, Math.floor(baseTypingSpeed * 0.3)),
+                        typeSpeedMax: isFastMode ? baseTypingSpeed + 3 : Math.floor(baseTypingSpeed * 0.5),
+                        punctuationPause: isFastMode ? baseTypingSpeed : 150,
+                        backspaceSpeedMin: isFastMode ? baseTypingSpeed : 20,
+                        backspaceSpeedMax: isFastMode ? baseTypingSpeed + 3 : 50,
+                        linger: 2000
                     };
                 default: // 'stable'
                     return base;
             }
         }
 
-        const timing = getTimingConfig();
+        let timing = getTimingConfig();
+
+        // Function to update typing speed settings in real-time
+        function updateTypingSpeed(newSpeed) {
+            baseTypingSpeed = newSpeed;
+            timing = getTimingConfig();
+            console.log('Typing speed updated to:', newSpeed, 'ms, instant mode:', isInstantMode());
+        }
 
         // Helper function for random delay between min and max
         function randomDelay(min, max) {
@@ -2074,19 +2097,25 @@
         // ========================================
 
         // Glitchy mode typing helper - occasionally repeats or stutters
+        // In fast mode (< 30ms), minimize stutter for data-stream effect
         function getGlitchyDelay(baseMin, baseMax) {
-            // 15% chance of a glitch effect
-            if (Math.random() < 0.15) {
+            const isFastMode = baseTypingSpeed < 30;
+
+            // In fast mode, reduce glitch chance to 3% and minimize stutter variance
+            const glitchChance = isFastMode ? 0.03 : 0.15;
+
+            if (Math.random() < glitchChance) {
                 const glitchType = Math.random();
                 if (glitchType < 0.3) {
-                    // Very fast burst
-                    return randomDelay(10, 30);
+                    // Very fast burst - in fast mode, keep it minimal
+                    return isFastMode ? randomDelay(baseMin, baseMax) : randomDelay(10, 30);
                 } else if (glitchType < 0.6) {
-                    // Long stutter pause
-                    return randomDelay(300, 600);
+                    // Long stutter pause - in fast mode, just a tiny pause
+                    return isFastMode ? randomDelay(baseMin, baseMin + 10) : randomDelay(300, 600);
                 } else {
-                    // Normal with jitter
-                    return randomDelay(baseMin, baseMax) + (Math.random() > 0.5 ? 100 : -30);
+                    // Normal with jitter - in fast mode, minimal jitter
+                    const jitter = isFastMode ? (Math.random() > 0.5 ? 2 : -1) : (Math.random() > 0.5 ? 100 : -30);
+                    return randomDelay(baseMin, baseMax) + jitter;
                 }
             }
             return randomDelay(baseMin, baseMax);
@@ -2240,6 +2269,15 @@
         function typeCharacter(text, index, callback) {
             if (state.isUserTyping || state.isSelected) return;
 
+            // Instant mode: bypass typing animation entirely
+            if (isInstantMode() || prefersReducedMotion) {
+                // Strip backspace syntax and display final text immediately
+                state.currentText = stripBackspaceSyntax(text);
+                thoughtElement.textContent = state.currentText;
+                if (callback) callback();
+                return;
+            }
+
             // Check if text contains backspace syntax
             if (text.includes('{')) {
                 // Parse and type with backspace effect
@@ -2254,19 +2292,17 @@
 
                     // Calculate delay - longer after punctuation, variable otherwise
                     let delay = 0;
-                    if (!prefersReducedMotion) {
-                        const lastChar = text.charAt(index - 1);
-                        if (isPunctuation(lastChar)) {
-                            // Glitchy mood has random punctuation pauses
-                            delay = systemMood === 'glitchy'
-                                ? (Math.random() > 0.5 ? timing.punctuationPause * 1.5 : timing.punctuationPause * 0.3)
-                                : timing.punctuationPause;
-                        } else {
-                            // Use glitchy delay for glitchy mood
-                            delay = systemMood === 'glitchy'
-                                ? getGlitchyDelay(timing.typeSpeedMin, timing.typeSpeedMax)
-                                : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
-                        }
+                    const lastChar = text.charAt(index - 1);
+                    if (isPunctuation(lastChar)) {
+                        // Glitchy mood has random punctuation pauses
+                        delay = systemMood === 'glitchy'
+                            ? (Math.random() > 0.5 ? timing.punctuationPause * 1.5 : timing.punctuationPause * 0.3)
+                            : timing.punctuationPause;
+                    } else {
+                        // Use glitchy delay for glitchy mood
+                        delay = systemMood === 'glitchy'
+                            ? getGlitchyDelay(timing.typeSpeedMin, timing.typeSpeedMax)
+                            : randomDelay(timing.typeSpeedMin, timing.typeSpeedMax);
                     }
 
                     state.animationTimeout = setTimeout(() => {
