@@ -638,6 +638,12 @@
         function getConfigNoRedirectIndices() {
             return remoteConfig && remoteConfig.noRedirectIndices ? [...remoteConfig.noRedirectIndices] : null;
         }
+        function getConfigChoiceATexts() {
+            return remoteConfig && remoteConfig.choiceATexts ? [...remoteConfig.choiceATexts] : null;
+        }
+        function getConfigChoiceBTexts() {
+            return remoteConfig && remoteConfig.choiceBTexts ? [...remoteConfig.choiceBTexts] : null;
+        }
         function getConfigSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
@@ -745,6 +751,14 @@
 
         function loadNoRedirectIndices() {
             return getConfigNoRedirectIndices();
+        }
+
+        function loadChoiceATexts() {
+            return getConfigChoiceATexts();
+        }
+
+        function loadChoiceBTexts() {
+            return getConfigChoiceBTexts();
         }
 
         function loadRandomizeEnabled() {
@@ -1768,8 +1782,12 @@
         let responses = [];
         let allYesRedirectIndices = [];
         let allNoRedirectIndices = [];
+        let allChoiceATexts = [];
+        let allChoiceBTexts = [];
         let yesRedirectIndices = [];
         let noRedirectIndices = [];
+        let choiceATexts = [];
+        let choiceBTexts = [];
 
         // Function to load and process thoughts/responses data
         function initializeContentData() {
@@ -1780,6 +1798,8 @@
             activeStates = loadActiveStates();
             allYesRedirectIndices = loadYesRedirectIndices();
             allNoRedirectIndices = loadNoRedirectIndices();
+            allChoiceATexts = loadChoiceATexts() || [];
+            allChoiceBTexts = loadChoiceBTexts() || [];
             randomizeEnabled = loadRandomizeEnabled();
 
             // Comprehensive null checks - ensure ALL data exists before processing
@@ -1792,6 +1812,8 @@
                 activeStates = [true];
                 allYesRedirectIndices = [''];
                 allNoRedirectIndices = [''];
+                allChoiceATexts = [''];
+                allChoiceBTexts = [''];
                 randomizeEnabled = false;
             }
 
@@ -1805,6 +1827,8 @@
                 activeStates = [true];
                 allYesRedirectIndices = [''];
                 allNoRedirectIndices = [''];
+                allChoiceATexts = [''];
+                allChoiceBTexts = [''];
                 randomizeEnabled = false;
             }
 
@@ -1814,6 +1838,8 @@
             responses = [];
             yesRedirectIndices = [];
             noRedirectIndices = [];
+            choiceATexts = [];
+            choiceBTexts = [];
 
             // Filter to only include active thoughts and track their original indices
             for (let i = 0; i < allThoughts.length; i++) {
@@ -1824,6 +1850,8 @@
                     responses.push(allResponses[i]);
                     yesRedirectIndices.push(allYesRedirectIndices[i] || '');
                     noRedirectIndices.push(allNoRedirectIndices[i] || '');
+                    choiceATexts.push(allChoiceATexts[i] || '');
+                    choiceBTexts.push(allChoiceBTexts[i] || '');
                 }
             }
 
@@ -1845,6 +1873,8 @@
                 const newResponses = [];
                 const newYesRedirectIndices = [];
                 const newNoRedirectIndices = [];
+                const newChoiceATexts = [];
+                const newChoiceBTexts = [];
 
                 for (const idx of selectedIndices) {
                     newActiveIndices.push(activeIndices[idx]);
@@ -1852,6 +1882,8 @@
                     newResponses.push(responses[idx]);
                     newYesRedirectIndices.push(yesRedirectIndices[idx]);
                     newNoRedirectIndices.push(noRedirectIndices[idx]);
+                    newChoiceATexts.push(choiceATexts[idx]);
+                    newChoiceBTexts.push(choiceBTexts[idx]);
                 }
 
                 activeIndices = newActiveIndices;
@@ -1859,6 +1891,8 @@
                 responses = newResponses;
                 yesRedirectIndices = newYesRedirectIndices;
                 noRedirectIndices = newNoRedirectIndices;
+                choiceATexts = newChoiceATexts;
+                choiceBTexts = newChoiceBTexts;
             }
 
             // Extract meltdown triggers from all thoughts (including inactive ones)
@@ -2283,9 +2317,15 @@
                 // Thoroughly clean all button states to ensure responsiveness
                 if (yesBtn) {
                     yesBtn.classList.remove('selected', 'btn-active', 'disabled');
+                    // Set dynamic button text - use custom text or fallback to "Yes"
+                    const choiceAText = choiceATexts[state.currentIndex];
+                    yesBtn.textContent = (choiceAText && choiceAText.trim()) ? choiceAText : 'Yes';
                 }
                 if (noBtn) {
                     noBtn.classList.remove('selected', 'btn-active', 'disabled');
+                    // Set dynamic button text - use custom text or fallback to "No"
+                    const choiceBText = choiceBTexts[state.currentIndex];
+                    noBtn.textContent = (choiceBText && choiceBText.trim()) ? choiceBText : 'No';
                 }
 
                 // Hide the New Question button in choice area

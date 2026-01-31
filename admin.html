@@ -1351,6 +1351,20 @@ SYS_CHECK: COMPLETE</textarea>
             // If no Firebase data, return a single empty redirect
             return [''];
         }
+        function getDefaultChoiceATexts() {
+            if (remoteConfig && remoteConfig.choiceATexts) {
+                return [...remoteConfig.choiceATexts];
+            }
+            // If no Firebase data, return a single empty text (defaults to "Yes")
+            return [''];
+        }
+        function getDefaultChoiceBTexts() {
+            if (remoteConfig && remoteConfig.choiceBTexts) {
+                return [...remoteConfig.choiceBTexts];
+            }
+            // If no Firebase data, return a single empty text (defaults to "No")
+            return [''];
+        }
         function getDefaultSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
@@ -1520,6 +1534,8 @@ SYS_CHECK: COMPLETE</textarea>
         let currentActiveStates = [];
         let currentYesRedirectIndices = [];
         let currentNoRedirectIndices = [];
+        let currentChoiceATexts = [];
+        let currentChoiceBTexts = [];
         let currentRandomizeEnabled = false;
         let currentTypingSpeed = 150;
         let currentChoiceButtonsEnabled = false;
@@ -1558,6 +1574,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentActiveStates = getDefaultActiveStates();
                 currentYesRedirectIndices = getDefaultYesRedirectIndices();
                 currentNoRedirectIndices = getDefaultNoRedirectIndices();
+                currentChoiceATexts = getDefaultChoiceATexts();
+                currentChoiceBTexts = getDefaultChoiceBTexts();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
                 currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
@@ -1596,6 +1614,13 @@ SYS_CHECK: COMPLETE</textarea>
                 while (currentNoRedirectIndices.length < thoughtCount) {
                     currentNoRedirectIndices.push('');
                 }
+                // Ensure all choice texts exist (default to empty string for Yes/No defaults)
+                while (currentChoiceATexts.length < thoughtCount) {
+                    currentChoiceATexts.push('');
+                }
+                while (currentChoiceBTexts.length < thoughtCount) {
+                    currentChoiceBTexts.push('');
+                }
             } catch (e) {
                 console.warn('Failed to load from config:', e);
                 currentThoughts = getDefaultThoughts();
@@ -1605,6 +1630,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentActiveStates = getDefaultActiveStates();
                 currentYesRedirectIndices = getDefaultYesRedirectIndices();
                 currentNoRedirectIndices = getDefaultNoRedirectIndices();
+                currentChoiceATexts = getDefaultChoiceATexts();
+                currentChoiceBTexts = getDefaultChoiceBTexts();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
                 currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
@@ -1981,6 +2008,8 @@ SYS_CHECK: COMPLETE</textarea>
             currentActiveStates.push(true);
             currentYesRedirectIndices.push('');
             currentNoRedirectIndices.push('');
+            currentChoiceATexts.push('');
+            currentChoiceBTexts.push('');
 
             renderThoughtCards();
 
@@ -2011,6 +2040,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentActiveStates.splice(index, 1);
                 currentYesRedirectIndices.splice(index, 1);
                 currentNoRedirectIndices.splice(index, 1);
+                currentChoiceATexts.splice(index, 1);
+                currentChoiceBTexts.splice(index, 1);
                 renderThoughtCards();
             }
         }
@@ -2060,11 +2091,19 @@ SYS_CHECK: COMPLETE</textarea>
                         <textarea id="response-${i}" placeholder="Enter response...">${escapeHtml(currentResponses[i] || '')}</textarea>
                     </div>
                     <div class="form-group">
-                        <label>Yes Button → Jump to Index (leave blank for next)</label>
+                        <label>Choice A Text (leave blank for "Yes")</label>
+                        <input type="text" id="choice-a-text-${i}" value="${escapeHtml(currentChoiceATexts[i] || '')}" placeholder="e.g., Get in the vehicle">
+                    </div>
+                    <div class="form-group">
+                        <label>Choice A → Jump to Index (leave blank for next)</label>
                         <input type="number" id="yes-redirect-${i}" value="${escapeHtml(currentYesRedirectIndices[i] || '')}" placeholder="e.g., 3" min="1" max="${thoughtCount}">
                     </div>
                     <div class="form-group">
-                        <label>No Button → Jump to Index (leave blank for next)</label>
+                        <label>Choice B Text (leave blank for "No")</label>
+                        <input type="text" id="choice-b-text-${i}" value="${escapeHtml(currentChoiceBTexts[i] || '')}" placeholder="e.g., Keep running toward the lights">
+                    </div>
+                    <div class="form-group">
+                        <label>Choice B → Jump to Index (leave blank for next)</label>
                         <input type="number" id="no-redirect-${i}" value="${escapeHtml(currentNoRedirectIndices[i] || '')}" placeholder="e.g., 5" min="1" max="${thoughtCount}">
                     </div>
                     <div class="form-group">
@@ -2367,6 +2406,16 @@ SYS_CHECK: COMPLETE</textarea>
                     currentNoRedirectIndices[i] = noRedirectInput.value;
                 }
 
+                // Collect choice button texts
+                const choiceATextInput = document.getElementById(`choice-a-text-${i}`);
+                const choiceBTextInput = document.getElementById(`choice-b-text-${i}`);
+                if (choiceATextInput) {
+                    currentChoiceATexts[i] = choiceATextInput.value;
+                }
+                if (choiceBTextInput) {
+                    currentChoiceBTexts[i] = choiceBTextInput.value;
+                }
+
                 const actionTypeSelect = document.getElementById(`action-type-${i}`);
                 const actionType = actionTypeSelect ? actionTypeSelect.value : 'none';
                 if (!currentActions[i]) {
@@ -2422,6 +2471,8 @@ SYS_CHECK: COMPLETE</textarea>
                 activeStates: [...currentActiveStates],
                 yesRedirectIndices: [...currentYesRedirectIndices],
                 noRedirectIndices: [...currentNoRedirectIndices],
+                choiceATexts: [...currentChoiceATexts],
+                choiceBTexts: [...currentChoiceBTexts],
                 settings: {
                     typingSpeed: currentTypingSpeed,
                     choiceButtonsEnabled: currentChoiceButtonsEnabled,
