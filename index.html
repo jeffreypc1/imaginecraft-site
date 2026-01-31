@@ -674,6 +674,15 @@
         function getConfigBootScript() {
             return remoteConfig && remoteConfig.bootScript ? remoteConfig.bootScript : null;
         }
+        function getConfigGlobalAmbientAudioURL() {
+            return remoteConfig && remoteConfig.globalAmbientAudioURL ? remoteConfig.globalAmbientAudioURL : '';
+        }
+        function getConfigSceneAudioOverrides() {
+            if (remoteConfig && remoteConfig.sceneAudioOverrides) {
+                return remoteConfig.sceneAudioOverrides.map(s => ({...s}));
+            }
+            return [];
+        }
 
         // Firebase real-time listener for configuration
         let configLoaded = false;
@@ -793,6 +802,14 @@
 
         function loadMoods() {
             return getConfigMoods();
+        }
+
+        function loadGlobalAmbientAudioURL() {
+            return getConfigGlobalAmbientAudioURL();
+        }
+
+        function loadSceneAudioOverrides() {
+            return getConfigSceneAudioOverrides();
         }
 
         function loadRandomizeEnabled() {
@@ -1227,6 +1244,9 @@
         function executeMeltdown() {
             console.log('MELTDOWN TRIGGERED!');
 
+            // Preserve audio state during meltdown effect
+            preserveAudioState();
+
             // Stop all animations and input immediately
             state.isUserTyping = true;
             state.isSelected = true;
@@ -1279,6 +1299,9 @@
         // Trigger meltdown from Yes/No button clicks
         function triggerMeltdown() {
             console.log('SYSTEM MELTDOWN TRIGGERED FROM BUTTON CLICK!');
+
+            // Preserve audio state during meltdown effect
+            preserveAudioState();
 
             // Immediately disable Yes/No buttons to prevent double-clicks
             const yesBtn = document.getElementById('choiceBtnYes');
@@ -1508,6 +1531,9 @@
 
         // Trigger Star Wars style warp/hyperspace animation
         function triggerWarpAnimation() {
+            // Preserve audio state during warp effect
+            preserveAudioState();
+
             // Create warp container
             const warpContainer = document.createElement('div');
             warpContainer.id = 'warpContainer';
@@ -1822,6 +1848,7 @@
         let allChoiceBActions = [];
         let allTypingSpeeds = [];
         let allMoods = [];
+        let allSceneAudioOverrides = [];
         let yesRedirectIndices = [];
         let noRedirectIndices = [];
         let choiceATexts = [];
@@ -1830,6 +1857,8 @@
         let choiceBActions = [];
         let typingSpeeds = [];
         let moods = [];
+        let sceneAudioOverrides = [];
+        let globalAmbientAudioURL = '';
 
         // Function to load and process thoughts/responses data
         function initializeContentData() {
@@ -1846,6 +1875,8 @@
             allChoiceBActions = loadChoiceBActions() || [];
             allTypingSpeeds = loadTypingSpeeds() || [];
             allMoods = loadMoods() || [];
+            allSceneAudioOverrides = loadSceneAudioOverrides() || [];
+            globalAmbientAudioURL = loadGlobalAmbientAudioURL() || '';
             randomizeEnabled = loadRandomizeEnabled();
 
             // Comprehensive null checks - ensure ALL data exists before processing
@@ -1864,6 +1895,7 @@
                 allChoiceBActions = [{ type: 'none', endAction: false }];
                 allTypingSpeeds = [100];
                 allMoods = ['stable'];
+                allSceneAudioOverrides = [{ url: '', loop: true }];
                 randomizeEnabled = false;
             }
 
@@ -1883,6 +1915,7 @@
                 allChoiceBActions = [{ type: 'none', endAction: false }];
                 allTypingSpeeds = [100];
                 allMoods = ['stable'];
+                allSceneAudioOverrides = [{ url: '', loop: true }];
                 randomizeEnabled = false;
             }
 
@@ -1898,6 +1931,7 @@
             choiceBActions = [];
             typingSpeeds = [];
             moods = [];
+            sceneAudioOverrides = [];
 
             // Filter to only include active thoughts and track their original indices
             for (let i = 0; i < allThoughts.length; i++) {
@@ -1914,6 +1948,7 @@
                     choiceBActions.push(allChoiceBActions[i] || { type: 'none', endAction: false });
                     typingSpeeds.push(allTypingSpeeds[i] !== undefined ? allTypingSpeeds[i] : 100);
                     moods.push(allMoods[i] || 'stable');
+                    sceneAudioOverrides.push(allSceneAudioOverrides[i] || { url: '', loop: true });
                 }
             }
 
@@ -1941,6 +1976,7 @@
                 const newChoiceBActions = [];
                 const newTypingSpeeds = [];
                 const newMoods = [];
+                const newSceneAudioOverrides = [];
 
                 for (const idx of selectedIndices) {
                     newActiveIndices.push(activeIndices[idx]);
@@ -1954,6 +1990,7 @@
                     newChoiceBActions.push(choiceBActions[idx]);
                     newTypingSpeeds.push(typingSpeeds[idx]);
                     newMoods.push(moods[idx]);
+                    newSceneAudioOverrides.push(sceneAudioOverrides[idx]);
                 }
 
                 activeIndices = newActiveIndices;
@@ -1967,6 +2004,7 @@
                 choiceBActions = newChoiceBActions;
                 typingSpeeds = newTypingSpeeds;
                 moods = newMoods;
+                sceneAudioOverrides = newSceneAudioOverrides;
             }
 
             // Extract meltdown triggers from all thoughts (including inactive ones)
@@ -2032,6 +2070,173 @@
             inactivityTimeout: null,  // Timeout for 120s inactivity detection
             lastActivityTime: Date.now() // Track last user activity
         };
+
+        // ========================================
+        // Layered Audio System
+        // ========================================
+        const audioState = {
+            globalAmbient: null,           // Audio element for global ambient loop
+            sceneAudio: null,              // Audio element for scene-specific audio
+            currentSceneAudioURL: null,    // Currently playing scene audio URL
+            userHasInteracted: false,      // Whether user has clicked to enable audio
+            crossFadeDuration: 2000,       // Cross-fade duration in ms
+            fadeInterval: null,            // Interval for fade animation
+            targetVolume: 0.5              // Default volume level
+        };
+
+        // Initialize global ambient audio (call after config loads)
+        function initializeGlobalAmbientAudio() {
+            if (!globalAmbientAudioURL) {
+                console.log('No global ambient audio URL configured');
+                return;
+            }
+
+            audioState.globalAmbient = new Audio(globalAmbientAudioURL);
+            audioState.globalAmbient.loop = true;
+            audioState.globalAmbient.volume = 0;
+            audioState.globalAmbient.preload = 'auto';
+            console.log('Global ambient audio initialized:', globalAmbientAudioURL);
+        }
+
+        // Start global ambient audio on first user interaction
+        function startAmbientAudioOnFirstClick() {
+            if (audioState.userHasInteracted) return;
+            audioState.userHasInteracted = true;
+
+            if (audioState.globalAmbient) {
+                audioState.globalAmbient.play()
+                    .then(() => {
+                        console.log('Global ambient audio started');
+                        fadeAudioIn(audioState.globalAmbient, audioState.targetVolume, audioState.crossFadeDuration);
+                    })
+                    .catch(err => console.warn('Failed to start ambient audio:', err));
+            }
+
+            // Remove the listener after first interaction
+            document.removeEventListener('click', startAmbientAudioOnFirstClick);
+            document.removeEventListener('keydown', startAmbientAudioOnFirstClick);
+        }
+
+        // Fade audio volume in
+        function fadeAudioIn(audio, targetVolume, duration) {
+            if (!audio) return;
+            const steps = 20;
+            const stepDuration = duration / steps;
+            const volumeStep = targetVolume / steps;
+            let currentStep = 0;
+
+            const interval = setInterval(() => {
+                currentStep++;
+                audio.volume = Math.min(targetVolume, volumeStep * currentStep);
+                if (currentStep >= steps) {
+                    clearInterval(interval);
+                    audio.volume = targetVolume;
+                }
+            }, stepDuration);
+        }
+
+        // Fade audio volume out
+        function fadeAudioOut(audio, duration, callback) {
+            if (!audio) {
+                if (callback) callback();
+                return;
+            }
+            const steps = 20;
+            const stepDuration = duration / steps;
+            const volumeStep = audio.volume / steps;
+            const startVolume = audio.volume;
+            let currentStep = 0;
+
+            const interval = setInterval(() => {
+                currentStep++;
+                audio.volume = Math.max(0, startVolume - (volumeStep * currentStep));
+                if (currentStep >= steps) {
+                    clearInterval(interval);
+                    audio.volume = 0;
+                    audio.pause();
+                    if (callback) callback();
+                }
+            }, stepDuration);
+        }
+
+        // Handle scene audio transition with cross-fade
+        function handleSceneAudioTransition(sceneIndex) {
+            const sceneOverride = sceneAudioOverrides[sceneIndex];
+            const newAudioURL = sceneOverride?.url || '';
+            const shouldLoop = sceneOverride?.loop !== false;
+
+            // If no user interaction yet, skip audio transitions
+            if (!audioState.userHasInteracted) return;
+
+            // Case 1: Scene has override audio
+            if (newAudioURL && newAudioURL !== audioState.currentSceneAudioURL) {
+                console.log('Transitioning to scene audio:', newAudioURL);
+
+                // Fade out current audio (either scene or global)
+                const audioToFadeOut = audioState.sceneAudio || audioState.globalAmbient;
+
+                // Create new scene audio
+                const newSceneAudio = new Audio(newAudioURL);
+                newSceneAudio.loop = shouldLoop;
+                newSceneAudio.volume = 0;
+                newSceneAudio.preload = 'auto';
+
+                // Cross-fade
+                fadeAudioOut(audioToFadeOut, audioState.crossFadeDuration, () => {
+                    // Stop global ambient during scene override (but don't destroy it)
+                    if (audioState.globalAmbient) {
+                        audioState.globalAmbient.pause();
+                    }
+                });
+
+                newSceneAudio.play()
+                    .then(() => {
+                        fadeAudioIn(newSceneAudio, audioState.targetVolume, audioState.crossFadeDuration);
+                        // Clean up old scene audio if exists
+                        if (audioState.sceneAudio && audioState.sceneAudio !== audioState.globalAmbient) {
+                            audioState.sceneAudio.pause();
+                            audioState.sceneAudio = null;
+                        }
+                        audioState.sceneAudio = newSceneAudio;
+                        audioState.currentSceneAudioURL = newAudioURL;
+                    })
+                    .catch(err => console.warn('Failed to play scene audio:', err));
+            }
+            // Case 2: No scene override, return to global ambient
+            else if (!newAudioURL && audioState.currentSceneAudioURL) {
+                console.log('Returning to global ambient audio');
+
+                // Fade out scene audio
+                fadeAudioOut(audioState.sceneAudio, audioState.crossFadeDuration, () => {
+                    audioState.sceneAudio = null;
+                    audioState.currentSceneAudioURL = null;
+
+                    // Fade in global ambient
+                    if (audioState.globalAmbient) {
+                        audioState.globalAmbient.play()
+                            .then(() => {
+                                fadeAudioIn(audioState.globalAmbient, audioState.targetVolume, audioState.crossFadeDuration);
+                            })
+                            .catch(err => console.warn('Failed to resume ambient audio:', err));
+                    }
+                });
+            }
+            // Case 3: Same scene audio or no audio at all - do nothing
+        }
+
+        // Preserve audio state during effects (call before meltdown/warp)
+        function preserveAudioState() {
+            // Audio continues playing - no action needed
+            // This function exists as a hook for future enhancements
+            console.log('Audio state preserved during effect');
+        }
+
+        // Restore audio state after effects (if needed)
+        function restoreAudioState() {
+            // Audio should have continued playing
+            // This function exists as a hook for future enhancements
+            console.log('Audio state restored after effect');
+        }
 
         function loadTypingSpeed() {
             const settings = getConfigSettings();
@@ -2124,6 +2329,9 @@
                     explorePage.classList.add(`mood-${pageMood}`);
                 }
             }
+
+            // Handle scene audio transition (cross-fade)
+            handleSceneAudioTransition(index);
 
             console.log('Scene atmosphere applied - Speed:', baseTypingSpeed, 'ms, Mood:', pageMood);
         }
@@ -3945,6 +4153,12 @@
             }
 
             initializeSettings();
+
+            // Initialize layered audio system
+            initializeGlobalAmbientAudio();
+            // Add first-click listeners to start ambient audio
+            document.addEventListener('click', startAmbientAudioOnFirstClick);
+            document.addEventListener('keydown', startAmbientAudioOnFirstClick);
 
             // Load and prepare background image
             loadOpeningBackgroundImage();
