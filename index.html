@@ -2441,14 +2441,17 @@
             return segments;
         }
 
-        // Helper function to replace {{name}} placeholder with user's name
+        // Helper function to replace <<name>> placeholder with user's name
+        // This runs FIRST before {backspace} and [meltdown] processing
         function replaceName(text) {
-            if (!text.includes('{{name}}')) return text;
+            if (!text.includes('<<name>>')) return text;
 
-            const userName = sessionStorage.getItem('imaginecraft_user_name');
-            const replacement = userName || 'friend';
+            // Check localStorage first (persistent), then sessionStorage, then default
+            const userName = localStorage.getItem('userName') ||
+                           sessionStorage.getItem('imaginecraft_user_name') ||
+                           'Friend';
 
-            return text.replace(/\{\{name\}\}/g, replacement);
+            return text.replace(/<<name>>/g, userName);
         }
 
         // Helper function to strip backspace syntax from text for direct display
@@ -2623,8 +2626,8 @@
 
             state.isAnimating = true;
             const originalThought = thoughts[index];
-            // Strip meltdown triggers before displaying
-            const thought = replaceName(stripMeltdownTriggers(originalThought));
+            // Process in order: 1) Replace <<name>>, 2) Strip [meltdown] triggers
+            const thought = stripMeltdownTriggers(replaceName(originalThought));
             state.targetText = thought;
             thoughtElement.dataset.index = index;
 
