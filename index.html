@@ -2084,6 +2084,9 @@
             targetVolume: 0.5              // Default volume level
         };
 
+        // Global audio mute flag - set by Entry Page audio preference
+        let globalAudioMuted = false;
+
         // Initialize global ambient audio (call after config loads)
         function initializeGlobalAmbientAudio() {
             if (!globalAmbientAudioURL) {
@@ -2102,6 +2105,14 @@
         function startAmbientAudioOnFirstClick() {
             if (audioState.userHasInteracted) return;
             audioState.userHasInteracted = true;
+
+            // Check if audio is globally muted by user preference
+            if (globalAudioMuted) {
+                console.log('Global audio muted by user preference - skipping ambient audio');
+                document.removeEventListener('click', startAmbientAudioOnFirstClick);
+                document.removeEventListener('keydown', startAmbientAudioOnFirstClick);
+                return;
+            }
 
             if (audioState.globalAmbient) {
                 audioState.globalAmbient.play()
@@ -2164,6 +2175,9 @@
             const sceneOverride = sceneAudioOverrides[sceneIndex];
             const newAudioURL = sceneOverride?.url || '';
             const shouldLoop = sceneOverride?.loop !== false;
+
+            // If audio is globally muted, skip audio transitions
+            if (globalAudioMuted) return;
 
             // If no user interaction yet, skip audio transitions
             if (!audioState.userHasInteracted) return;
@@ -4378,6 +4392,41 @@
     <div id="splashScreen" class="splash-screen">
         <div class="splash-image-container">
             <img src="assets/mysteryimage.png" alt="Welcome" class="splash-image">
+        </div>
+    </div>
+
+    <!-- Entry Page (Chapter 0) - Appears after splash, before terminal -->
+    <div id="entryPage" class="entry-page" style="display: none;">
+        <div class="entry-container">
+            <h1 class="entry-title">CHAPTER 0</h1>
+            <p class="entry-subtitle">SYSTEM INITIALIZATION</p>
+
+            <!-- Name Capture -->
+            <div class="entry-section">
+                <label class="entry-label" for="entryNameInput">ENTER YOUR NAME</label>
+                <input type="text" id="entryNameInput" class="entry-input" placeholder="_" autocomplete="off" spellcheck="false">
+            </div>
+
+            <!-- Audio Preference -->
+            <div class="entry-section">
+                <label class="entry-label">ENABLE SYSTEM AUDIO?</label>
+                <div class="entry-toggle-container">
+                    <button type="button" class="entry-toggle-btn active" id="audioYesBtn" data-audio="yes">YES</button>
+                    <button type="button" class="entry-toggle-btn" id="audioNoBtn" data-audio="no">NO</button>
+                </div>
+            </div>
+
+            <!-- Scary Stories Prank -->
+            <div class="entry-section">
+                <label class="entry-label">DO YOU LIKE SCARY STORIES?</label>
+                <div class="entry-toggle-container">
+                    <button type="button" class="entry-scary-btn" id="scaryYesBtn">YES</button>
+                    <button type="button" class="entry-scary-btn entry-scary-no" id="scaryNoBtn">NO</button>
+                </div>
+            </div>
+
+            <!-- Proceed Button -->
+            <button type="button" class="entry-proceed-btn" id="entryProceedBtn">PROCEED</button>
         </div>
     </div>
 
