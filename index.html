@@ -2068,8 +2068,195 @@
             userName: '',             // Global variable to store captured user name
             consecutiveErrors: 0,     // Track consecutive terminal errors for tech difficulty overlay
             inactivityTimeout: null,  // Timeout for 120s inactivity detection
-            lastActivityTime: Date.now() // Track last user activity
+            lastActivityTime: Date.now(), // Track last user activity
+            terminalLocked: false     // Lock terminal during action animations
         };
+
+        // ========================================
+        // Terminal Lock Functions (for action animations)
+        // ========================================
+
+        function lockTerminal() {
+            state.terminalLocked = true;
+            // Disable choice buttons visually
+            const choiceBtnYes = document.getElementById('choiceBtnYes');
+            const choiceBtnNo = document.getElementById('choiceBtnNo');
+            if (choiceBtnYes) choiceBtnYes.classList.add('disabled');
+            if (choiceBtnNo) choiceBtnNo.classList.add('disabled');
+        }
+
+        function unlockTerminal() {
+            state.terminalLocked = false;
+            // Re-enable choice buttons
+            const choiceBtnYes = document.getElementById('choiceBtnYes');
+            const choiceBtnNo = document.getElementById('choiceBtnNo');
+            if (choiceBtnYes) choiceBtnYes.classList.remove('disabled');
+            if (choiceBtnNo) choiceBtnNo.classList.remove('disabled');
+        }
+
+        // Get the delay for each action type (in ms)
+        function getActionDelay(actionType) {
+            switch (actionType) {
+                case 'supernova-flash':
+                case 'spaghettify':
+                    return 2500;
+                case 'hull-breach':
+                    return 1500;
+                default:
+                    return 0;
+            }
+        }
+
+        // Trigger action animation without FIN overlay (for non-end-action transitions)
+        // Calls the callback after the animation delay
+        function triggerTransitionAnimation(actionType, callback) {
+            const delay = getActionDelay(actionType);
+            if (delay === 0) {
+                // No animation needed, execute callback immediately
+                if (callback) callback();
+                return;
+            }
+
+            // Lock the terminal during animation
+            lockTerminal();
+
+            switch (actionType) {
+                case 'supernova-flash':
+                    triggerSupernovaTransition(callback, delay);
+                    break;
+                case 'spaghettify':
+                    triggerSpaghettifyTransition(callback, delay);
+                    break;
+                case 'hull-breach':
+                    triggerHullBreachTransition(callback, delay);
+                    break;
+                default:
+                    unlockTerminal();
+                    if (callback) callback();
+            }
+        }
+
+        // Supernova transition animation (without FIN)
+        function triggerSupernovaTransition(callback, delay) {
+            console.log('SUPERNOVA TRANSITION TRIGGERED');
+
+            // Create overlay element
+            const overlay = document.createElement('div');
+            overlay.id = 'supernovaTransitionOverlay';
+            overlay.className = 'supernova-overlay';
+            document.body.appendChild(overlay);
+
+            // Phase 1: Blinding white flash
+            overlay.classList.add('active', 'white-flash');
+
+            // Phase 2: Transition to celestial purple (after 1s)
+            setTimeout(() => {
+                overlay.classList.remove('white-flash');
+                overlay.classList.add('celestial-purple');
+            }, 1000);
+
+            // After delay, fade out and execute callback
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                unlockTerminal();
+                if (callback) callback();
+                setTimeout(() => {
+                    overlay.remove();
+                }, 500);
+            }, delay);
+        }
+
+        // Spaghettify transition animation (without FIN)
+        function triggerSpaghettifyTransition(callback, delay) {
+            console.log('SPAGHETTIFY TRANSITION TRIGGERED');
+
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+            const thoughtElement = document.getElementById('currentThought');
+
+            // Create black hole overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'blackHoleTransitionOverlay';
+            overlay.className = 'black-hole-overlay';
+
+            // Create the event horizon (center point)
+            const eventHorizon = document.createElement('div');
+            eventHorizon.className = 'event-horizon';
+            overlay.appendChild(eventHorizon);
+
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Apply spaghettify effect to text elements
+            if (explorePage) explorePage.classList.add('spaghettify');
+            if (terminalBody) terminalBody.classList.add('spaghettify');
+            if (thoughtElement) thoughtElement.classList.add('spaghettify');
+
+            // After delay, fade out and execute callback
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('spaghettify');
+                if (terminalBody) terminalBody.classList.remove('spaghettify');
+                if (thoughtElement) thoughtElement.classList.remove('spaghettify');
+                unlockTerminal();
+                if (callback) callback();
+                setTimeout(() => {
+                    overlay.remove();
+                }, 500);
+            }, delay);
+        }
+
+        // Hull Breach transition animation (without FIN)
+        function triggerHullBreachTransition(callback, delay) {
+            console.log('HULL BREACH TRANSITION TRIGGERED');
+
+            // Play depressurization sound if not muted
+            if (!globalAudioMuted) {
+                const depressSound = new Audio('assets/audio/hull-breach.mp3');
+                depressSound.volume = 0.7;
+                depressSound.play().catch(e => console.log('Hull breach audio failed:', e));
+            }
+
+            // Create hull breach overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'hullBreachTransitionOverlay';
+            overlay.className = 'hull-breach-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Apply hull breach wipe effect to terminal
+            const explorePage = document.querySelector('.explore-page');
+            const thoughtElement = document.getElementById('currentThought');
+
+            if (explorePage) explorePage.classList.add('hull-breach-wipe');
+            if (thoughtElement) thoughtElement.classList.add('hull-breach-wipe');
+
+            // Rapid text wipe animation
+            if (thoughtElement) {
+                const currentText = thoughtElement.textContent;
+                let charIndex = currentText.length;
+                const wipeInterval = setInterval(() => {
+                    if (charIndex > 0) {
+                        charIndex -= 3; // Remove 3 chars at a time for rapid wipe
+                        thoughtElement.textContent = currentText.substring(0, Math.max(0, charIndex));
+                    } else {
+                        clearInterval(wipeInterval);
+                    }
+                }, 30);
+            }
+
+            // After delay, fade out and execute callback
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('hull-breach-wipe');
+                if (thoughtElement) thoughtElement.classList.remove('hull-breach-wipe');
+                unlockTerminal();
+                if (callback) callback();
+                setTimeout(() => {
+                    overlay.remove();
+                }, 500);
+            }, delay);
+        }
 
         // ========================================
         // Layered Audio System
@@ -2830,6 +3017,8 @@
 
         // Handle Yes button click (Choice A) - check for end action or redirect
         function handleChoiceYes() {
+            // Check if terminal is locked (animation playing)
+            if (state.terminalLocked) return;
             if (!state.waitingForChoice) return;
 
             // Get the per-choice action configuration for Choice A
@@ -2852,7 +3041,7 @@
                 // Mark selection made
                 markChoiceSelection('yes');
 
-                // Execute the end action based on type
+                // Execute the end action based on type (stays on final frame, no navigation)
                 executeChoiceAction(choiceAction.type);
                 return;
             }
@@ -2869,41 +3058,56 @@
                 }, 150);
             }
 
-            // Check if there's a redirect index configured
-            const redirectIndex = yesRedirectIndices[state.currentIndex];
-            if (redirectIndex && redirectIndex !== '') {
-                // Convert to 0-based index (admin shows 1-based)
-                const targetIndex = parseInt(redirectIndex) - 1;
+            // Check if there's an action type that needs to play before navigation
+            const hasTransitionAnimation = choiceAction.type && choiceAction.type !== 'none' && getActionDelay(choiceAction.type) > 0;
 
-                // Validate the target index
-                if (targetIndex >= 0 && targetIndex < thoughts.length) {
-                    // Mark selection made
-                    markChoiceSelection('yes');
+            // Define the navigation function
+            const performNavigation = () => {
+                // Check if there's a redirect index configured
+                const redirectIndex = yesRedirectIndices[state.currentIndex];
+                if (redirectIndex && redirectIndex !== '') {
+                    // Convert to 0-based index (admin shows 1-based)
+                    const targetIndex = parseInt(redirectIndex) - 1;
 
-                    // Hide choice buttons
-                    hideChoiceButtons();
+                    // Validate the target index
+                    if (targetIndex >= 0 && targetIndex < thoughts.length) {
+                        // Mark selection made
+                        markChoiceSelection('yes');
 
-                    // Immediately clear the screen
-                    thoughtElement.textContent = '';
-                    state.currentText = '';
+                        // Hide choice buttons
+                        hideChoiceButtons();
 
-                    // Reset choice buttons for next thought
-                    setTimeout(() => {
-                        resetChoiceButtons();
+                        // Immediately clear the screen
+                        thoughtElement.textContent = '';
+                        state.currentText = '';
 
-                        // Jump to the specified index
-                        state.currentIndex = targetIndex;
-                        state.isAnimating = false;
-                        showThought(state.currentIndex);
-                    }, 100);
+                        // Reset choice buttons for next thought
+                        setTimeout(() => {
+                            resetChoiceButtons();
+
+                            // Jump to the specified index
+                            state.currentIndex = targetIndex;
+                            state.isAnimating = false;
+                            showThought(state.currentIndex);
+                        }, 100);
+                    } else {
+                        console.warn('Invalid yes redirect index:', redirectIndex);
+                        // Fall back to advancing to next thought
+                        advanceToNextThought('yes');
+                    }
                 } else {
-                    console.warn('Invalid yes redirect index:', redirectIndex);
-                    // Fall back to advancing to next thought
+                    // No redirect configured - advance to next story block
                     advanceToNextThought('yes');
                 }
+            };
+
+            // If there's a transition animation, play it first then navigate
+            if (hasTransitionAnimation) {
+                // Lock terminal and play animation, then navigate
+                triggerTransitionAnimation(choiceAction.type, performNavigation);
             } else {
-                // No redirect configured - advance to next story block
-                advanceToNextThought('yes');
+                // No animation needed, navigate immediately
+                performNavigation();
             }
         }
 
@@ -2959,6 +3163,8 @@
 
         // Handle Choice B click - check for redirect or advance to next thought
         function triggerBackspaceAndNext(isTimeout = false) {
+            // Check if terminal is locked (animation playing)
+            if (state.terminalLocked) return;
             if (!state.waitingForChoice) return;
 
             // Immediately prevent multiple clicks
@@ -3008,6 +3214,8 @@
 
         // Handle No button click (Choice B) - check for end action or redirect
         function handleChoiceNo() {
+            // Check if terminal is locked (animation playing)
+            if (state.terminalLocked) return;
             if (!state.waitingForChoice) return;
 
             // Get the per-choice action configuration for Choice B
@@ -3030,13 +3238,68 @@
                 // Mark selection made
                 markChoiceSelection('no');
 
-                // Execute the end action based on type
+                // Execute the end action based on type (stays on final frame, no navigation)
                 executeChoiceAction(choiceAction.type);
                 return;
             }
 
-            // No end action - proceed with redirect or advance
-            triggerBackspaceAndNext(false);
+            // Immediately prevent multiple clicks
+            state.waitingForChoice = false;
+
+            // Add flash feedback effect
+            const noBtn = document.getElementById('choiceBtnNo');
+            if (noBtn) {
+                noBtn.classList.add('btn-active');
+                setTimeout(() => {
+                    noBtn.classList.remove('btn-active');
+                }, 180);
+            }
+
+            // Check if there's an action type that needs to play before navigation
+            const hasTransitionAnimation = choiceAction.type && choiceAction.type !== 'none' && getActionDelay(choiceAction.type) > 0;
+
+            // Define the navigation function
+            const performNavigation = () => {
+                // Check if there's a redirect index configured
+                const redirectIndex = noRedirectIndices[state.currentIndex];
+                if (redirectIndex && redirectIndex !== '') {
+                    // Convert to 0-based index (admin shows 1-based)
+                    const targetIndex = parseInt(redirectIndex) - 1;
+
+                    // Validate the target index
+                    if (targetIndex >= 0 && targetIndex < thoughts.length) {
+                        // Mark selection made
+                        markChoiceSelection('no');
+                        hideChoiceButtons();
+
+                        // Clear the screen and jump to target
+                        setTimeout(() => {
+                            thoughtElement.textContent = '';
+                            state.currentText = '';
+                            resetChoiceButtons();
+
+                            state.currentIndex = targetIndex;
+                            state.isAnimating = false;
+                            showThought(state.currentIndex);
+                        }, 200);
+                    } else {
+                        console.warn('Invalid no redirect index:', redirectIndex);
+                        advanceToNextThought('no');
+                    }
+                } else {
+                    // No redirect configured - advance to next thought
+                    advanceToNextThought('no');
+                }
+            };
+
+            // If there's a transition animation, play it first then navigate
+            if (hasTransitionAnimation) {
+                // Lock terminal and play animation, then navigate
+                triggerTransitionAnimation(choiceAction.type, performNavigation);
+            } else {
+                // No animation needed, navigate immediately
+                performNavigation();
+            }
         }
 
         function startCycling() {
