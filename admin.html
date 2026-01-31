@@ -2149,7 +2149,8 @@ SYS_CHECK: COMPLETE</textarea>
                     </div>
                     <div class="form-group">
                         <label>Story Text</label>
-                        <textarea id="thought-${i}" class="thought-textarea" rows="10" placeholder="Enter story paragraph... Use {misspelled} for backspace effect and {{name}} for user name.">${escapeHtml(currentThoughts[i] || '')}</textarea>
+                        <small style="display: block; color: rgba(31, 31, 31, 0.6); margin-bottom: 0.5rem; font-size: 0.8rem;">Use &lt;&lt;name&gt;&gt; to insert the user's name</small>
+                        <textarea id="thought-${i}" class="thought-textarea" rows="10" placeholder="Enter story paragraph... Use {misspelled} for backspace effect and <<name>> for user name.">${escapeHtml(currentThoughts[i] || '')}</textarea>
                     </div>
 
                     <!-- Scene Atmosphere Controls -->
