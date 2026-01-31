@@ -4292,6 +4292,89 @@
                 }, curtainDuration * 1000);
             }
 
+            // ========================================
+            // Entry Page (Chapter 0) Logic
+            // ========================================
+
+            // Initialize and show Entry Page
+            function showEntryPage(callback) {
+                const entryPage = document.getElementById('entryPage');
+                const entryNameInput = document.getElementById('entryNameInput');
+                const audioYesBtn = document.getElementById('audioYesBtn');
+                const audioNoBtn = document.getElementById('audioNoBtn');
+                const scaryYesBtn = document.getElementById('scaryYesBtn');
+                const scaryNoBtn = document.getElementById('scaryNoBtn');
+                const proceedBtn = document.getElementById('entryProceedBtn');
+
+                if (!entryPage) {
+                    // If entry page doesn't exist, proceed immediately
+                    if (callback) callback();
+                    return;
+                }
+
+                // Show entry page
+                entryPage.style.display = 'flex';
+
+                // Pre-fill name if returning user
+                const savedName = localStorage.getItem('userName');
+                if (savedName) {
+                    entryNameInput.value = savedName;
+                    entryNameInput.placeholder = 'Welcome back!';
+                }
+
+                // Audio preference toggle
+                let audioEnabled = true; // Default to yes
+
+                audioYesBtn.addEventListener('click', function() {
+                    audioEnabled = true;
+                    audioYesBtn.classList.add('active');
+                    audioNoBtn.classList.remove('active');
+                });
+
+                audioNoBtn.addEventListener('click', function() {
+                    audioEnabled = false;
+                    audioNoBtn.classList.add('active');
+                    audioYesBtn.classList.remove('active');
+                });
+
+                // Scary stories prank - No button changes to Yes on hover
+                scaryNoBtn.addEventListener('mouseenter', function() {
+                    this.textContent = 'YES';
+                });
+
+                scaryNoBtn.addEventListener('mouseleave', function() {
+                    this.textContent = 'NO';
+                });
+
+                // Also handle touch devices
+                scaryNoBtn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    this.textContent = 'YES';
+                });
+
+                // Proceed button handler
+                proceedBtn.addEventListener('click', function() {
+                    // Save name to localStorage
+                    const userName = entryNameInput.value.trim();
+                    if (userName) {
+                        localStorage.setItem('userName', userName);
+                    }
+
+                    // Set global audio mute based on preference
+                    globalAudioMuted = !audioEnabled;
+                    console.log('Audio preference set:', audioEnabled ? 'enabled' : 'muted');
+
+                    // Fade out entry page
+                    entryPage.classList.add('fading-out');
+
+                    // After fade out, proceed to callback
+                    setTimeout(() => {
+                        entryPage.style.display = 'none';
+                        if (callback) callback();
+                    }, 800); // Match CSS transition duration
+                });
+            }
+
             // Function to set up splash screen interaction (already visible behind curtain)
             function setupSplashScreen(callback) {
                 const splashScreen = document.getElementById('splashScreen');
@@ -4355,7 +4438,10 @@
             }
 
             // Set up splash screen interaction (already visible behind curtain)
-            setupSplashScreen(proceedAfterSplash);
+            // Set up splash screen -> Entry Page -> Boot Sequence/Terminal flow
+            setupSplashScreen(function() {
+                showEntryPage(proceedAfterSplash);
+            });
 
             // Emergency fail-safe: Force curtain to rise after 5 seconds if initialization hangs
             let curtainRaised = false;
