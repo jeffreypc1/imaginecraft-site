@@ -2936,6 +2936,18 @@
                 case 'contact':
                     openContactModal();
                     break;
+                case 'supernova-flash':
+                    triggerSupernovaFlash();
+                    break;
+                case 'spaghettify':
+                    triggerSpaghettify();
+                    break;
+                case 'hull-breach':
+                    triggerHullBreach();
+                    break;
+                case 'oxygen-depletion':
+                    triggerOxygenDepletion();
+                    break;
                 default:
                     console.log('End action triggered:', actionType);
                     stopCycling();
@@ -3571,6 +3583,207 @@
                 canvas.height = window.innerHeight;
             }
         });
+
+        // ========================================
+        // Space-Themed End Actions
+        // ========================================
+
+        // Supernova Flash: Blinding white flash transitioning to deep celestial purple
+        function triggerSupernovaFlash() {
+            console.log('SUPERNOVA FLASH TRIGGERED');
+            stopCycling();
+
+            // Create overlay element
+            const overlay = document.createElement('div');
+            overlay.id = 'supernovaOverlay';
+            overlay.className = 'supernova-overlay';
+            document.body.appendChild(overlay);
+
+            // Phase 1: Blinding white flash
+            overlay.classList.add('active', 'white-flash');
+
+            // Phase 2: Transition to celestial purple (after 1.5s)
+            setTimeout(() => {
+                overlay.classList.remove('white-flash');
+                overlay.classList.add('celestial-purple');
+            }, 1500);
+
+            // Phase 3: Show FIN overlay (after purple settles - 3.5s total)
+            setTimeout(() => {
+                showFinOverlay();
+            }, 3500);
+
+            // Phase 4: Fade out supernova overlay (after 5s total)
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 1000);
+            }, 5000);
+        }
+
+        // Spaghettify: Black hole effect that warps and pulls text into center
+        function triggerSpaghettify() {
+            console.log('SPAGHETTIFY (BLACK HOLE) TRIGGERED');
+            stopCycling();
+
+            // Add spaghettify class to terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+            const thoughtElement = document.getElementById('currentThought');
+
+            // Create black hole overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'blackHoleOverlay';
+            overlay.className = 'black-hole-overlay';
+
+            // Create the event horizon (center point)
+            const eventHorizon = document.createElement('div');
+            eventHorizon.className = 'event-horizon';
+            overlay.appendChild(eventHorizon);
+
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Apply spaghettify effect to text elements
+            if (explorePage) explorePage.classList.add('spaghettify');
+            if (terminalBody) terminalBody.classList.add('spaghettify');
+            if (thoughtElement) thoughtElement.classList.add('spaghettify');
+
+            // After spaghettification completes (3s), show FIN
+            setTimeout(() => {
+                showFinOverlay();
+            }, 3000);
+
+            // Fade out black hole effect
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('spaghettify');
+                if (terminalBody) terminalBody.classList.remove('spaghettify');
+                if (thoughtElement) thoughtElement.classList.remove('spaghettify');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 1500);
+            }, 4500);
+        }
+
+        // Hull Breach: Rapid text wipe with depressurization sound
+        function triggerHullBreach() {
+            console.log('HULL BREACH TRIGGERED');
+            stopCycling();
+
+            // Play depressurization sound if not muted
+            if (!globalAudioMuted) {
+                const depressSound = new Audio('assets/audio/hull-breach.mp3');
+                depressSound.volume = 0.7;
+                depressSound.play().catch(e => console.log('Hull breach audio failed:', e));
+            }
+
+            // Create hull breach overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'hullBreachOverlay';
+            overlay.className = 'hull-breach-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Apply hull breach wipe effect to terminal
+            const explorePage = document.querySelector('.explore-page');
+            const thoughtElement = document.getElementById('currentThought');
+
+            if (explorePage) explorePage.classList.add('hull-breach-wipe');
+            if (thoughtElement) thoughtElement.classList.add('hull-breach-wipe');
+
+            // Rapid text wipe animation
+            if (thoughtElement) {
+                const currentText = thoughtElement.textContent;
+                let charIndex = currentText.length;
+                const wipeInterval = setInterval(() => {
+                    if (charIndex > 0) {
+                        charIndex -= 3; // Remove 3 chars at a time for rapid wipe
+                        thoughtElement.textContent = currentText.substring(0, Math.max(0, charIndex));
+                    } else {
+                        clearInterval(wipeInterval);
+                    }
+                }, 30);
+            }
+
+            // After wipe completes, show FIN
+            setTimeout(() => {
+                showFinOverlay();
+            }, 2000);
+
+            // Fade out hull breach overlay
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('hull-breach-wipe');
+                if (thoughtElement) thoughtElement.classList.remove('hull-breach-wipe');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 1000);
+            }, 3500);
+        }
+
+        // Oxygen Depletion: Slow fade to pulsing red, typing speed drops to zero
+        function triggerOxygenDepletion() {
+            console.log('OXYGEN DEPLETION TRIGGERED');
+            // Don't stop cycling immediately - we'll slow it down gradually
+
+            // Create oxygen depletion overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'oxygenOverlay';
+            overlay.className = 'oxygen-depletion-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Apply oxygen depletion effect to terminal
+            const explorePage = document.querySelector('.explore-page');
+            const thoughtElement = document.getElementById('currentThought');
+
+            if (explorePage) explorePage.classList.add('oxygen-depletion');
+            if (thoughtElement) thoughtElement.classList.add('oxygen-depletion');
+
+            // Gradually slow down typing to simulate oxygen loss
+            // Store original typing speed
+            const originalTypeSpeedMin = timing.typeSpeedMin;
+            const originalTypeSpeedMax = timing.typeSpeedMax;
+
+            // Phase 1: Slight slowdown (0-2s)
+            setTimeout(() => {
+                timing.typeSpeedMin = originalTypeSpeedMin * 2;
+                timing.typeSpeedMax = originalTypeSpeedMax * 2;
+            }, 2000);
+
+            // Phase 2: Major slowdown (2-4s)
+            setTimeout(() => {
+                timing.typeSpeedMin = originalTypeSpeedMin * 5;
+                timing.typeSpeedMax = originalTypeSpeedMax * 5;
+            }, 4000);
+
+            // Phase 3: Near stop (4-6s)
+            setTimeout(() => {
+                timing.typeSpeedMin = originalTypeSpeedMin * 20;
+                timing.typeSpeedMax = originalTypeSpeedMax * 20;
+                stopCycling();
+            }, 6000);
+
+            // Show FIN after oxygen runs out
+            setTimeout(() => {
+                // Restore timing for future use
+                timing.typeSpeedMin = originalTypeSpeedMin;
+                timing.typeSpeedMax = originalTypeSpeedMax;
+                showFinOverlay();
+            }, 7000);
+
+            // Fade out oxygen overlay
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('oxygen-depletion');
+                if (thoughtElement) thoughtElement.classList.remove('oxygen-depletion');
+                setTimeout(() => {
+                    overlay.remove();
+                }, 2000);
+            }, 9000);
+        }
 
         function resetExplore() {
             state.isSelected = false;
@@ -4320,6 +4533,8 @@
                 if (savedName) {
                     entryNameInput.value = savedName;
                     entryNameInput.placeholder = 'Welcome back!';
+                    // Also populate sessionStorage for {{name}} placeholder replacement
+                    sessionStorage.setItem('imaginecraft_user_name', savedName);
                 }
 
                 // Audio preference toggle
@@ -4337,27 +4552,55 @@
                     audioYesBtn.classList.remove('active');
                 });
 
-                // Scary stories prank - No button changes to Yes on hover
+                // Scary stories prank - No button PERMANENTLY transforms to Yes on hover
+                // User must click a "Yes" to proceed - both buttons are now "Yes"
+                let scaryNoPranked = false;
+
                 scaryNoBtn.addEventListener('mouseenter', function() {
-                    this.textContent = 'YES';
+                    if (!scaryNoPranked) {
+                        scaryNoPranked = true;
+                        this.textContent = 'YES';
+                        this.classList.add('pranked');
+                        // Add a brief glitch animation for dramatic effect
+                        this.classList.add('prank-glitch');
+                        setTimeout(() => this.classList.remove('prank-glitch'), 300);
+                    }
                 });
 
-                scaryNoBtn.addEventListener('mouseleave', function() {
-                    this.textContent = 'NO';
-                });
-
-                // Also handle touch devices
+                // Also handle touch devices - instant transform on touch
                 scaryNoBtn.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    this.textContent = 'YES';
+                    if (!scaryNoPranked) {
+                        e.preventDefault();
+                        scaryNoPranked = true;
+                        this.textContent = 'YES';
+                        this.classList.add('pranked');
+                        this.classList.add('prank-glitch');
+                        setTimeout(() => this.classList.remove('prank-glitch'), 300);
+                    }
+                });
+
+                // Both scary buttons now function as "Yes" - clicking either proceeds
+                scaryYesBtn.addEventListener('click', function() {
+                    this.classList.add('active');
+                    scaryNoBtn.classList.remove('active');
+                });
+
+                scaryNoBtn.addEventListener('click', function() {
+                    // Only register click after transformation
+                    if (scaryNoPranked) {
+                        this.classList.add('active');
+                        scaryYesBtn.classList.remove('active');
+                    }
                 });
 
                 // Proceed button handler
                 proceedBtn.addEventListener('click', function() {
-                    // Save name to localStorage
+                    // Save name to localStorage AND sessionStorage for replaceName function
                     const userName = entryNameInput.value.trim();
                     if (userName) {
                         localStorage.setItem('userName', userName);
+                        // Also save to sessionStorage for {{name}} placeholder replacement
+                        sessionStorage.setItem('imaginecraft_user_name', userName);
                     }
 
                     // Set global audio mute based on preference
