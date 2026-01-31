@@ -1372,6 +1372,20 @@ SYS_CHECK: COMPLETE</textarea>
             // If no Firebase data, return a single empty text (defaults to "No")
             return [''];
         }
+        function getDefaultChoiceAActions() {
+            if (remoteConfig && remoteConfig.choiceAActions) {
+                return remoteConfig.choiceAActions.map(a => ({...a}));
+            }
+            // If no Firebase data, return a single default choice action
+            return [{ type: 'none', endAction: false }];
+        }
+        function getDefaultChoiceBActions() {
+            if (remoteConfig && remoteConfig.choiceBActions) {
+                return remoteConfig.choiceBActions.map(a => ({...a}));
+            }
+            // If no Firebase data, return a single default choice action
+            return [{ type: 'none', endAction: false }];
+        }
         function getDefaultSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
@@ -1533,6 +1547,15 @@ SYS_CHECK: COMPLETE</textarea>
             { value: 'redirect', label: 'Redirect to URL' }
         ];
 
+        // CYOA choice-specific action types (for End Action buttons)
+        const CHOICE_ACTION_TYPES = [
+            { value: 'none', label: 'None (Continue Story)' },
+            { value: 'trigger-fin', label: 'Trigger Fin (The End)' },
+            { value: 'system-meltdown', label: 'System Meltdown' },
+            { value: 'matrix', label: 'The Matrix' },
+            { value: 'contact', label: 'Contact Us Form' }
+        ];
+
         // Current data (will be initialized after config loads)
         let currentThoughts = [];
         let currentResponses = [];
@@ -1543,6 +1566,8 @@ SYS_CHECK: COMPLETE</textarea>
         let currentNoRedirectIndices = [];
         let currentChoiceATexts = [];
         let currentChoiceBTexts = [];
+        let currentChoiceAActions = [];
+        let currentChoiceBActions = [];
         let currentRandomizeEnabled = false;
         let currentTypingSpeed = 150;
         let currentChoiceButtonsEnabled = false;
@@ -1583,6 +1608,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentNoRedirectIndices = getDefaultNoRedirectIndices();
                 currentChoiceATexts = getDefaultChoiceATexts();
                 currentChoiceBTexts = getDefaultChoiceBTexts();
+                currentChoiceAActions = getDefaultChoiceAActions();
+                currentChoiceBActions = getDefaultChoiceBActions();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
                 currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
@@ -1628,6 +1655,13 @@ SYS_CHECK: COMPLETE</textarea>
                 while (currentChoiceBTexts.length < thoughtCount) {
                     currentChoiceBTexts.push('');
                 }
+                // Ensure all choice actions exist (default to none, no end action)
+                while (currentChoiceAActions.length < thoughtCount) {
+                    currentChoiceAActions.push({ type: 'none', endAction: false });
+                }
+                while (currentChoiceBActions.length < thoughtCount) {
+                    currentChoiceBActions.push({ type: 'none', endAction: false });
+                }
             } catch (e) {
                 console.warn('Failed to load from config:', e);
                 currentThoughts = getDefaultThoughts();
@@ -1639,6 +1673,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentNoRedirectIndices = getDefaultNoRedirectIndices();
                 currentChoiceATexts = getDefaultChoiceATexts();
                 currentChoiceBTexts = getDefaultChoiceBTexts();
+                currentChoiceAActions = getDefaultChoiceAActions();
+                currentChoiceBActions = getDefaultChoiceBActions();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
                 currentTypingSpeed = defaults.typingSpeed || 150;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
@@ -2017,6 +2053,8 @@ SYS_CHECK: COMPLETE</textarea>
             currentNoRedirectIndices.push('');
             currentChoiceATexts.push('');
             currentChoiceBTexts.push('');
+            currentChoiceAActions.push({ type: 'none', endAction: false });
+            currentChoiceBActions.push({ type: 'none', endAction: false });
 
             renderThoughtCards();
 
@@ -2049,6 +2087,8 @@ SYS_CHECK: COMPLETE</textarea>
                 currentNoRedirectIndices.splice(index, 1);
                 currentChoiceATexts.splice(index, 1);
                 currentChoiceBTexts.splice(index, 1);
+                currentChoiceAActions.splice(index, 1);
+                currentChoiceBActions.splice(index, 1);
                 renderThoughtCards();
             }
         }
@@ -2065,7 +2105,7 @@ SYS_CHECK: COMPLETE</textarea>
             moodPreview.classList.add(mood);
         }
 
-        // Render thought cards
+        // Render thought cards - Simplified CYOA layout
         function renderThoughtCards() {
             const grid = document.getElementById('thoughtsGrid');
             grid.innerHTML = '';
@@ -2073,8 +2113,9 @@ SYS_CHECK: COMPLETE</textarea>
             // Iterate over actual thoughts array length
             const thoughtCount = currentThoughts.length;
             for (let i = 0; i < thoughtCount; i++) {
-                const action = currentActions[i] || { type: 'none', url: '', logo: '', linkText: 'Click here' };
                 const isActive = currentActiveStates[i] !== false; // Default to true
+                const choiceAAction = currentChoiceAActions[i] || { type: 'none', endAction: false };
+                const choiceBAction = currentChoiceBActions[i] || { type: 'none', endAction: false };
                 const card = document.createElement('div');
                 card.className = 'thought-card' + (isActive ? '' : ' inactive');
                 card.id = `thought-card-${i}`;
@@ -2093,41 +2134,89 @@ SYS_CHECK: COMPLETE</textarea>
                         <label>Story Text</label>
                         <textarea id="thought-${i}" class="thought-textarea" rows="10" placeholder="Enter story paragraph... Use {misspelled} for backspace effect and {{name}} for user name.">${escapeHtml(currentThoughts[i] || '')}</textarea>
                     </div>
-                    <div class="form-group">
-                        <label>Internal Notes (Hidden)</label>
-                        <textarea id="response-${i}" placeholder="Notes for yourself - not shown to user...">${escapeHtml(currentResponses[i] || '')}</textarea>
+
+                    <!-- Choice A Section -->
+                    <div style="background: rgba(52, 255, 53, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; border-left: 3px solid #34ff35;">
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.9rem; font-weight: 600; color: #34ff35;">Choice A</h4>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label>Button Label (blank = "Yes")</label>
+                            <input type="text" id="choice-a-text-${i}" value="${escapeHtml(currentChoiceATexts[i] || '')}" placeholder="e.g., Get in the vehicle">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label>Jump to Index (blank = next)</label>
+                            <input type="number" id="yes-redirect-${i}" value="${escapeHtml(currentYesRedirectIndices[i] || '')}" placeholder="e.g., 3" min="1" max="${thoughtCount}">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label>Action Type</label>
+                            <select id="choice-a-action-type-${i}" onchange="handleChoiceActionChange('A', ${i})">
+                                ${CHOICE_ACTION_TYPES.map(type => `
+                                    <option value="${type.value}" ${choiceAAction.type === type.value ? 'selected' : ''}>
+                                        ${type.label}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="active-toggle-container" id="choice-a-end-action-${i}" style="${choiceAAction.type === 'none' ? 'display: none;' : ''}">
+                            <input type="checkbox" id="choice-a-end-${i}" class="active-checkbox" ${choiceAAction.endAction ? 'checked' : ''}>
+                            <label for="choice-a-end-${i}" class="active-label" style="color: #ef4444;">End Action (stops story)</label>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Choice A Text (leave blank for "Yes")</label>
-                        <input type="text" id="choice-a-text-${i}" value="${escapeHtml(currentChoiceATexts[i] || '')}" placeholder="e.g., Get in the vehicle">
+
+                    <!-- Choice B Section -->
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; border-left: 3px solid rgba(255, 255, 255, 0.3);">
+                        <h4 style="margin: 0 0 0.75rem 0; font-size: 0.9rem; font-weight: 600; color: rgba(31, 31, 31, 0.8);">Choice B</h4>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label>Button Label (blank = "No")</label>
+                            <input type="text" id="choice-b-text-${i}" value="${escapeHtml(currentChoiceBTexts[i] || '')}" placeholder="e.g., Keep running toward the lights">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label>Jump to Index (blank = next)</label>
+                            <input type="number" id="no-redirect-${i}" value="${escapeHtml(currentNoRedirectIndices[i] || '')}" placeholder="e.g., 5" min="1" max="${thoughtCount}">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0.75rem;">
+                            <label>Action Type</label>
+                            <select id="choice-b-action-type-${i}" onchange="handleChoiceActionChange('B', ${i})">
+                                ${CHOICE_ACTION_TYPES.map(type => `
+                                    <option value="${type.value}" ${choiceBAction.type === type.value ? 'selected' : ''}>
+                                        ${type.label}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="active-toggle-container" id="choice-b-end-action-${i}" style="${choiceBAction.type === 'none' ? 'display: none;' : ''}">
+                            <input type="checkbox" id="choice-b-end-${i}" class="active-checkbox" ${choiceBAction.endAction ? 'checked' : ''}>
+                            <label for="choice-b-end-${i}" class="active-label" style="color: #ef4444;">End Action (stops story)</label>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>Choice A → Jump to Index (leave blank for next)</label>
-                        <input type="number" id="yes-redirect-${i}" value="${escapeHtml(currentYesRedirectIndices[i] || '')}" placeholder="e.g., 3" min="1" max="${thoughtCount}">
-                    </div>
-                    <div class="form-group">
-                        <label>Choice B Text (leave blank for "No")</label>
-                        <input type="text" id="choice-b-text-${i}" value="${escapeHtml(currentChoiceBTexts[i] || '')}" placeholder="e.g., Keep running toward the lights">
-                    </div>
-                    <div class="form-group">
-                        <label>Choice B → Jump to Index (leave blank for next)</label>
-                        <input type="number" id="no-redirect-${i}" value="${escapeHtml(currentNoRedirectIndices[i] || '')}" placeholder="e.g., 5" min="1" max="${thoughtCount}">
-                    </div>
-                    <div class="form-group">
-                        <label>Action Type</label>
-                        <select id="action-type-${i}" onchange="handleActionTypeChange(${i})">
-                            ${ACTION_TYPES.map(type => `
-                                <option value="${type.value}" ${action.type === type.value ? 'selected' : ''}>
-                                    ${type.label}
-                                </option>
-                            `).join('')}
-                        </select>
-                    </div>
-                    <div id="action-fields-${i}" class="action-fields ${action.type === 'none' ? 'hidden' : ''}">
-                        ${renderActionFields(i, action)}
-                    </div>
+
+                    <!-- Hidden fields for backward compatibility -->
+                    <input type="hidden" id="response-${i}" value="${escapeHtml(currentResponses[i] || '')}">
                 `;
                 grid.appendChild(card);
+            }
+        }
+
+        // Handle choice action type change (show/hide end action toggle)
+        function handleChoiceActionChange(choice, index) {
+            const select = document.getElementById(`choice-${choice.toLowerCase()}-action-type-${index}`);
+            const endActionContainer = document.getElementById(`choice-${choice.toLowerCase()}-end-action-${index}`);
+
+            if (select && endActionContainer) {
+                const actionType = select.value;
+                endActionContainer.style.display = actionType === 'none' ? 'none' : '';
+
+                // Update the current data
+                if (choice === 'A') {
+                    if (!currentChoiceAActions[index]) {
+                        currentChoiceAActions[index] = { type: 'none', endAction: false };
+                    }
+                    currentChoiceAActions[index].type = actionType;
+                } else {
+                    if (!currentChoiceBActions[index]) {
+                        currentChoiceBActions[index] = { type: 'none', endAction: false };
+                    }
+                    currentChoiceBActions[index].type = actionType;
+                }
             }
         }
 
@@ -2423,31 +2512,35 @@ SYS_CHECK: COMPLETE</textarea>
                     currentChoiceBTexts[i] = choiceBTextInput.value;
                 }
 
-                const actionTypeSelect = document.getElementById(`action-type-${i}`);
-                const actionType = actionTypeSelect ? actionTypeSelect.value : 'none';
+                // Collect choice A action configuration
+                const choiceAActionSelect = document.getElementById(`choice-a-action-type-${i}`);
+                const choiceAEndCheckbox = document.getElementById(`choice-a-end-${i}`);
+                if (!currentChoiceAActions[i]) {
+                    currentChoiceAActions[i] = { type: 'none', endAction: false };
+                }
+                if (choiceAActionSelect) {
+                    currentChoiceAActions[i].type = choiceAActionSelect.value;
+                }
+                if (choiceAEndCheckbox) {
+                    currentChoiceAActions[i].endAction = choiceAEndCheckbox.checked;
+                }
+
+                // Collect choice B action configuration
+                const choiceBActionSelect = document.getElementById(`choice-b-action-type-${i}`);
+                const choiceBEndCheckbox = document.getElementById(`choice-b-end-${i}`);
+                if (!currentChoiceBActions[i]) {
+                    currentChoiceBActions[i] = { type: 'none', endAction: false };
+                }
+                if (choiceBActionSelect) {
+                    currentChoiceBActions[i].type = choiceBActionSelect.value;
+                }
+                if (choiceBEndCheckbox) {
+                    currentChoiceBActions[i].endAction = choiceBEndCheckbox.checked;
+                }
+
+                // Legacy: Keep old action type for backwards compatibility (default to none)
                 if (!currentActions[i]) {
                     currentActions[i] = { type: 'none', url: '', logo: '', linkText: 'Click here' };
-                }
-                currentActions[i].type = actionType;
-
-                // Collect action-specific fields
-                if (actionType !== 'none') {
-                    const linkTextInput = document.getElementById(`action-linktext-${i}`);
-                    if (linkTextInput) {
-                        currentActions[i].linkText = linkTextInput.value || 'Click here';
-                    }
-
-                    if (actionType === 'video' || actionType === 'image' || actionType === 'audio') {
-                        const urlInput = document.getElementById(`action-url-${i}`);
-                        if (urlInput) {
-                            currentActions[i].url = urlInput.value;
-                        }
-                    } else if (actionType === 'logo') {
-                        const logoInput = document.getElementById(`action-logo-${i}`);
-                        if (logoInput) {
-                            currentActions[i].logo = logoInput.value;
-                        }
-                    }
                 }
             }
         }
@@ -2480,6 +2573,8 @@ SYS_CHECK: COMPLETE</textarea>
                 noRedirectIndices: [...currentNoRedirectIndices],
                 choiceATexts: [...currentChoiceATexts],
                 choiceBTexts: [...currentChoiceBTexts],
+                choiceAActions: currentChoiceAActions.map(a => ({...a})),
+                choiceBActions: currentChoiceBActions.map(a => ({...a})),
                 settings: {
                     typingSpeed: currentTypingSpeed,
                     choiceButtonsEnabled: currentChoiceButtonsEnabled,
@@ -2534,6 +2629,7 @@ SYS_CHECK: COMPLETE</textarea>
         window.deleteThought = deleteThought;
         window.handleActiveChange = handleActiveChange;
         window.handleActionTypeChange = handleActionTypeChange;
+        window.handleChoiceActionChange = handleChoiceActionChange;
         window.downloadConfig = downloadConfig;
         window.factoryReset = factoryReset;
 

@@ -644,6 +644,12 @@
         function getConfigChoiceBTexts() {
             return remoteConfig && remoteConfig.choiceBTexts ? [...remoteConfig.choiceBTexts] : null;
         }
+        function getConfigChoiceAActions() {
+            return remoteConfig && remoteConfig.choiceAActions ? remoteConfig.choiceAActions.map(a => ({...a})) : null;
+        }
+        function getConfigChoiceBActions() {
+            return remoteConfig && remoteConfig.choiceBActions ? remoteConfig.choiceBActions.map(a => ({...a})) : null;
+        }
         function getConfigSettings() {
             if (remoteConfig && remoteConfig.settings) {
                 return remoteConfig.settings;
@@ -759,6 +765,14 @@
 
         function loadChoiceBTexts() {
             return getConfigChoiceBTexts();
+        }
+
+        function loadChoiceAActions() {
+            return getConfigChoiceAActions();
+        }
+
+        function loadChoiceBActions() {
+            return getConfigChoiceBActions();
         }
 
         function loadRandomizeEnabled() {
@@ -1784,10 +1798,14 @@
         let allNoRedirectIndices = [];
         let allChoiceATexts = [];
         let allChoiceBTexts = [];
+        let allChoiceAActions = [];
+        let allChoiceBActions = [];
         let yesRedirectIndices = [];
         let noRedirectIndices = [];
         let choiceATexts = [];
         let choiceBTexts = [];
+        let choiceAActions = [];
+        let choiceBActions = [];
 
         // Function to load and process thoughts/responses data
         function initializeContentData() {
@@ -1800,6 +1818,8 @@
             allNoRedirectIndices = loadNoRedirectIndices();
             allChoiceATexts = loadChoiceATexts() || [];
             allChoiceBTexts = loadChoiceBTexts() || [];
+            allChoiceAActions = loadChoiceAActions() || [];
+            allChoiceBActions = loadChoiceBActions() || [];
             randomizeEnabled = loadRandomizeEnabled();
 
             // Comprehensive null checks - ensure ALL data exists before processing
@@ -1814,6 +1834,8 @@
                 allNoRedirectIndices = [''];
                 allChoiceATexts = [''];
                 allChoiceBTexts = [''];
+                allChoiceAActions = [{ type: 'none', endAction: false }];
+                allChoiceBActions = [{ type: 'none', endAction: false }];
                 randomizeEnabled = false;
             }
 
@@ -1829,6 +1851,8 @@
                 allNoRedirectIndices = [''];
                 allChoiceATexts = [''];
                 allChoiceBTexts = [''];
+                allChoiceAActions = [{ type: 'none', endAction: false }];
+                allChoiceBActions = [{ type: 'none', endAction: false }];
                 randomizeEnabled = false;
             }
 
@@ -1840,6 +1864,8 @@
             noRedirectIndices = [];
             choiceATexts = [];
             choiceBTexts = [];
+            choiceAActions = [];
+            choiceBActions = [];
 
             // Filter to only include active thoughts and track their original indices
             for (let i = 0; i < allThoughts.length; i++) {
@@ -1852,6 +1878,8 @@
                     noRedirectIndices.push(allNoRedirectIndices[i] || '');
                     choiceATexts.push(allChoiceATexts[i] || '');
                     choiceBTexts.push(allChoiceBTexts[i] || '');
+                    choiceAActions.push(allChoiceAActions[i] || { type: 'none', endAction: false });
+                    choiceBActions.push(allChoiceBActions[i] || { type: 'none', endAction: false });
                 }
             }
 
@@ -1875,6 +1903,8 @@
                 const newNoRedirectIndices = [];
                 const newChoiceATexts = [];
                 const newChoiceBTexts = [];
+                const newChoiceAActions = [];
+                const newChoiceBActions = [];
 
                 for (const idx of selectedIndices) {
                     newActiveIndices.push(activeIndices[idx]);
@@ -1884,6 +1914,8 @@
                     newNoRedirectIndices.push(noRedirectIndices[idx]);
                     newChoiceATexts.push(choiceATexts[idx]);
                     newChoiceBTexts.push(choiceBTexts[idx]);
+                    newChoiceAActions.push(choiceAActions[idx]);
+                    newChoiceBActions.push(choiceBActions[idx]);
                 }
 
                 activeIndices = newActiveIndices;
@@ -1893,6 +1925,8 @@
                 noRedirectIndices = newNoRedirectIndices;
                 choiceATexts = newChoiceATexts;
                 choiceBTexts = newChoiceBTexts;
+                choiceAActions = newChoiceAActions;
+                choiceBActions = newChoiceBActions;
             }
 
             // Extract meltdown triggers from all thoughts (including inactive ones)
@@ -2279,18 +2313,13 @@
             // Type out the thought character by character
             typeCharacter(thought, 0, () => {
                 if (choiceButtonsEnabled) {
-                    // Show choice buttons and wait for user interaction
+                    // CYOA Mode: Show choice buttons and wait indefinitely for user interaction
+                    // No auto-cycle, no skip logic - buttons stay until user clicks
                     state.waitingForChoice = true;
+                    state.isAnimating = false; // Allow user to interact
                     showChoiceButtons();
-
-                    // Start idle timeout - if user doesn't interact, trigger backspace like "No"
-                    state.idleTimeout = setTimeout(() => {
-                        if (state.waitingForChoice && !state.isUserTyping && !state.isSelected) {
-                            triggerBackspaceAndNext(true);
-                        }
-                    }, timing.linger);
                 } else {
-                    // Original behavior: Linger for 3 seconds after fully typed
+                    // Legacy mode: Auto-cycle through thoughts with linger time
                     state.cycleTimeout = setTimeout(() => {
                         if (!state.isUserTyping && !state.isSelected) {
                             // Backspace the thought
@@ -2474,24 +2503,37 @@
             }
         }
 
-        // Handle Yes button click - trigger the response or redirect
+        // Handle Yes button click (Choice A) - check for end action or redirect
         function handleChoiceYes() {
             if (!state.waitingForChoice) return;
 
-            // CRITICAL: Check for System Meltdown action type FIRST
-            const originalIndex = getOriginalIndex(state.currentIndex);
-            const currentAction = (typeof originalIndex === 'number' && actions[originalIndex]) ? actions[originalIndex] : null;
-            if (currentAction && currentAction.type === 'system-meltdown') {
-                triggerMeltdown();
+            // Get the per-choice action configuration for Choice A
+            const choiceAction = choiceAActions[state.currentIndex] || { type: 'none', endAction: false };
+
+            // CRITICAL: Check if this is an End Action (triggers action and stops story)
+            if (choiceAction.endAction && choiceAction.type && choiceAction.type !== 'none') {
+                // Immediately prevent multiple clicks
+                state.waitingForChoice = false;
+
+                // Add flash feedback effect
+                const yesBtn = document.getElementById('choiceBtnYes');
+                if (yesBtn) {
+                    yesBtn.classList.add('btn-active');
+                    setTimeout(() => {
+                        yesBtn.classList.remove('btn-active');
+                    }, 150);
+                }
+
+                // Mark selection made
+                markChoiceSelection('yes');
+
+                // Execute the end action based on type
+                executeChoiceAction(choiceAction.type);
                 return;
             }
 
             // Immediately prevent multiple clicks
             state.waitingForChoice = false;
-
-            // Clear idle timeout since user made a choice
-            clearTimeout(state.idleTimeout);
-            state.idleTimeout = null;
 
             // Add flash feedback effect
             const yesBtn = document.getElementById('choiceBtnYes');
@@ -2531,151 +2573,132 @@
                     }, 100);
                 } else {
                     console.warn('Invalid yes redirect index:', redirectIndex);
-                    // Fall back to default behavior
-                    markChoiceSelection('yes');
-                    selectThought(state.currentIndex);
+                    // Fall back to advancing to next thought
+                    advanceToNextThought('yes');
                 }
             } else {
-                // No redirect configured - advance to next story block (single-field mode)
-                // Mark selection and advance to next thought (skip response panel)
-                markChoiceSelection('yes');
-
-                // Hide choice buttons
-                hideChoiceButtons();
-
-                // Clear the screen and advance to next thought
-                setTimeout(() => {
-                    thoughtElement.textContent = '';
-                    state.currentText = '';
-
-                    // Reset choice buttons for next thought
-                    resetChoiceButtons();
-
-                    // Advance to next thought in sequence
-                    state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                    state.isAnimating = false;
-                    showThought(state.currentIndex);
-                }, 200);
+                // No redirect configured - advance to next story block
+                advanceToNextThought('yes');
             }
         }
 
-        // Unified function to trigger backspace animation and move to next thought
-        // Used by both "No" button click and idle timeout
+        // Helper function to advance to next thought (shared by Choice A and B)
+        function advanceToNextThought(choice) {
+            markChoiceSelection(choice);
+            hideChoiceButtons();
+
+            setTimeout(() => {
+                thoughtElement.textContent = '';
+                state.currentText = '';
+                resetChoiceButtons();
+
+                state.currentIndex = (state.currentIndex + 1) % thoughts.length;
+                state.isAnimating = false;
+                showThought(state.currentIndex);
+            }, 200);
+        }
+
+        // Execute a choice-specific action (for End Actions)
+        function executeChoiceAction(actionType) {
+            switch (actionType) {
+                case 'system-meltdown':
+                    triggerMeltdown();
+                    break;
+                case 'trigger-fin':
+                    showFinOverlay();
+                    stopCycling();
+                    break;
+                case 'matrix':
+                    triggerMatrixAnimation();
+                    break;
+                case 'contact':
+                    openContactModal();
+                    break;
+                default:
+                    console.log('End action triggered:', actionType);
+                    stopCycling();
+            }
+        }
+
+        // Handle Choice B click - check for redirect or advance to next thought
         function triggerBackspaceAndNext(isTimeout = false) {
             if (!state.waitingForChoice) return;
 
             // Immediately prevent multiple clicks
             state.waitingForChoice = false;
 
-            // Clear any pending idle timeout
-            clearTimeout(state.idleTimeout);
-            state.idleTimeout = null;
+            const noBtn = document.getElementById('choiceBtnNo');
 
-            const container = document.getElementById('choiceButtonsContainer');
-
-            if (isTimeout) {
-                // Timeout: fade out buttons smoothly, then backspace
-                if (container) {
-                    container.classList.add('fading-out');
-                }
-
-                // Wait for fade animation to complete before backspacing
+            if (noBtn) {
+                // Flash effect
+                noBtn.classList.add('btn-active');
                 setTimeout(() => {
+                    noBtn.classList.remove('btn-active');
+                }, 180);
+            }
+
+            // Check if there's a redirect index configured
+            const redirectIndex = noRedirectIndices[state.currentIndex];
+            if (redirectIndex && redirectIndex !== '') {
+                // Convert to 0-based index (admin shows 1-based)
+                const targetIndex = parseInt(redirectIndex) - 1;
+
+                // Validate the target index
+                if (targetIndex >= 0 && targetIndex < thoughts.length) {
+                    // Mark selection made
+                    markChoiceSelection('no');
                     hideChoiceButtons();
-                    if (container) {
-                        container.classList.remove('fading-out');
-                    }
 
-                    // Backspace the current thought and move to next
-                    backspaceCharacter(() => {
-                        state.isAnimating = false;
-                        // Reset buttons for next thought
+                    // Clear the screen and jump to target
+                    setTimeout(() => {
+                        thoughtElement.textContent = '';
+                        state.currentText = '';
                         resetChoiceButtons();
-                        // Move to next thought
-                        state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                        showThought(state.currentIndex);
-                    });
-                }, 500); // Match the CSS fade-out transition duration
-            } else {
-                // User clicked "No": check for redirect or use default behavior
-                const noBtn = document.getElementById('choiceBtnNo');
-                const yesBtn = document.getElementById('choiceBtnYes');
 
+                        state.currentIndex = targetIndex;
+                        state.isAnimating = false;
+                        showThought(state.currentIndex);
+                    }, 200);
+                } else {
+                    console.warn('Invalid no redirect index:', redirectIndex);
+                    advanceToNextThought('no');
+                }
+            } else {
+                // No redirect configured - advance to next thought
+                advanceToNextThought('no');
+            }
+        }
+
+        // Handle No button click (Choice B) - check for end action or redirect
+        function handleChoiceNo() {
+            if (!state.waitingForChoice) return;
+
+            // Get the per-choice action configuration for Choice B
+            const choiceAction = choiceBActions[state.currentIndex] || { type: 'none', endAction: false };
+
+            // CRITICAL: Check if this is an End Action (triggers action and stops story)
+            if (choiceAction.endAction && choiceAction.type && choiceAction.type !== 'none') {
+                // Immediately prevent multiple clicks
+                state.waitingForChoice = false;
+
+                // Add flash feedback effect
+                const noBtn = document.getElementById('choiceBtnNo');
                 if (noBtn) {
-                    // Flash effect
                     noBtn.classList.add('btn-active');
                     setTimeout(() => {
                         noBtn.classList.remove('btn-active');
                     }, 180);
                 }
 
-                // Mark selection and disable buttons (they stay visible)
+                // Mark selection made
                 markChoiceSelection('no');
 
-                // Disable both buttons visually
-                if (noBtn) noBtn.classList.add('disabled');
-                if (yesBtn) yesBtn.classList.add('disabled');
-
-                // Check if there's a redirect index configured
-                const redirectIndex = noRedirectIndices[state.currentIndex];
-                if (redirectIndex && redirectIndex !== '') {
-                    // Convert to 0-based index (admin shows 1-based)
-                    const targetIndex = parseInt(redirectIndex) - 1;
-
-                    // Validate the target index
-                    if (targetIndex >= 0 && targetIndex < thoughts.length) {
-                        // Hide choice buttons
-                        hideChoiceButtons();
-
-                        // Immediately clear the screen and jump to target
-                        setTimeout(() => {
-                            thoughtElement.textContent = '';
-                            state.currentText = '';
-
-                            // Reset choice buttons for next thought
-                            resetChoiceButtons();
-
-                            // Jump to the specified index
-                            state.currentIndex = targetIndex;
-                            state.isAnimating = false;
-                            showThought(state.currentIndex);
-                        }, 200);
-                    } else {
-                        console.warn('Invalid no redirect index:', redirectIndex);
-                        // Fall back to default behavior (backspace and next)
-                        setTimeout(() => {
-                            backspaceCharacter(() => {
-                                state.isAnimating = false;
-                                state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                                showThought(state.currentIndex);
-                            });
-                        }, 200);
-                    }
-                } else {
-                    // No redirect configured - use default behavior (backspace and move to next)
-                    setTimeout(() => {
-                        backspaceCharacter(() => {
-                            state.isAnimating = false;
-                            state.currentIndex = (state.currentIndex + 1) % thoughts.length;
-                            showThought(state.currentIndex);
-                        });
-                    }, 200);
-                }
-            }
-        }
-
-        // Handle No button click - backspace and move to next thought
-        function handleChoiceNo() {
-            if (!state.waitingForChoice) return;
-
-            // CRITICAL: Check for System Meltdown action type FIRST
-            const originalIndex = getOriginalIndex(state.currentIndex);
-            const currentAction = (typeof originalIndex === 'number' && actions[originalIndex]) ? actions[originalIndex] : null;
-            if (currentAction && currentAction.type === 'system-meltdown') {
-                triggerMeltdown();
+                // Execute the end action based on type
+                executeChoiceAction(choiceAction.type);
                 return;
             }
 
+            // No end action - proceed with redirect or advance
             triggerBackspaceAndNext(false);
         }
 

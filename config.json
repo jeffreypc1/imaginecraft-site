@@ -1,5 +1,5 @@
 {
-  "version": "1.0.7",
+  "version": "1.0.8",
   "heroText": "Hi. Hello.",
   "thoughts": [
     "I have ideas.",
@@ -42,6 +42,34 @@
     { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
     { "type": "none", "url": "", "logo": "", "linkText": "Click here" },
     { "type": "none", "url": "", "logo": "", "linkText": "Click here" }
+  ],
+  "choiceAActions": [
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false }
+  ],
+  "choiceBActions": [
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false },
+    { "type": "none", "endAction": false }
   ],
   "activeStates": [true, true, true, true, true, true, true, true, true, true, true, true],
   "choiceATexts": ["", "", "", "", "", "", "", "", "", "", "", ""],
