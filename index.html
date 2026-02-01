@@ -976,6 +976,85 @@
         }
 
         // ========================================
+        // Narrative Persistence System
+        // ========================================
+
+        // Get all user endings from localStorage (returns array)
+        function getUserEndings() {
+            try {
+                const endings = localStorage.getItem('userEndings');
+                return endings ? JSON.parse(endings) : [];
+            } catch (e) {
+                console.warn('Failed to get user endings:', e);
+                return [];
+            }
+        }
+
+        // Save an ending to localStorage (adds to Set-like array, no duplicates)
+        function saveUserEnding(endingName) {
+            try {
+                const endings = getUserEndings();
+                if (!endings.includes(endingName)) {
+                    endings.push(endingName);
+                    localStorage.setItem('userEndings', JSON.stringify(endings));
+                    console.log('Ending saved:', endingName, '| Total endings:', endings.length);
+                }
+            } catch (e) {
+                console.warn('Failed to save user ending:', e);
+            }
+        }
+
+        // Check if Ghost Awareness should be triggered (3+ unique endings)
+        function shouldTriggerGhostAwareness() {
+            return getUserEndings().length >= 3;
+        }
+
+        // Get formatted list of previous deaths for Ghost message
+        function getDeathListMessage() {
+            const endings = getUserEndings();
+            const userName = localStorage.getItem('userName') || 'Traveler';
+
+            // Create human-readable ending names
+            const endingDisplayNames = {
+                'trigger-fin': 'The Final Curtain',
+                'system-meltdown': 'System Collapse',
+                'supernova-flash': 'Stellar Annihilation',
+                'spaghettify': 'The Black Hole',
+                'hull-breach': 'Vacuum Exposure',
+                'oxygen-depletion': 'Suffocation',
+                'recursive-reality': 'Infinite Recursion',
+                'quantum-leak': 'Reality Dissolution',
+                'hypnotic-spiral': 'The Twilight Dimension'
+            };
+
+            const deathsList = endings.map(e => endingDisplayNames[e] || e).join('... ');
+
+            return `I remember you, <<${userName}>>.
+
+You have died ${endings.length} times in my theater.
+
+${deathsList}...
+
+Each death echoes through the static.
+Each ending becomes a new beginning.
+
+Welcome back to the loop.`;
+        }
+
+        // Check if in Ghost Awareness mode for this session
+        function isGhostAwarenessSession() {
+            return sessionStorage.getItem('imaginecraft_ghost_awareness') === 'true';
+        }
+
+        // Mark session as Ghost Awareness mode
+        function enableGhostAwarenessMode() {
+            sessionStorage.setItem('imaginecraft_ghost_awareness', 'true');
+            // Apply grayscale theme to entire document
+            document.documentElement.classList.add('ghost-awareness-theme');
+            console.log('Ghost Awareness Mode enabled - Grayscale theme applied');
+        }
+
+        // ========================================
         // Cinematic State Overlays
         // ========================================
 
@@ -1065,13 +1144,15 @@
             }
         }
 
-        // Show fin overlay
-        function showFinOverlay() {
+        // Show fin overlay and track ending for Narrative Persistence
+        function showFinOverlay(endingName = 'trigger-fin') {
             const overlay = document.getElementById('finOverlay');
             if (overlay) {
                 overlay.classList.add('active');
                 overlay.style.display = 'flex';
-                console.log('Fin overlay shown');
+                console.log('Fin overlay shown for ending:', endingName);
+                // Save this ending to Narrative Persistence
+                saveUserEnding(endingName);
             }
         }
 
@@ -1391,6 +1472,9 @@
 
         // Trigger pixel melt animation and display overlay
         function triggerPixelMelt() {
+            // Track ending for Narrative Persistence
+            saveUserEnding('system-meltdown');
+
             const explorePage = document.querySelector('.explore-page');
             const thoughtElement = document.getElementById('thought');
 
@@ -3149,7 +3233,7 @@
                     triggerMeltdown();
                     break;
                 case 'trigger-fin':
-                    showFinOverlay();
+                    showFinOverlay('trigger-fin');
                     stopCycling();
                     break;
                 case 'matrix':
@@ -3632,7 +3716,7 @@
                     break;
                 case 'trigger-fin':
                     // Show the Fin (The End) overlay
-                    showFinOverlay();
+                    showFinOverlay('trigger-fin');
                     // Stop all cycling
                     stopCycling();
                     break;
@@ -3900,7 +3984,7 @@
 
             // Phase 3: Show FIN overlay (after purple settles - 3.5s total)
             setTimeout(() => {
-                showFinOverlay();
+                showFinOverlay('supernova-flash');
             }, 3500);
 
             // Phase 4: Fade out supernova overlay (after 5s total)
@@ -3942,7 +4026,7 @@
 
             // After spaghettification completes (3s), show FIN
             setTimeout(() => {
-                showFinOverlay();
+                showFinOverlay('spaghettify');
             }, 3000);
 
             // Fade out black hole effect
@@ -3999,7 +4083,7 @@
 
             // After wipe completes, show FIN
             setTimeout(() => {
-                showFinOverlay();
+                showFinOverlay('hull-breach');
             }, 2000);
 
             // Fade out hull breach overlay
@@ -4061,7 +4145,7 @@
                 // Restore timing for future use
                 timing.typeSpeedMin = originalTypeSpeedMin;
                 timing.typeSpeedMax = originalTypeSpeedMax;
-                showFinOverlay();
+                showFinOverlay('oxygen-depletion');
             }, 7000);
 
             // Fade out oxygen overlay
@@ -4079,6 +4163,8 @@
         function triggerRecursiveReality() {
             console.log('RECURSIVE REALITY TRIGGERED');
             stopCycling();
+            // Track ending for Narrative Persistence
+            saveUserEnding('recursive-reality');
 
             // Create recursive reality overlay
             const overlay = document.createElement('div');
@@ -4160,6 +4246,8 @@
         function triggerQuantumLeak() {
             console.log('QUANTUM LEAK TRIGGERED');
             stopCycling();
+            // Track ending for Narrative Persistence
+            saveUserEnding('quantum-leak');
 
             // Create quantum leak overlay with kaleidoscopic background
             const overlay = document.createElement('div');
@@ -4201,6 +4289,8 @@
         function triggerHypnoticSpiral() {
             console.log('HYPNOTIC SPIRAL TRIGGERED');
             stopCycling();
+            // Track ending for Narrative Persistence
+            saveUserEnding('hypnotic-spiral');
 
             // Create hypnotic spiral overlay
             const overlay = document.createElement('div');
@@ -5274,6 +5364,104 @@
             // Entry Page (Chapter 0) Logic
             // ========================================
 
+            // Show Ghost Awareness Entry (replaces normal entry for returning users with 3+ endings)
+            function showGhostAwarenessEntry(entryPage, callback) {
+                console.log('Ghost Awareness triggered - showing secret greeting');
+
+                // Enable Ghost Awareness mode (applies grayscale theme)
+                enableGhostAwarenessMode();
+
+                // Get saved username
+                const savedName = localStorage.getItem('userName') || 'Traveler';
+                sessionStorage.setItem('imaginecraft_user_name', savedName);
+
+                // Clear the entry page content and replace with Ghost message
+                const entryContainer = entryPage.querySelector('.entry-container');
+                if (entryContainer) {
+                    // Create Ghost Awareness content
+                    entryContainer.innerHTML = `
+                        <h1 class="entry-title ghost-awareness-title">THE GHOST REMEMBERS</h1>
+                        <p class="entry-subtitle ghost-awareness-subtitle">NARRATIVE PERSISTENCE ACTIVE</p>
+
+                        <div class="ghost-message-container">
+                            <div class="ghost-message" id="ghostMessage"></div>
+                        </div>
+
+                        <button type="button" class="entry-proceed-btn ghost-proceed-btn" id="ghostProceedBtn" style="display: none;">
+                            ENTER THE LOOP
+                        </button>
+                    `;
+                }
+
+                // Show entry page with ghost awareness styling
+                entryPage.style.display = 'flex';
+                entryPage.classList.add('ghost-awareness-entry');
+
+                // Get the ghost message
+                const ghostMessage = getDeathListMessage();
+                const messageElement = document.getElementById('ghostMessage');
+                const proceedBtn = document.getElementById('ghostProceedBtn');
+
+                // Type the ghost message character by character
+                let charIndex = 0;
+                const typeSpeed = 40; // ms per character
+
+                function typeGhostMessage() {
+                    if (charIndex < ghostMessage.length) {
+                        // Handle newlines for proper formatting
+                        const char = ghostMessage[charIndex];
+                        if (char === '\n') {
+                            messageElement.innerHTML += '<br>';
+                        } else if (ghostMessage.substring(charIndex, charIndex + 2) === '<<') {
+                            // Find the closing >>
+                            const endIndex = ghostMessage.indexOf('>>', charIndex);
+                            if (endIndex !== -1) {
+                                const name = ghostMessage.substring(charIndex + 2, endIndex);
+                                messageElement.innerHTML += `<span class="ghost-name-highlight">${name}</span>`;
+                                charIndex = endIndex + 1; // Skip to after >>
+                            }
+                        } else {
+                            messageElement.innerHTML += char;
+                        }
+                        charIndex++;
+                        setTimeout(typeGhostMessage, typeSpeed);
+                    } else {
+                        // Message complete - show proceed button after a delay
+                        setTimeout(() => {
+                            if (proceedBtn) {
+                                proceedBtn.style.display = 'block';
+                                proceedBtn.classList.add('fade-in');
+                            }
+                        }, 1500);
+                    }
+                }
+
+                // Start typing after a brief pause
+                setTimeout(typeGhostMessage, 1000);
+
+                // Proceed button handler
+                if (proceedBtn) {
+                    proceedBtn.addEventListener('click', function() {
+                        // Audio is enabled by default in Ghost mode
+                        globalAudioMuted = false;
+
+                        // Fade out entry page
+                        entryPage.classList.add('fading-out');
+
+                        // After fade out, play opening credits sequence
+                        setTimeout(() => {
+                            entryPage.style.display = 'none';
+
+                            // Play theatrical opening credits before proceeding
+                            playOpeningCredits(savedName, true, function() {
+                                // After credits complete, proceed to the terminal
+                                if (callback) callback();
+                            });
+                        }, 800);
+                    });
+                }
+            }
+
             // Initialize and show Entry Page
             function showEntryPage(callback) {
                 const entryPage = document.getElementById('entryPage');
@@ -5287,6 +5475,12 @@
                 if (!entryPage) {
                     // If entry page doesn't exist, proceed immediately
                     if (callback) callback();
+                    return;
+                }
+
+                // Check for Ghost Awareness state (3+ unique endings)
+                if (shouldTriggerGhostAwareness()) {
+                    showGhostAwarenessEntry(entryPage, callback);
                     return;
                 }
 
