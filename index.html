@@ -10,7 +10,7 @@
     <!-- Dynamic Cache Buster: Appends timestamp to CSS/JS resources to bypass CDN caching -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600&family=VT323&display=swap" rel="stylesheet">
     <script>
         // Generate timestamp once for consistent cache busting across all resources
         var CACHE_TIMESTAMP = Date.now();
@@ -4772,6 +4772,160 @@
             }
 
             // ========================================
+            // Opening Credits Sequence
+            // ========================================
+
+            // Play theatrical opening credits after user clicks Proceed
+            function playOpeningCredits(userName, isAudioEnabled, callback) {
+                const openingCredits = document.getElementById('openingCredits');
+                const creditsBackground = document.getElementById('openingCreditsBackground');
+                const creditsLine1 = document.getElementById('creditsLine1');
+                const creditsLine2 = document.getElementById('creditsLine2');
+                const creditsName = document.getElementById('creditsName');
+
+                if (!openingCredits) {
+                    console.warn('Opening credits element not found');
+                    if (callback) callback();
+                    return;
+                }
+
+                // Set the user's name in the credits
+                const displayName = userName || 'YOU';
+                creditsName.textContent = displayName;
+
+                // Set MST3K poster as low-opacity background if available
+                const mst3kUrl = loadMst3kOverlayURL();
+                if (mst3kUrl && creditsBackground) {
+                    creditsBackground.style.backgroundImage = `url('${mst3kUrl}')`;
+                }
+
+                // Show the credits overlay
+                openingCredits.style.display = 'flex';
+
+                // Timeline:
+                // 0s: Fade to black (1s)
+                // 1s: Show "A PRODUCTION BY THE GHOST" with fade in
+                // 3s: Fade out first line, fade in "STARRING: <<name>>" + play audio
+                // 6s: Fade out everything, trigger callback
+
+                // Step 1: Fade in the black overlay (0-1s)
+                setTimeout(() => {
+                    openingCredits.classList.add('visible');
+                }, 50);
+
+                // Step 2: Show first credit line at 1s
+                setTimeout(() => {
+                    creditsLine1.classList.add('visible');
+                }, 1000);
+
+                // Step 3: At 3s - fade out first line, prepare for second
+                setTimeout(() => {
+                    creditsLine1.classList.remove('visible');
+                    creditsLine1.classList.add('fading-out');
+                }, 3000);
+
+                // Step 4: At 3.8s - show second line with name + play audio
+                setTimeout(() => {
+                    creditsLine1.style.display = 'none';
+                    creditsLine2.style.display = 'block';
+                    creditsLine2.classList.add('visible');
+
+                    // Play cinematic whoosh audio if enabled
+                    if (isAudioEnabled) {
+                        playCinematicWhoosh();
+                    }
+                }, 3800);
+
+                // Step 5: At 5.5s - start fading out
+                setTimeout(() => {
+                    creditsLine2.classList.remove('visible');
+                    creditsLine2.classList.add('fading-out');
+                }, 5500);
+
+                // Step 6: At 6s - fade out entire overlay and proceed
+                setTimeout(() => {
+                    openingCredits.classList.remove('visible');
+                    openingCredits.classList.add('fading-out');
+
+                    // After fade out completes, hide and proceed
+                    setTimeout(() => {
+                        openingCredits.style.display = 'none';
+                        // Reset classes for potential replay
+                        openingCredits.classList.remove('fading-out');
+                        creditsLine1.classList.remove('visible', 'fading-out');
+                        creditsLine2.classList.remove('visible', 'fading-out');
+                        creditsLine1.style.display = 'block';
+                        creditsLine2.style.display = 'none';
+
+                        if (callback) callback();
+                    }, 1000);
+                }, 6000);
+            }
+
+            // Play cinematic whoosh/title theme audio
+            function playCinematicWhoosh() {
+                try {
+                    // Create a short cinematic whoosh sound using Web Audio API
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                    // Create oscillator for the whoosh base
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    // Create filter for sweep effect
+                    const filter = audioContext.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(100, audioContext.currentTime);
+                    filter.frequency.exponentialRampToValueAtTime(2000, audioContext.currentTime + 0.3);
+                    filter.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.8);
+
+                    // Configure oscillator
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(80, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 0.2);
+                    oscillator.frequency.exponentialRampToValueAtTime(60, audioContext.currentTime + 0.8);
+
+                    // Configure gain envelope
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.1);
+                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.4);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.2);
+
+                    // Connect nodes
+                    oscillator.connect(filter);
+                    filter.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    // Play the sound
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 1.2);
+
+                    // Add a second layer - higher pitched shimmer
+                    const shimmer = audioContext.createOscillator();
+                    const shimmerGain = audioContext.createGain();
+
+                    shimmer.type = 'sine';
+                    shimmer.frequency.setValueAtTime(800, audioContext.currentTime);
+                    shimmer.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.2);
+                    shimmer.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 1.0);
+
+                    shimmerGain.gain.setValueAtTime(0, audioContext.currentTime);
+                    shimmerGain.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.15);
+                    shimmerGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.0);
+
+                    shimmer.connect(shimmerGain);
+                    shimmerGain.connect(audioContext.destination);
+
+                    shimmer.start(audioContext.currentTime);
+                    shimmer.stop(audioContext.currentTime + 1.0);
+
+                    console.log('Cinematic whoosh audio played');
+                } catch (error) {
+                    console.warn('Could not play cinematic whoosh audio:', error);
+                }
+            }
+
+            // ========================================
             // Entry Page (Chapter 0) Logic
             // ========================================
 
@@ -4876,10 +5030,15 @@
                     // Fade out entry page
                     entryPage.classList.add('fading-out');
 
-                    // After fade out, proceed to callback
+                    // After fade out, play opening credits sequence
                     setTimeout(() => {
                         entryPage.style.display = 'none';
-                        if (callback) callback();
+
+                        // Play theatrical opening credits before proceeding
+                        playOpeningCredits(userName, audioEnabled, function() {
+                            // After credits complete, proceed to the terminal
+                            if (callback) callback();
+                        });
                     }, 800); // Match CSS transition duration
                 });
             }
@@ -5022,6 +5181,15 @@
 
             <!-- Proceed Button -->
             <button type="button" class="entry-proceed-btn" id="entryProceedBtn">PROCEED</button>
+        </div>
+    </div>
+
+    <!-- Opening Credits Sequence - Theatrical intro after Proceed -->
+    <div id="openingCredits" class="opening-credits" style="display: none;">
+        <div id="openingCreditsBackground" class="opening-credits-background"></div>
+        <div class="opening-credits-content">
+            <p id="creditsLine1" class="credits-line credits-production">A PRODUCTION BY THE GHOST</p>
+            <p id="creditsLine2" class="credits-line credits-starring" style="display: none;">STARRING: <span id="creditsName"></span></p>
         </div>
     </div>
 

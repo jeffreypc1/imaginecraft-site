@@ -3249,6 +3249,136 @@ body {
     }
 }
 
+/* ========================================
+   Opening Credits Sequence - Theatrical Intro
+   ======================================== */
+
+.opening-credits {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999; /* Above entry page, below curtain */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #000;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.opening-credits.visible {
+    opacity: 1;
+}
+
+.opening-credits.fading-out {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+/* Background image (MST3K poster) */
+.opening-credits-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    z-index: 0;
+}
+
+.opening-credits-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+}
+
+.credits-line {
+    font-family: 'Playfair Display', 'Times New Roman', Georgia, serif;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    margin: 0;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.credits-line.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.credits-line.fading-out {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.8s ease-in, transform 0.8s ease-in;
+}
+
+.credits-production {
+    font-size: clamp(1.2rem, 4vw, 2.5rem);
+    font-weight: 400;
+    text-shadow:
+        0 0 20px rgba(255, 255, 255, 0.3),
+        0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+.credits-starring {
+    font-size: clamp(1.5rem, 5vw, 3.5rem);
+    font-weight: 600;
+    text-shadow:
+        0 0 30px rgba(255, 255, 255, 0.4),
+        0 0 60px rgba(255, 255, 255, 0.2);
+}
+
+.credits-starring #creditsName {
+    color: #ffd700;
+    text-shadow:
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 0 40px rgba(255, 215, 0, 0.3),
+        0 0 60px rgba(255, 215, 0, 0.1);
+}
+
+/* Cinematic glow pulse animation */
+@keyframes creditsPulse {
+    0%, 100% {
+        text-shadow:
+            0 0 20px rgba(255, 255, 255, 0.3),
+            0 0 40px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+        text-shadow:
+            0 0 30px rgba(255, 255, 255, 0.5),
+            0 0 60px rgba(255, 255, 255, 0.2);
+    }
+}
+
+.credits-line.visible {
+    animation: creditsPulse 3s ease-in-out infinite;
+}
+
+/* Responsive adjustments for credits */
+@media (max-width: 768px) {
+    .credits-production {
+        letter-spacing: 0.2em;
+    }
+
+    .credits-starring {
+        letter-spacing: 0.15em;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-line {
+        letter-spacing: 0.1em;
+    }
+}
+
 /* Responsive Padding */
 @media (max-width: 768px) {
     .explore-container {
@@ -3282,6 +3412,17 @@ body {
     .explore-panel p {
         animation: none;
         text-shadow: 0 0 8px rgba(52, 255, 53, 0.6), 0 0 16px rgba(52, 255, 53, 0.3);
+    }
+
+    /* Disable opening credits animations */
+    .opening-credits,
+    .credits-line {
+        transition: none;
+        animation: none;
+    }
+
+    .credits-line.visible {
+        animation: none;
     }
 }
 
