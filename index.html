@@ -5401,15 +5401,22 @@ Welcome back to the loop.`;
             // ========================================
 
             // Play theatrical opening credits after user clicks Proceed
-            // New 3-screen theatrical intro sequence:
-            // Screen 1: The Title (Hero Heading with Ken Burns effect)
-            // Screen 2: The Studio ("A Production by [Studio Name]")
-            // Screen 3: The Star ("Starring <<name>>")
+            // Theatrical intro sequence:
+            // NORMAL MODE (storyPartCount = 1):
+            //   Screen 1: The Title (Hero Heading with Ken Burns effect)
+            //   Screen 2: The Studio ("A Production by [Studio Name]")
+            //   Screen 3: The Star ("Starring <<name>>")
+            // SEQUEL MODE (storyPartCount > 1):
+            //   Screen 1: The Title (Hero Heading with Ken Burns effect)
+            //   Screen 1.5: The Part Card ("Part [N]") - seamless Ken Burns continues on background
+            //   [Skips Production and Starring screens, goes directly to INITIALIZATION]
             function playOpeningCredits(userName, isAudioEnabled, callback) {
                 const openingCredits = document.getElementById('openingCredits');
                 const creditsBackground = document.getElementById('openingCreditsBackground');
                 const creditsTitle = document.getElementById('creditsTitle');
                 const creditsTitleText = document.getElementById('creditsTitleText');
+                const creditsPartCard = document.getElementById('creditsPartCard');
+                const creditsPartNumber = document.getElementById('creditsPartNumber');
                 const creditsLine1 = document.getElementById('creditsLine1');
                 const creditsStudioName = document.getElementById('creditsStudioName');
                 const creditsLine2 = document.getElementById('creditsLine2');
@@ -5422,7 +5429,7 @@ Welcome back to the loop.`;
                 }
 
                 // Load configuration values
-                let heroText = loadHeroText() || 'IMAGINECRAFT';
+                const heroText = loadHeroText() || 'IMAGINECRAFT';
                 const studioName = loadStudioProductionName() || 'The Ghost';
                 const displayName = userName || 'YOU';
 
@@ -5430,14 +5437,13 @@ Welcome back to the loop.`;
                 const storyPart = getStoryPartCount();
                 const isSequel = storyPart > 1;
 
-                // Append ": Part [N]" to title if this is a sequel (storyPartCount > 1)
                 if (isSequel) {
-                    heroText = `${heroText}: Part ${storyPart}`;
-                    console.log('Sequel detected - Title:', heroText);
+                    console.log('Sequel detected - Part:', storyPart);
                 }
 
-                // Set the content for all three screens
+                // Set the content for all screens
                 if (creditsTitleText) creditsTitleText.textContent = heroText;
+                if (creditsPartNumber) creditsPartNumber.textContent = storyPart;
                 if (creditsStudioName) creditsStudioName.textContent = studioName;
                 if (creditsName) creditsName.textContent = displayName;
 
@@ -5452,6 +5458,10 @@ Welcome back to the loop.`;
                     creditsTitle.style.display = 'flex';
                     creditsTitle.classList.remove('visible', 'fading-out');
                 }
+                if (creditsPartCard) {
+                    creditsPartCard.style.display = 'none';
+                    creditsPartCard.classList.remove('visible', 'fading-out');
+                }
                 if (creditsLine1) {
                     creditsLine1.style.display = 'none';
                     creditsLine1.classList.remove('visible', 'fading-out');
@@ -5459,6 +5469,9 @@ Welcome back to the loop.`;
                 if (creditsLine2) {
                     creditsLine2.style.display = 'none';
                     creditsLine2.classList.remove('visible', 'fading-out');
+                }
+                if (creditsBackground) {
+                    creditsBackground.classList.remove('ken-burns-extended');
                 }
 
                 // Show the credits overlay
@@ -5521,6 +5534,10 @@ Welcome back to the loop.`;
                             creditsTitle.classList.remove('visible', 'fading-out');
                             creditsTitle.style.display = 'flex';
                         }
+                        if (creditsPartCard) {
+                            creditsPartCard.classList.remove('visible', 'fading-out');
+                            creditsPartCard.style.display = 'none';
+                        }
                         if (creditsLine1) {
                             creditsLine1.classList.remove('visible', 'fading-out');
                             creditsLine1.style.display = 'none';
@@ -5532,15 +5549,27 @@ Welcome back to the loop.`;
                         if (creditsTitleText) {
                             creditsTitleText.classList.remove('ken-burns-active');
                         }
+                        if (creditsBackground) {
+                            creditsBackground.classList.remove('ken-burns-extended');
+                        }
 
                         if (callback) callback();
                     }, 2000);
                 }
 
-                // SEQUEL MODE: Skip screens 2 & 3, go straight to INITIALIZATION
+                // SEQUEL MODE: Show Part card after title, skip Production/Starring screens
                 if (isSequel) {
-                    console.log('Sequel mode: Skipping Studio and Starring credits');
-                    // At 4.5s - Hide title and fade out overlay directly
+                    console.log('Sequel mode: Showing Part card, skipping Studio and Starring credits');
+
+                    // Start extended Ken Burns on background for seamless effect across screens
+                    setTimeout(() => {
+                        if (creditsBackground) {
+                            creditsBackground.classList.add('ken-burns-extended');
+                        }
+                    }, 500);
+
+                    // ========== SCREEN 1.5: THE PART CARD ==========
+                    // At 4.5s - Hide title, show Part card
                     setTimeout(() => {
                         if (creditsTitle) {
                             creditsTitle.style.display = 'none';
@@ -5548,8 +5577,27 @@ Welcome back to the loop.`;
                                 creditsTitleText.classList.remove('ken-burns-active');
                             }
                         }
-                        performFinalFadeOut();
+                        if (creditsPartCard) {
+                            creditsPartCard.style.display = 'flex';
+                            creditsPartCard.classList.add('visible');
+                        }
                     }, 4500);
+
+                    // At 8s - Fade out Part card
+                    setTimeout(() => {
+                        if (creditsPartCard) {
+                            creditsPartCard.classList.remove('visible');
+                            creditsPartCard.classList.add('fading-out');
+                        }
+                    }, 8000);
+
+                    // At 8.5s - Hide Part card and perform final fade out
+                    setTimeout(() => {
+                        if (creditsPartCard) {
+                            creditsPartCard.style.display = 'none';
+                        }
+                        performFinalFadeOut();
+                    }, 8500);
                 } else {
                     // NORMAL MODE: Show all three screens
 
@@ -6002,6 +6050,11 @@ Welcome back to the loop.`;
             <!-- Screen 1: The Title (Ken Burns effect) -->
             <div id="creditsTitle" class="credits-line credits-title ken-burns-container">
                 <h1 id="creditsTitleText" class="ken-burns-text"></h1>
+            </div>
+            <!-- Screen 1.5: The Part Card (sequels only, continues Ken Burns) -->
+            <div id="creditsPartCard" class="credits-line credits-part-card" style="display: none;">
+                <span class="part-label">Part</span>
+                <span id="creditsPartNumber" class="part-number"></span>
             </div>
             <!-- Screen 2: The Studio -->
             <p id="creditsLine1" class="credits-line credits-production" style="display: none;">A PRODUCTION BY <span id="creditsStudioName">THE GHOST</span></p>

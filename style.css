@@ -3404,6 +3404,102 @@ body {
     }
 }
 
+/* Extended Ken Burns for background (continues through Screen 1 + 1.5 for sequels) */
+@keyframes kenBurnsExtended {
+    0% {
+        transform: scale(1) translate(0, 0);
+    }
+    12.5% {
+        transform: scale(1.04) translate(2%, 1%);
+    }
+    25% {
+        transform: scale(1.08) translate(-1%, 2%);
+    }
+    37.5% {
+        transform: scale(1.12) translate(1%, -1%);
+    }
+    50% {
+        transform: scale(1.15) translate(0, 0);
+    }
+    62.5% {
+        transform: scale(1.18) translate(-1%, 1%);
+    }
+    75% {
+        transform: scale(1.22) translate(1%, -0.5%);
+    }
+    87.5% {
+        transform: scale(1.26) translate(-0.5%, 0.5%);
+    }
+    100% {
+        transform: scale(1.30) translate(0, 0);
+    }
+}
+
+/* Background Ken Burns activation for extended sequel sequence */
+.opening-credits-background.ken-burns-extended {
+    animation: kenBurnsExtended 8s ease-in-out forwards;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Screen 1.5: Part Card Styling */
+.credits-part-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 2s ease-in-out, transform 1.5s ease-out;
+}
+
+.credits-part-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.credits-part-card.fading-out {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 2s ease-in-out, transform 1.5s ease-in;
+}
+
+.credits-part-card .part-label {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 300;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 0.5rem;
+}
+
+.credits-part-card .part-number {
+    font-size: clamp(5rem, 20vw, 12rem);
+    font-weight: 200;
+    letter-spacing: 0.1em;
+    color: #ffffff;
+    text-shadow:
+        0 0 30px rgba(255, 255, 255, 0.5),
+        0 0 60px rgba(255, 255, 255, 0.3),
+        0 0 90px rgba(255, 255, 255, 0.1);
+    animation: partNumberGlow 3s ease-in-out infinite;
+}
+
+@keyframes partNumberGlow {
+    0%, 100% {
+        text-shadow:
+            0 0 30px rgba(255, 255, 255, 0.5),
+            0 0 60px rgba(255, 255, 255, 0.3),
+            0 0 90px rgba(255, 255, 255, 0.1);
+    }
+    50% {
+        text-shadow:
+            0 0 40px rgba(255, 255, 255, 0.6),
+            0 0 80px rgba(255, 255, 255, 0.4),
+            0 0 120px rgba(255, 255, 255, 0.2);
+    }
+}
+
 /* Studio name styling in credits */
 .credits-production #creditsStudioName {
     color: #ffd700;
