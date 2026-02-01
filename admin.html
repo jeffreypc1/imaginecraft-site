@@ -464,6 +464,265 @@
             margin-top: 0.35rem;
         }
 
+        /* URL Input with Browse Button */
+        .url-input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+
+        .url-input-wrapper input[type="url"] {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .browse-assets-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .browse-assets-btn:hover {
+            background: #4a4ed8;
+            transform: translateY(-1px);
+        }
+
+        .browse-assets-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Asset Picker Modal */
+        .asset-picker-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .asset-picker-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .asset-picker-modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .asset-picker-overlay.visible .asset-picker-modal {
+            transform: scale(1);
+        }
+
+        .asset-picker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--off-white-dark);
+        }
+
+        .asset-picker-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .asset-picker-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: rgba(31, 31, 31, 0.5);
+            cursor: pointer;
+            padding: 0.25rem;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .asset-picker-close:hover {
+            color: var(--primary);
+        }
+
+        .asset-picker-search {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--off-white-dark);
+        }
+
+        .asset-picker-search input {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            border: 1px solid var(--off-white-dark);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .asset-picker-search input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(91, 95, 234, 0.1);
+        }
+
+        .asset-picker-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.5rem;
+        }
+
+        .asset-picker-loading,
+        .asset-picker-error,
+        .asset-picker-empty {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(31, 31, 31, 0.6);
+        }
+
+        .asset-picker-loading::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--off-white-dark);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 0.75rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .asset-picker-error {
+            color: var(--error);
+        }
+
+        .asset-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .asset-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .asset-item:hover {
+            background: var(--background);
+        }
+
+        .asset-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--background);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .asset-icon.audio {
+            background: rgba(147, 51, 234, 0.1);
+            color: #9333ea;
+        }
+
+        .asset-icon.image {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+        }
+
+        .asset-icon.video {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .asset-icon.other {
+            background: rgba(107, 114, 128, 0.1);
+            color: #6b7280;
+        }
+
+        .asset-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .asset-name {
+            font-weight: 500;
+            color: var(--primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .asset-size {
+            font-size: 0.8rem;
+            color: rgba(31, 31, 31, 0.5);
+        }
+
+        .asset-type-filter {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid var(--off-white-dark);
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+            border: 1px solid var(--off-white-dark);
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
         /* Toast Notification */
         .toast {
             position: fixed;
@@ -1173,7 +1432,15 @@
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>MST3K Overlay URL</label>
-                    <input type="url" id="mst3kOverlayURL" placeholder="https://example.com/mst3k-silhouettes.png">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="mst3kOverlayURL" placeholder="https://example.com/mst3k-silhouettes.png">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('mst3kOverlayURL')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Transparent PNG overlay for the MST3K theater silhouettes (positioned at bottom of screen)
                     </p>
@@ -1187,7 +1454,15 @@
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Theater Frame URL</label>
-                    <input type="url" id="theaterFrameURL" placeholder="https://example.com/curtainbkg.png">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="theaterFrameURL" placeholder="https://example.com/curtainbkg.png">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('theaterFrameURL')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Permanent theater curtain frame overlay (positioned as full-screen background behind silhouettes)
                     </p>
@@ -1202,7 +1477,15 @@
             <div class="nav-links-grid">
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Global Ambient Audio URL</label>
-                    <input type="url" id="globalAmbientAudioURL" placeholder="https://example.com/ambient-loop.mp3">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="globalAmbientAudioURL" placeholder="https://example.com/ambient-loop.mp3">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('globalAmbientAudioURL')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Audio will start on loop after the user clicks anywhere on the site for the first time.
                     </p>
@@ -1333,7 +1616,15 @@ SYS_CHECK: COMPLETE</textarea>
             <div class="nav-links-grid">
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Background Image URL</label>
-                    <input type="url" id="backgroundImageUrl" placeholder="https://example.com/background.jpg">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="backgroundImageUrl" placeholder="https://example.com/background.jpg">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('backgroundImageUrl')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                 </div>
             </div>
             <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
@@ -1355,7 +1646,15 @@ SYS_CHECK: COMPLETE</textarea>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Media URL</label>
-                    <input type="url" id="buildersMediaUrl" placeholder="https://example.com/construction-crew.jpg (or .mp4)">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="buildersMediaUrl" placeholder="https://example.com/construction-crew.jpg (or .mp4)">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('buildersMediaUrl')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                 </div>
             </div>
             <p style="font-size: 0.85rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.5rem;">
@@ -1370,21 +1669,45 @@ SYS_CHECK: COMPLETE</textarea>
             <div class="nav-links-grid">
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Intermission Image URL</label>
-                    <input type="url" id="intermissionImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Intermission">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="intermissionImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Intermission">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('intermissionImageUrl')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Triggered after 120 seconds of user inactivity
                     </p>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Technical Difficulties Image URL</label>
-                    <input type="url" id="techDifficultyImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Technical+Difficulties">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="techDifficultyImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Technical+Difficulties">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('techDifficultyImageUrl')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Triggered after 3 consecutive terminal input errors
                     </p>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Fin (The End) Image URL</label>
-                    <input type="url" id="finImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Fin">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="finImageUrl" placeholder="https://via.placeholder.com/1920x1080?text=Fin">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('finImageUrl')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Triggered by the "Trigger Fin" action type in cycling thoughts
                     </p>
@@ -1409,7 +1732,15 @@ SYS_CHECK: COMPLETE</textarea>
                 </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>Meltdown Audio URL</label>
-                    <input type="url" id="meltdownAudioURL" placeholder="https://example.com/alarm.mp3">
+                    <div class="url-input-wrapper">
+                        <input type="url" id="meltdownAudioURL" placeholder="https://example.com/alarm.mp3">
+                        <button type="button" class="browse-assets-btn" onclick="openAssetPicker('meltdownAudioURL')">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                            Browse
+                        </button>
+                    </div>
                     <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
                         Audio/music to play during the meltdown sequence (10 seconds)
                     </p>
@@ -1483,6 +1814,28 @@ SYS_CHECK: COMPLETE</textarea>
     <!-- Toast Notification -->
     <div class="toast" id="toast">
         <span id="toastMessage">Changes saved successfully!</span>
+    </div>
+
+    <!-- Asset Picker Modal -->
+    <div class="asset-picker-overlay" id="assetPickerOverlay">
+        <div class="asset-picker-modal">
+            <div class="asset-picker-header">
+                <h3>Browse Assets</h3>
+                <button type="button" class="asset-picker-close" onclick="closeAssetPicker()">&times;</button>
+            </div>
+            <div class="asset-type-filter" id="assetTypeFilter">
+                <button type="button" class="filter-btn active" data-filter="all">All</button>
+                <button type="button" class="filter-btn" data-filter="audio">Audio</button>
+                <button type="button" class="filter-btn" data-filter="image">Images</button>
+                <button type="button" class="filter-btn" data-filter="video">Video</button>
+            </div>
+            <div class="asset-picker-search">
+                <input type="text" id="assetSearchInput" placeholder="Search files..." oninput="filterAssetList()">
+            </div>
+            <div class="asset-picker-content" id="assetPickerContent">
+                <div class="asset-picker-loading">Loading assets...</div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
@@ -2469,7 +2822,15 @@ SYS_CHECK: COMPLETE</textarea>
                         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(91, 95, 234, 0.2);">
                             <div class="form-group" style="margin-bottom: 0.5rem;">
                                 <label>Override Ambient Audio URL</label>
-                                <input type="url" id="scene-audio-${i}" value="${escapeHtml(currentSceneAudioOverrides[i]?.url || '')}" placeholder="https://example.com/scene-audio.mp3">
+                                <div class="url-input-wrapper">
+                                    <input type="url" id="scene-audio-${i}" value="${escapeHtml(currentSceneAudioOverrides[i]?.url || '')}" placeholder="https://example.com/scene-audio.mp3">
+                                    <button type="button" class="browse-assets-btn" onclick="openAssetPicker('scene-audio-${i}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                        </svg>
+                                        Browse
+                                    </button>
+                                </div>
                             </div>
                             <div class="active-toggle-container" style="margin-top: 0.5rem;">
                                 <input type="checkbox" id="scene-audio-loop-${i}" class="active-checkbox" ${currentSceneAudioOverrides[i]?.loop !== false ? 'checked' : ''}>
@@ -2561,11 +2922,19 @@ SYS_CHECK: COMPLETE</textarea>
                     </div>
                     <div class="form-group">
                         <label>Ending Sound URL (WAV/MP3)</label>
-                        <input type="url"
-                               id="final-action-sound-${action.type}"
-                               value="${escapeHtml(soundUrl)}"
-                               placeholder="https://example.com/ending-sound.mp3"
-                               onchange="updateFinalActionSound('${action.type}')">
+                        <div class="url-input-wrapper">
+                            <input type="url"
+                                   id="final-action-sound-${action.type}"
+                                   value="${escapeHtml(soundUrl)}"
+                                   placeholder="https://example.com/ending-sound.mp3"
+                                   onchange="updateFinalActionSound('${action.type}')">
+                            <button type="button" class="browse-assets-btn" onclick="openAssetPicker('final-action-sound-${action.type}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                </svg>
+                                Browse
+                            </button>
+                        </div>
                         <p class="audio-hint">Audio plays immediately when the Death Bridge button is clicked for this action type.</p>
                     </div>
                 `;
@@ -3101,6 +3470,262 @@ SYS_CHECK: COMPLETE</textarea>
         window.downloadConfig = downloadConfig;
         window.factoryReset = factoryReset;
         window.switchAdminTab = switchAdminTab;
+
+        // ========================================
+        // GitHub Asset Picker
+        // ========================================
+
+        // Session cache for GitHub assets
+        let assetCache = null;
+        let currentTargetInput = null;
+        let currentFilter = 'all';
+
+        // GitHub repository configuration
+        const GITHUB_REPO = 'jeffreypc1/imaginecraft-site';
+        const GITHUB_BRANCH = 'main';
+        const ASSETS_PATH = 'assets';
+
+        // File type categories
+        const FILE_CATEGORIES = {
+            audio: ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'],
+            image: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'],
+            video: ['mp4', 'webm', 'mov', 'avi', 'mkv']
+        };
+
+        // Get file category based on extension
+        function getFileCategory(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            for (const [category, extensions] of Object.entries(FILE_CATEGORIES)) {
+                if (extensions.includes(ext)) return category;
+            }
+            return 'other';
+        }
+
+        // Get icon for file type
+        function getFileIcon(category) {
+            switch (category) {
+                case 'audio': return '🎵';
+                case 'image': return '🖼️';
+                case 'video': return '🎬';
+                default: return '📄';
+            }
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // Generate raw GitHub URL for a file
+        function generateRawUrl(filename) {
+            return `https://raw.githubusercontent.com/${GITHUB_REPO}/${GITHUB_BRANCH}/${ASSETS_PATH}/${filename}`;
+        }
+
+        // Fetch assets from GitHub API
+        async function fetchGitHubAssets() {
+            // Return cached assets if available
+            if (assetCache) {
+                return assetCache;
+            }
+
+            const apiUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/${ASSETS_PATH}?ref=${GITHUB_BRANCH}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                // Filter to only include files (not directories)
+                const files = data.filter(item => item.type === 'file').map(item => ({
+                    name: item.name,
+                    size: item.size,
+                    category: getFileCategory(item.name),
+                    rawUrl: generateRawUrl(item.name)
+                }));
+
+                // Sort by name
+                files.sort((a, b) => a.name.localeCompare(b.name));
+
+                // Cache the results
+                assetCache = files;
+                return files;
+            } catch (error) {
+                console.error('Failed to fetch GitHub assets:', error);
+                throw error;
+            }
+        }
+
+        // Render asset list
+        function renderAssetList(assets) {
+            const content = document.getElementById('assetPickerContent');
+            const searchTerm = document.getElementById('assetSearchInput').value.toLowerCase();
+
+            // Filter assets
+            let filtered = assets;
+
+            // Apply category filter
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(asset => asset.category === currentFilter);
+            }
+
+            // Apply search filter
+            if (searchTerm) {
+                filtered = filtered.filter(asset =>
+                    asset.name.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            if (filtered.length === 0) {
+                content.innerHTML = '<div class="asset-picker-empty">No matching files found</div>';
+                return;
+            }
+
+            const listHtml = `
+                <ul class="asset-list">
+                    ${filtered.map(asset => `
+                        <li class="asset-item" onclick="selectAsset('${escapeHtml(asset.rawUrl)}')">
+                            <div class="asset-icon ${asset.category}">${getFileIcon(asset.category)}</div>
+                            <div class="asset-details">
+                                <div class="asset-name">${escapeHtml(asset.name)}</div>
+                                <div class="asset-size">${formatFileSize(asset.size)}</div>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+            content.innerHTML = listHtml;
+        }
+
+        // Open asset picker modal
+        async function openAssetPicker(inputId) {
+            currentTargetInput = document.getElementById(inputId);
+            if (!currentTargetInput) {
+                console.error('Target input not found:', inputId);
+                return;
+            }
+
+            const overlay = document.getElementById('assetPickerOverlay');
+            const content = document.getElementById('assetPickerContent');
+            const searchInput = document.getElementById('assetSearchInput');
+
+            // Reset search and filter
+            searchInput.value = '';
+            currentFilter = 'all';
+            updateFilterButtons();
+
+            // Show modal
+            overlay.classList.add('visible');
+
+            // Show loading state
+            content.innerHTML = '<div class="asset-picker-loading">Loading assets...</div>';
+
+            try {
+                const assets = await fetchGitHubAssets();
+                renderAssetList(assets);
+            } catch (error) {
+                content.innerHTML = `<div class="asset-picker-error">Failed to load assets: ${error.message}</div>`;
+            }
+        }
+
+        // Close asset picker modal
+        function closeAssetPicker() {
+            const overlay = document.getElementById('assetPickerOverlay');
+            overlay.classList.remove('visible');
+            currentTargetInput = null;
+        }
+
+        // Select an asset and insert URL into target input
+        function selectAsset(url) {
+            if (currentTargetInput) {
+                currentTargetInput.value = url;
+                // Trigger change event for any listeners
+                currentTargetInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            closeAssetPicker();
+            showToast('Asset URL inserted successfully!', 'success');
+        }
+
+        // Filter asset list by search term
+        function filterAssetList() {
+            if (assetCache) {
+                renderAssetList(assetCache);
+            }
+        }
+
+        // Handle filter button click
+        function handleFilterClick(filter) {
+            currentFilter = filter;
+            updateFilterButtons();
+            if (assetCache) {
+                renderAssetList(assetCache);
+            }
+        }
+
+        // Update filter button states
+        function updateFilterButtons() {
+            const buttons = document.querySelectorAll('#assetTypeFilter .filter-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.filter === currentFilter) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize filter button click handlers
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterButtons = document.querySelectorAll('#assetTypeFilter .filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => handleFilterClick(btn.dataset.filter));
+            });
+
+            // Close modal on overlay click
+            const overlay = document.getElementById('assetPickerOverlay');
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    closeAssetPicker();
+                }
+            });
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay.classList.contains('visible')) {
+                    closeAssetPicker();
+                }
+            });
+        });
+
+        // Expose asset picker functions to global scope
+        window.openAssetPicker = openAssetPicker;
+        window.closeAssetPicker = closeAssetPicker;
+        window.selectAsset = selectAsset;
+        window.filterAssetList = filterAssetList;
+
+        // Helper function to create browse button HTML
+        function createBrowseButtonHtml(inputId) {
+            return `<button type="button" class="browse-assets-btn" onclick="openAssetPicker('${inputId}')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                </svg>
+                Browse
+            </button>`;
+        }
+
+        // Expose helper function
+        window.createBrowseButtonHtml = createBrowseButtonHtml;
 
         // ========================================
         // Narrative Persistence Testing Tools
