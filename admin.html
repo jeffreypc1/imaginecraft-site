@@ -1047,6 +1047,19 @@
             </div>
         </div>
 
+        <!-- Enable Ghost Memory Section -->
+        <div class="typing-speed-section">
+            <h2>Enable Ghost Memory</h2>
+            <p>When enabled, returning users who have reached 3+ unique endings will see the "Ghost Awareness" welcome sequence that remembers their previous deaths. When disabled, all users see the normal entry page.</p>
+            <div class="toggle-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="ghostMemoryToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label" id="ghostMemoryToggleLabel">Disabled</span>
+            </div>
+        </div>
+
         <!-- Enable Choice Buttons Section -->
         <div class="typing-speed-section">
             <h2>Enable Choice Buttons</h2>
@@ -1613,6 +1626,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentTypingSpeeds = [];  // Per-card typing speeds (10-200ms)
         let currentMoods = [];          // Per-card AI moods (stable, glitchy, urgent)
         let currentRandomizeEnabled = false;
+        let currentGhostMemoryEnabled = false;
         let currentChoiceButtonsEnabled = false;
         let currentMatrixFadeDuration = 1.5;
         let currentEarthquakeDuration = 1.5;
@@ -1657,6 +1671,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentTypingSpeeds = getDefaultTypingSpeeds();
                 currentMoods = getDefaultMoods();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
+                currentGhostMemoryEnabled = defaults.ghostMemoryEnabled || false;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
                 currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
                 currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
@@ -1736,6 +1751,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentTypingSpeeds = getDefaultTypingSpeeds();
                 currentMoods = getDefaultMoods();
                 currentRandomizeEnabled = defaults.randomizeEnabled || false;
+                currentGhostMemoryEnabled = defaults.ghostMemoryEnabled || false;
                 currentChoiceButtonsEnabled = defaults.choiceButtonsEnabled || false;
                 currentMatrixFadeDuration = defaults.matrixFadeDuration || 1.5;
                 currentEarthquakeDuration = defaults.earthquakeDuration || 1.5;
@@ -1765,6 +1781,19 @@ SYS_CHECK: COMPLETE</textarea>
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
                 heroInput.value = currentHeroText;
+            }
+
+            // Update ghost memory toggle
+            const ghostMemoryToggle = document.getElementById('ghostMemoryToggle');
+            const ghostMemoryToggleLabel = document.getElementById('ghostMemoryToggleLabel');
+            if (ghostMemoryToggle && ghostMemoryToggleLabel) {
+                ghostMemoryToggle.checked = currentGhostMemoryEnabled;
+                ghostMemoryToggleLabel.textContent = currentGhostMemoryEnabled ? 'Enabled' : 'Disabled';
+
+                // Add event listener for real-time label update
+                ghostMemoryToggle.addEventListener('change', function() {
+                    ghostMemoryToggleLabel.textContent = this.checked ? 'Enabled' : 'Disabled';
+                });
             }
 
             // Update choice buttons toggle
@@ -2427,6 +2456,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentHeroText = heroInput.value || defaultHeroText;
             }
 
+            // Collect ghost memory setting
+            const ghostMemoryToggle = document.getElementById('ghostMemoryToggle');
+            if (ghostMemoryToggle) {
+                currentGhostMemoryEnabled = ghostMemoryToggle.checked;
+            }
+
             // Collect choice buttons setting
             const choiceButtonsToggle = document.getElementById('choiceButtonsToggle');
             if (choiceButtonsToggle) {
@@ -2694,6 +2729,7 @@ SYS_CHECK: COMPLETE</textarea>
                 typingSpeeds: [...currentTypingSpeeds],
                 moods: [...currentMoods],
                 settings: {
+                    ghostMemoryEnabled: currentGhostMemoryEnabled,
                     choiceButtonsEnabled: currentChoiceButtonsEnabled,
                     matrixFadeDuration: currentMatrixFadeDuration,
                     earthquakeDuration: currentEarthquakeDuration,
