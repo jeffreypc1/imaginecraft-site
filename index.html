@@ -203,6 +203,15 @@
         <div class="terminal-half terminal-half-right"></div>
     </div>
 
+    <!-- Mute Toggle Button - Ghostly speaker icon in bottom-right corner -->
+    <button
+        id="muteToggle"
+        class="mute-toggle"
+        onclick="toggleMute()"
+        aria-label="Mute audio"
+        title="Toggle audio"
+    >🔈</button>
+
     <!-- Contact Modal (reused from main site) -->
     <div class="modal-overlay" id="contactModal" onclick="closeModalOnOverlay(event)">
         <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -1969,6 +1978,7 @@ Welcome back to the loop.`;
             allMoods = loadMoods() || [];
             allSceneAudioOverrides = loadSceneAudioOverrides() || [];
             globalAmbientAudioURL = loadGlobalAmbientAudioURL() || '';
+            autoplayAfterIntro = loadAutoplayAfterIntro();
             randomizeEnabled = loadRandomizeEnabled();
 
             // Comprehensive null checks - ensure ALL data exists before processing
@@ -2381,6 +2391,15 @@ Welcome back to the loop.`;
         // Global audio mute flag - set by Entry Page audio preference
         let globalAudioMuted = false;
 
+        // Consent-first audio system
+        // No audio plays until user explicitly enables it via "Enable System Audio" button
+        let isAudioAuthorized = false;
+        let isMuted = false;
+        let introAudio = null; // Audio element for mystery music during intro
+
+        // Autoplay after intro flag - loaded from config
+        let autoplayAfterIntro = false;
+
         // Initialize global ambient audio (call after config loads)
         function initializeGlobalAmbientAudio() {
             if (!globalAmbientAudioURL) {
@@ -2473,8 +2492,8 @@ Welcome back to the loop.`;
             // If audio is globally muted, skip audio transitions
             if (globalAudioMuted) return;
 
-            // If no user interaction yet, skip audio transitions
-            if (!audioState.userHasInteracted) return;
+            // If audio not authorized (consent-first), skip audio transitions
+            if (!isAudioAuthorized) return;
 
             // Case 1: Scene has override audio
             if (newAudioURL && newAudioURL !== audioState.currentSceneAudioURL) {
@@ -2487,6 +2506,7 @@ Welcome back to the loop.`;
                 const newSceneAudio = new Audio(newAudioURL);
                 newSceneAudio.loop = shouldLoop;
                 newSceneAudio.volume = 0;
+                newSceneAudio.muted = isMuted; // Respect current mute state
                 newSceneAudio.preload = 'auto';
 
                 // Cross-fade
@@ -2544,6 +2564,126 @@ Welcome back to the loop.`;
             // Audio should have continued playing
             // This function exists as a hook for future enhancements
             console.log('Audio state restored after effect');
+        }
+
+        // ========================================
+        // Mute Toggle Functionality
+        // ========================================
+
+        // Toggle mute state and update all active audio
+        function toggleMute() {
+            isMuted = !isMuted;
+            updateMuteState();
+            updateMuteToggleUI();
+            console.log('Audio muted:', isMuted);
+        }
+
+        // Apply mute state to all active audio elements
+        function updateMuteState() {
+            // Mute/unmute intro audio
+            if (introAudio) {
+                introAudio.muted = isMuted;
+            }
+            // Mute/unmute global ambient audio
+            if (audioState.globalAmbient) {
+                audioState.globalAmbient.muted = isMuted;
+            }
+            // Mute/unmute scene audio
+            if (audioState.sceneAudio) {
+                audioState.sceneAudio.muted = isMuted;
+            }
+        }
+
+        // Update mute toggle button visual state
+        function updateMuteToggleUI() {
+            const muteToggle = document.getElementById('muteToggle');
+            if (muteToggle) {
+                if (isMuted) {
+                    muteToggle.textContent = '🔇';
+                    muteToggle.setAttribute('aria-label', 'Unmute audio');
+                    muteToggle.classList.add('muted');
+                } else {
+                    muteToggle.textContent = '🔈';
+                    muteToggle.setAttribute('aria-label', 'Mute audio');
+                    muteToggle.classList.remove('muted');
+                }
+            }
+        }
+
+        // Show the mute toggle (call after intro sequence begins)
+        function showMuteToggle() {
+            const muteToggle = document.getElementById('muteToggle');
+            if (muteToggle) {
+                muteToggle.classList.add('visible');
+            }
+        }
+
+        // ========================================
+        // Intro Audio (Mystery Music)
+        // ========================================
+
+        // Start mystery music for theatrical intro (only if authorized)
+        function startIntroAudio() {
+            if (!isAudioAuthorized || globalAudioMuted) {
+                console.log('Intro audio skipped - not authorized or globally muted');
+                return;
+            }
+
+            // Create and play intro audio
+            introAudio = new Audio('assets/mysterymusic.mp3');
+            introAudio.loop = true;
+            introAudio.volume = 0;
+            introAudio.muted = isMuted;
+
+            introAudio.play()
+                .then(() => {
+                    console.log('Intro audio (mystery music) started');
+                    fadeAudioIn(introAudio, audioState.targetVolume, audioState.crossFadeDuration);
+                    showMuteToggle();
+                })
+                .catch(err => console.warn('Failed to start intro audio:', err));
+        }
+
+        // Stop intro audio (fade out and cleanup)
+        function stopIntroAudio(callback) {
+            if (introAudio) {
+                fadeAudioOut(introAudio, audioState.crossFadeDuration, () => {
+                    introAudio = null;
+                    if (callback) callback();
+                });
+            } else {
+                if (callback) callback();
+            }
+        }
+
+        // Transition from intro audio to global ambient (called after intro sequence)
+        function transitionToAmbientAudio() {
+            if (!isAudioAuthorized || globalAudioMuted) return;
+
+            // If autoplay after intro is enabled, transition to global ambient
+            if (autoplayAfterIntro && audioState.globalAmbient) {
+                console.log('Transitioning from intro to ambient audio');
+                // Cross-fade from intro to ambient
+                if (introAudio) {
+                    fadeAudioOut(introAudio, audioState.crossFadeDuration, () => {
+                        introAudio = null;
+                    });
+                }
+                audioState.globalAmbient.muted = isMuted;
+                audioState.globalAmbient.play()
+                    .then(() => {
+                        fadeAudioIn(audioState.globalAmbient, audioState.targetVolume, audioState.crossFadeDuration);
+                    })
+                    .catch(err => console.warn('Failed to start ambient audio:', err));
+            } else {
+                // Stop intro audio without transitioning
+                stopIntroAudio();
+            }
+        }
+
+        // Load autoplay after intro setting from config
+        function loadAutoplayAfterIntro() {
+            return remoteConfig && remoteConfig.autoplayAfterIntro ? remoteConfig.autoplayAfterIntro : false;
         }
 
         function loadTypingSpeed() {
@@ -5092,9 +5232,9 @@ Welcome back to the loop.`;
 
             // Initialize layered audio system
             initializeGlobalAmbientAudio();
-            // Add first-click listeners to start ambient audio
-            document.addEventListener('click', startAmbientAudioOnFirstClick);
-            document.addEventListener('keydown', startAmbientAudioOnFirstClick);
+            // NOTE: Ambient audio listeners removed - now using consent-first system
+            // Audio only starts after user clicks "Enable System Audio" on Entry Page
+            // Mystery music plays during theatrical intro, then transitions to ambient if autoplayAfterIntro is enabled
 
             // Load and prepare background image
             loadOpeningBackgroundImage();
@@ -5271,6 +5411,12 @@ Welcome back to the loop.`;
 
                 // Show the credits overlay
                 openingCredits.style.display = 'flex';
+
+                // Start mystery music for theatrical intro (consent-first)
+                // This only plays if isAudioAuthorized was set by "Enable System Audio" button
+                if (isAudioEnabled) {
+                    startIntroAudio();
+                }
 
                 // Timeline for 3-screen theatrical intro:
                 // Each screen: 2s fade in + 2s display + 2s fade out = 6s per screen
@@ -5655,7 +5801,16 @@ Welcome back to the loop.`;
 
                     // Set global audio mute based on preference
                     globalAudioMuted = !audioEnabled;
-                    console.log('Audio preference set:', audioEnabled ? 'enabled' : 'muted');
+
+                    // CONSENT-FIRST: Set audio authorization based on user's explicit choice
+                    // This is the trigger that allows audio to play
+                    if (audioEnabled) {
+                        isAudioAuthorized = true;
+                        console.log('Audio AUTHORIZED - user clicked Enable System Audio');
+                    } else {
+                        isAudioAuthorized = false;
+                        console.log('Audio NOT authorized - user declined');
+                    }
 
                     // Fade out entry page
                     entryPage.classList.add('fading-out');
@@ -5665,8 +5820,10 @@ Welcome back to the loop.`;
                         entryPage.style.display = 'none';
 
                         // Play theatrical opening credits before proceeding
+                        // Mystery music will start inside playOpeningCredits if authorized
                         playOpeningCredits(userName, audioEnabled, function() {
-                            // After credits complete, proceed to the terminal
+                            // After credits complete, transition audio and proceed to terminal
+                            transitionToAmbientAudio();
                             if (callback) callback();
                         });
                     }, 800); // Match CSS transition duration

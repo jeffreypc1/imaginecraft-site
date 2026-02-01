@@ -1129,6 +1129,16 @@
                         Audio will start on loop after the user clicks anywhere on the site for the first time.
                     </p>
                 </div>
+                <!-- Autoplay after Intro Checkbox -->
+                <div class="form-group" style="grid-column: span 2; margin-top: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                        <input type="checkbox" id="autoplayAfterIntroCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                        <span>Autoplay after Intro</span>
+                    </label>
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        If checked, the global ambient audio automatically continues from the intro (mystery music) into the main story once "Enable System Audio" has been pressed.
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -1577,6 +1587,10 @@ SYS_CHECK: COMPLETE</textarea>
             return remoteConfig && remoteConfig.globalAmbientAudioURL ? remoteConfig.globalAmbientAudioURL : '';
         }
 
+        function getDefaultAutoplayAfterIntro() {
+            return remoteConfig && remoteConfig.autoplayAfterIntro ? remoteConfig.autoplayAfterIntro : false;
+        }
+
         function getDefaultSceneAudioOverrides() {
             if (remoteConfig && remoteConfig.sceneAudioOverrides) {
                 return remoteConfig.sceneAudioOverrides.map(s => ({...s}));
@@ -1743,6 +1757,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentMst3kGlowIntensity = 0.6;
         let currentTheaterFrameURL = '';
         let currentGlobalAmbientAudioURL = '';
+        let currentAutoplayAfterIntro = false;  // Auto-transition from intro to ambient audio
         let currentSceneAudioOverrides = [];  // Per-card audio overrides: { url: '', loop: true }
         let currentStudioProductionName = 'The Ghost';
 
@@ -1789,6 +1804,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
                 currentTheaterFrameURL = getDefaultTheaterFrameURL();
                 currentGlobalAmbientAudioURL = getDefaultGlobalAmbientAudioURL();
+                currentAutoplayAfterIntro = getDefaultAutoplayAfterIntro();
                 currentSceneAudioOverrides = getDefaultSceneAudioOverrides();
                 currentStudioProductionName = getDefaultStudioProductionName();
 
@@ -1870,6 +1886,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentMst3kGlowIntensity = getDefaultMst3kGlowIntensity();
                 currentTheaterFrameURL = getDefaultTheaterFrameURL();
                 currentGlobalAmbientAudioURL = getDefaultGlobalAmbientAudioURL();
+                currentAutoplayAfterIntro = getDefaultAutoplayAfterIntro();
                 currentSceneAudioOverrides = getDefaultSceneAudioOverrides();
                 currentStudioProductionName = getDefaultStudioProductionName();
             }
@@ -2052,6 +2069,12 @@ SYS_CHECK: COMPLETE</textarea>
             const globalAmbientAudioURLInput = document.getElementById('globalAmbientAudioURL');
             if (globalAmbientAudioURLInput) {
                 globalAmbientAudioURLInput.value = currentGlobalAmbientAudioURL;
+            }
+
+            // Update Autoplay After Intro checkbox
+            const autoplayAfterIntroCheckbox = document.getElementById('autoplayAfterIntroCheckbox');
+            if (autoplayAfterIntroCheckbox) {
+                autoplayAfterIntroCheckbox.checked = currentAutoplayAfterIntro;
             }
 
             renderThoughtCards();
@@ -2686,6 +2709,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentGlobalAmbientAudioURL = globalAmbientAudioURLInput.value;
             }
 
+            // Collect Autoplay After Intro checkbox
+            const autoplayAfterIntroCheckbox = document.getElementById('autoplayAfterIntroCheckbox');
+            if (autoplayAfterIntroCheckbox) {
+                currentAutoplayAfterIntro = autoplayAfterIntroCheckbox.checked;
+            }
+
             // Collect secret commands
             for (let i = 0; i < currentSecretCommands.length; i++) {
                 const keywordInput = document.getElementById(`cmd-keyword-${i}`);
@@ -2863,6 +2892,7 @@ SYS_CHECK: COMPLETE</textarea>
                 mst3kGlowIntensity: currentMst3kGlowIntensity,
                 theaterFrameURL: currentTheaterFrameURL,
                 globalAmbientAudioURL: currentGlobalAmbientAudioURL,
+                autoplayAfterIntro: currentAutoplayAfterIntro,
                 sceneAudioOverrides: currentSceneAudioOverrides.map(s => ({...s})),
                 studioProductionName: currentStudioProductionName
             };
