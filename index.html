@@ -1072,6 +1072,44 @@ Welcome back to the loop.`;
         }
 
         // ========================================
+        // Story Part Counter (Sequel Logic)
+        // ========================================
+
+        // Get current story part count from localStorage (defaults to 1)
+        function getStoryPartCount() {
+            try {
+                const count = localStorage.getItem('storyPartCount');
+                return count ? parseInt(count, 10) : 1;
+            } catch (e) {
+                console.warn('Failed to get story part count:', e);
+                return 1;
+            }
+        }
+
+        // Increment story part count (called on FIN or Meltdown)
+        function incrementStoryPartCount() {
+            try {
+                const currentCount = getStoryPartCount();
+                const newCount = currentCount + 1;
+                localStorage.setItem('storyPartCount', newCount.toString());
+                console.log('Story Part incremented:', newCount);
+                return newCount;
+            } catch (e) {
+                console.warn('Failed to increment story part count:', e);
+            }
+        }
+
+        // Reset story part count back to 1
+        function resetStoryPartCount() {
+            try {
+                localStorage.setItem('storyPartCount', '1');
+                console.log('Story Part count reset to 1');
+            } catch (e) {
+                console.warn('Failed to reset story part count:', e);
+            }
+        }
+
+        // ========================================
         // Cinematic State Overlays
         // ========================================
 
@@ -1170,6 +1208,8 @@ Welcome back to the loop.`;
                 console.log('Fin overlay shown for ending:', endingName);
                 // Save this ending to Narrative Persistence
                 saveUserEnding(endingName);
+                // Increment story part counter for sequel logic
+                incrementStoryPartCount();
             }
         }
 
@@ -1491,6 +1531,8 @@ Welcome back to the loop.`;
         function triggerPixelMelt() {
             // Track ending for Narrative Persistence
             saveUserEnding('system-meltdown');
+            // Increment story part counter for sequel logic
+            incrementStoryPartCount();
 
             const explorePage = document.querySelector('.explore-page');
             const thoughtElement = document.getElementById('thought');
@@ -5380,9 +5422,19 @@ Welcome back to the loop.`;
                 }
 
                 // Load configuration values
-                const heroText = loadHeroText() || 'IMAGINECRAFT';
+                let heroText = loadHeroText() || 'IMAGINECRAFT';
                 const studioName = loadStudioProductionName() || 'The Ghost';
                 const displayName = userName || 'YOU';
+
+                // Check story part count for sequel logic
+                const storyPart = getStoryPartCount();
+                const isSequel = storyPart > 1;
+
+                // Append ": Part [N]" to title if this is a sequel (storyPartCount > 1)
+                if (isSequel) {
+                    heroText = `${heroText}: Part ${storyPart}`;
+                    console.log('Sequel detected - Title:', heroText);
+                }
 
                 // Set the content for all three screens
                 if (creditsTitleText) creditsTitleText.textContent = heroText;
@@ -5422,9 +5474,9 @@ Welcome back to the loop.`;
                 // Each screen: 2s fade in + 2s display + 2s fade out = 6s per screen
                 // But we overlap transitions for smoother flow
                 // Screen 1: 0-4s (fade in 0-2s, hold, fade out 2-4s)
-                // Screen 2: 4-8s (fade in 4-6s, hold, fade out 6-8s)
-                // Screen 3: 8-12s (fade in 8-10s, hold, fade out 10-12s)
-                // Final fade out of overlay: 12s
+                // Screen 2: 4-8s (fade in 4-6s, hold, fade out 6-8s) - SKIPPED for sequels
+                // Screen 3: 8-12s (fade in 8-10s, hold, fade out 10-12s) - SKIPPED for sequels
+                // Final fade out of overlay: 12s (or 4.5s for sequels)
 
                 // Step 0: Fade in the black overlay immediately
                 setTimeout(() => {
@@ -5455,56 +5507,8 @@ Welcome back to the loop.`;
                     }
                 }, 4000);
 
-                // ========== SCREEN 2: THE STUDIO ==========
-                // At 4.5s - Hide title, show studio credit
-                setTimeout(() => {
-                    if (creditsTitle) {
-                        creditsTitle.style.display = 'none';
-                        if (creditsTitleText) {
-                            creditsTitleText.classList.remove('ken-burns-active');
-                        }
-                    }
-                    if (creditsLine1) {
-                        creditsLine1.style.display = 'block';
-                        creditsLine1.classList.add('visible');
-                    }
-                }, 4500);
-
-                // At 8s - Fade out studio credit
-                setTimeout(() => {
-                    if (creditsLine1) {
-                        creditsLine1.classList.remove('visible');
-                        creditsLine1.classList.add('fading-out');
-                    }
-                }, 8000);
-
-                // ========== SCREEN 3: THE STAR ==========
-                // At 8.5s - Hide studio, show starring credit
-                setTimeout(() => {
-                    if (creditsLine1) {
-                        creditsLine1.style.display = 'none';
-                    }
-                    if (creditsLine2) {
-                        creditsLine2.style.display = 'block';
-                        creditsLine2.classList.add('visible');
-                    }
-                    // Play another cinematic sound for the star reveal
-                    if (isAudioEnabled) {
-                        playCinematicWhoosh();
-                    }
-                }, 8500);
-
-                // At 12s - Fade out starring credit
-                setTimeout(() => {
-                    if (creditsLine2) {
-                        creditsLine2.classList.remove('visible');
-                        creditsLine2.classList.add('fading-out');
-                    }
-                }, 12000);
-
-                // ========== FINAL: FADE OUT OVERLAY ==========
-                // At 12.5s - Fade out entire overlay and proceed
-                setTimeout(() => {
+                // Helper function for final fade out and cleanup
+                function performFinalFadeOut() {
                     openingCredits.classList.remove('visible');
                     openingCredits.classList.add('fading-out');
 
@@ -5531,7 +5535,77 @@ Welcome back to the loop.`;
 
                         if (callback) callback();
                     }, 2000);
-                }, 12500);
+                }
+
+                // SEQUEL MODE: Skip screens 2 & 3, go straight to INITIALIZATION
+                if (isSequel) {
+                    console.log('Sequel mode: Skipping Studio and Starring credits');
+                    // At 4.5s - Hide title and fade out overlay directly
+                    setTimeout(() => {
+                        if (creditsTitle) {
+                            creditsTitle.style.display = 'none';
+                            if (creditsTitleText) {
+                                creditsTitleText.classList.remove('ken-burns-active');
+                            }
+                        }
+                        performFinalFadeOut();
+                    }, 4500);
+                } else {
+                    // NORMAL MODE: Show all three screens
+
+                    // ========== SCREEN 2: THE STUDIO ==========
+                    // At 4.5s - Hide title, show studio credit
+                    setTimeout(() => {
+                        if (creditsTitle) {
+                            creditsTitle.style.display = 'none';
+                            if (creditsTitleText) {
+                                creditsTitleText.classList.remove('ken-burns-active');
+                            }
+                        }
+                        if (creditsLine1) {
+                            creditsLine1.style.display = 'block';
+                            creditsLine1.classList.add('visible');
+                        }
+                    }, 4500);
+
+                    // At 8s - Fade out studio credit
+                    setTimeout(() => {
+                        if (creditsLine1) {
+                            creditsLine1.classList.remove('visible');
+                            creditsLine1.classList.add('fading-out');
+                        }
+                    }, 8000);
+
+                    // ========== SCREEN 3: THE STAR ==========
+                    // At 8.5s - Hide studio, show starring credit
+                    setTimeout(() => {
+                        if (creditsLine1) {
+                            creditsLine1.style.display = 'none';
+                        }
+                        if (creditsLine2) {
+                            creditsLine2.style.display = 'block';
+                            creditsLine2.classList.add('visible');
+                        }
+                        // Play another cinematic sound for the star reveal
+                        if (isAudioEnabled) {
+                            playCinematicWhoosh();
+                        }
+                    }, 8500);
+
+                    // At 12s - Fade out starring credit
+                    setTimeout(() => {
+                        if (creditsLine2) {
+                            creditsLine2.classList.remove('visible');
+                            creditsLine2.classList.add('fading-out');
+                        }
+                    }, 12000);
+
+                    // ========== FINAL: FADE OUT OVERLAY ==========
+                    // At 12.5s - Fade out entire overlay and proceed
+                    setTimeout(() => {
+                        performFinalFadeOut();
+                    }, 12500);
+                }
             }
 
             // Play cinematic whoosh/title theme audio
