@@ -1059,6 +1059,60 @@ section p {
     transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
+/* Single choice mode - center the button perfectly */
+.choice-buttons-container.single-choice {
+    justify-content: center;
+    align-items: center;
+}
+
+.choice-buttons-container.single-choice .choice-btn-no {
+    display: none;
+}
+
+/* Death button - crimson glow for dramatic single choice moments */
+.choice-btn.death-button {
+    background: rgba(220, 20, 60, 0.25);
+    color: #ff4444;
+    border: 1px solid rgba(220, 20, 60, 0.5);
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+    animation: death-pulse 2s ease-in-out infinite;
+}
+
+.choice-btn.death-button:hover {
+    background: rgba(220, 20, 60, 0.4);
+    border-color: rgba(220, 20, 60, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(220, 20, 60, 0.6), 0 0 60px rgba(220, 20, 60, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.choice-btn.death-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.4), 0 0 30px rgba(220, 20, 60, 0.5);
+}
+
+.choice-btn.death-button.btn-active {
+    background: rgba(220, 20, 60, 0.95) !important;
+    border-color: #dc143c !important;
+    color: #fff !important;
+    box-shadow: 0 0 50px rgba(220, 20, 60, 0.9), 0 0 100px rgba(220, 20, 60, 0.5) !important;
+}
+
+.choice-btn.death-button.selected {
+    background: rgba(220, 20, 60, 0.4);
+    border-color: rgba(220, 20, 60, 0.8);
+    color: #ff4444;
+    box-shadow: 0 0 25px rgba(220, 20, 60, 0.5), 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes death-pulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(220, 20, 60, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 35px rgba(220, 20, 60, 0.6), 0 0 50px rgba(220, 20, 60, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+}
+
 /* Responsive styles for choice buttons on smaller screens */
 @media (max-width: 600px) {
     .choice-buttons-container {
