@@ -4401,3 +4401,153 @@ body {
     }
 }
 
+/* ========================================
+   NARRATIVE PERSISTENCE - GHOST AWARENESS THEME
+   ======================================== */
+
+/* Global grayscale filter applied when Ghost Awareness is active */
+html.ghost-awareness-theme {
+    filter: grayscale(100%) contrast(1.1);
+}
+
+html.ghost-awareness-theme body {
+    background-color: #0a0a0a;
+}
+
+/* Ghost Awareness Entry Page Styling */
+.entry-page.ghost-awareness-entry {
+    background: radial-gradient(ellipse at center, #1a1a1a 0%, #000 70%);
+}
+
+.entry-page.ghost-awareness-entry .entry-container {
+    max-width: 700px;
+    text-align: center;
+}
+
+/* Ghost Awareness Title */
+.ghost-awareness-title {
+    font-family: 'VT323', monospace !important;
+    font-size: 2.5rem !important;
+    color: #888 !important;
+    text-shadow: 0 0 10px rgba(100, 100, 100, 0.5),
+                 0 0 20px rgba(80, 80, 80, 0.3) !important;
+    letter-spacing: 0.3em !important;
+    animation: ghost-title-flicker 3s ease-in-out infinite;
+}
+
+.ghost-awareness-subtitle {
+    font-family: 'VT323', monospace !important;
+    font-size: 1rem !important;
+    color: #555 !important;
+    letter-spacing: 0.2em !important;
+    margin-bottom: 2rem !important;
+}
+
+/* Ghost Message Container */
+.ghost-message-container {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: rgba(20, 20, 20, 0.9);
+    border: 1px solid #333;
+    border-radius: 4px;
+    min-height: 200px;
+}
+
+.ghost-message {
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    color: #aaa;
+    line-height: 1.8;
+    text-align: left;
+    white-space: pre-wrap;
+    text-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
+}
+
+/* Highlighted name in ghost message */
+.ghost-name-highlight {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5),
+                 0 0 20px rgba(200, 200, 200, 0.3);
+    font-weight: bold;
+}
+
+/* Ghost Proceed Button */
+.ghost-proceed-btn {
+    font-family: 'VT323', monospace !important;
+    background: transparent !important;
+    border: 1px solid #555 !important;
+    color: #888 !important;
+    padding: 1rem 2rem !important;
+    font-size: 1.2rem !important;
+    letter-spacing: 0.2em !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.ghost-proceed-btn.fade-in {
+    animation: ghost-btn-fade-in 1s ease forwards;
+}
+
+.ghost-proceed-btn:hover {
+    background: rgba(100, 100, 100, 0.2) !important;
+    border-color: #888 !important;
+    color: #ccc !important;
+    text-shadow: 0 0 10px rgba(200, 200, 200, 0.3);
+}
+
+/* Ghost Awareness Animations */
+@keyframes ghost-title-flicker {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    52% {
+        opacity: 0.9;
+    }
+    54% {
+        opacity: 0.7;
+    }
+    56% {
+        opacity: 0.95;
+    }
+}
+
+@keyframes ghost-btn-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Static noise overlay for ghost awareness (optional, adds to eeriness) */
+.entry-page.ghost-awareness-entry::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1) 0px,
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 1000;
+    animation: ghost-scanlines 0.1s steps(2) infinite;
+}
+
+@keyframes ghost-scanlines {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(2px); }
+}
+

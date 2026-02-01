@@ -973,6 +973,29 @@
             </ol>
             <p style="margin: 0.75rem 0 0 0; font-size: 0.85rem; opacity: 0.9;">Note: This panel doesn't save changes permanently until you push them live. All your edits exist only in this session until you click "Push Live Update".</p>
         </div>
+
+        <!-- Narrative Persistence Testing Section -->
+        <div style="background: linear-gradient(135deg, #1F1F1F, #333); color: white; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);">
+            <h3 style="margin: 0 0 0.75rem 0; font-size: 1.1rem; font-weight: 600;">🎭 Narrative Persistence (Testing Tools)</h3>
+            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; opacity: 0.85;">
+                The Ghost remembers users who have died 3+ times. Use these tools to test the system.
+            </p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                <button class="btn" onclick="resetNarrativeMemory()" style="background: #ef4444; border: none; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                    Reset Memory
+                </button>
+                <button class="btn" onclick="simulateEndings()" style="background: #5B5FEA; border: none; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                    Simulate 3 Deaths
+                </button>
+                <span id="endingCount" style="font-size: 0.85rem; opacity: 0.8; margin-left: 0.5rem;">
+                    Current endings: <strong id="endingCountNumber">0</strong>
+                </span>
+            </div>
+            <p style="margin: 1rem 0 0 0; font-size: 0.8rem; opacity: 0.7;">
+                <strong>Reset Memory:</strong> Clears all saved endings from localStorage. <strong>Simulate 3 Deaths:</strong> Adds sample endings to trigger Ghost Awareness mode.
+            </p>
+        </div>
+
         <!-- Hero Text Section -->
         <div class="hero-section">
             <h2>Hero Heading</h2>
@@ -2729,12 +2752,60 @@ SYS_CHECK: COMPLETE</textarea>
         window.downloadConfig = downloadConfig;
         window.factoryReset = factoryReset;
 
+        // ========================================
+        // Narrative Persistence Testing Tools
+        // ========================================
+
+        // Get user endings from localStorage
+        function getUserEndingsAdmin() {
+            try {
+                const endings = localStorage.getItem('userEndings');
+                return endings ? JSON.parse(endings) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // Update the ending count display
+        function updateEndingCountDisplay() {
+            const count = getUserEndingsAdmin().length;
+            const countElement = document.getElementById('endingCountNumber');
+            if (countElement) {
+                countElement.textContent = count;
+            }
+        }
+
+        // Reset narrative memory (clear all endings)
+        function resetNarrativeMemory() {
+            if (confirm('This will clear all saved endings from localStorage. The Ghost will no longer remember this user. Continue?')) {
+                localStorage.removeItem('userEndings');
+                sessionStorage.removeItem('imaginecraft_ghost_awareness');
+                updateEndingCountDisplay();
+                alert('Narrative memory has been reset. The Ghost has forgotten.');
+            }
+        }
+
+        // Simulate 3 deaths to trigger Ghost Awareness
+        function simulateEndings() {
+            const sampleEndings = ['trigger-fin', 'system-meltdown', 'supernova-flash'];
+            localStorage.setItem('userEndings', JSON.stringify(sampleEndings));
+            updateEndingCountDisplay();
+            alert('Simulated 3 deaths: The Final Curtain, System Collapse, and Stellar Annihilation. Ghost Awareness will trigger on next visit to index.html');
+        }
+
+        // Export to window for onclick handlers
+        window.resetNarrativeMemory = resetNarrativeMemory;
+        window.simulateEndings = simulateEndings;
+
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             // Wait for remote config to load before initializing
             await configPromise;
             loadFromConfig();
             renderDashboard();
+
+            // Initialize narrative persistence ending count
+            updateEndingCountDisplay();
         });
     </script>
 </body>
