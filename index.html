@@ -2106,6 +2106,8 @@
                     return 3500;
                 case 'quantum-leak':
                     return 3000;
+                case 'hypnotic-spiral':
+                    return 5500;
                 default:
                     return 0;
             }
@@ -2139,6 +2141,9 @@
                     break;
                 case 'quantum-leak':
                     triggerQuantumLeakTransition(callback, delay);
+                    break;
+                case 'hypnotic-spiral':
+                    triggerHypnoticSpiralTransition(callback, delay);
                     break;
                 default:
                     unlockTerminal();
@@ -3171,6 +3176,9 @@
                 case 'quantum-leak':
                     triggerQuantumLeak();
                     break;
+                case 'hypnotic-spiral':
+                    triggerHypnoticSpiral();
+                    break;
                 default:
                     console.log('End action triggered:', actionType);
                     stopCycling();
@@ -4189,6 +4197,58 @@
             }, 3000);
         }
 
+        // Hypnotic Spiral (Twilight Zone): Disorienting spiral with text distortion and audio
+        function triggerHypnoticSpiral() {
+            console.log('HYPNOTIC SPIRAL TRIGGERED');
+            stopCycling();
+
+            // Create hypnotic spiral overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'hypnoticSpiralOverlay';
+            overlay.className = 'hypnotic-spiral-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Get terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+            const thoughtElement = document.getElementById('currentThought');
+
+            // Apply hypnotic spiral text distortion effect
+            if (explorePage) explorePage.classList.add('hypnotic-spiral-warp');
+            if (terminalBody) terminalBody.classList.add('hypnotic-spiral-warp');
+            if (thoughtElement) thoughtElement.classList.add('hypnotic-spiral-text');
+
+            // Create and play spiral hum audio with increasing volume
+            let spiralHum = null;
+            if (!globalAudioMuted) {
+                spiralHum = new Audio('assets/audio/spiral-hum.mp3');
+                spiralHum.loop = true;
+                spiralHum.volume = 0.1;
+                spiralHum.play().catch(e => console.log('Spiral hum audio failed:', e));
+
+                // Gradually increase volume over 5 seconds
+                let volumeStep = 0;
+                const volumeInterval = setInterval(() => {
+                    volumeStep++;
+                    if (spiralHum && volumeStep <= 10) {
+                        spiralHum.volume = Math.min(0.1 + (volumeStep * 0.07), 0.8);
+                    } else {
+                        clearInterval(volumeInterval);
+                    }
+                }, 500);
+            }
+
+            // After 5 seconds, fade to black to signify crossing over into the next dimension
+            setTimeout(() => {
+                overlay.classList.add('fade-to-black');
+                // Add the Return to Main button after fade to black
+                setTimeout(() => {
+                    showPsychedelicReturnButton(overlay);
+                }, 1000);
+            }, 5000);
+        }
+
         // Quantum Leak transition (without permanent state)
         function triggerQuantumLeakTransition(callback, delay) {
             console.log('QUANTUM LEAK TRANSITION TRIGGERED');
@@ -4229,6 +4289,81 @@
                 if (terminalBody) terminalBody.classList.remove('quantum-leak');
                 if (thoughtElement) thoughtElement.classList.remove('quantum-leak-text');
                 document.body.classList.remove('kaleidoscope-filter');
+
+                setTimeout(() => {
+                    overlay.remove();
+                    unlockTerminal();
+                    if (callback) callback();
+                }, 500);
+            }, delay);
+        }
+
+        // Hypnotic Spiral (Twilight Zone) transition animation (without permanent state)
+        function triggerHypnoticSpiralTransition(callback, delay) {
+            console.log('HYPNOTIC SPIRAL TRANSITION TRIGGERED');
+
+            // Create hypnotic spiral overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'hypnoticSpiralTransitionOverlay';
+            overlay.className = 'hypnotic-spiral-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Get terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+            const thoughtElement = document.getElementById('currentThought');
+
+            // Apply hypnotic spiral text distortion effect
+            if (explorePage) explorePage.classList.add('hypnotic-spiral-warp');
+            if (terminalBody) terminalBody.classList.add('hypnotic-spiral-warp');
+            if (thoughtElement) thoughtElement.classList.add('hypnotic-spiral-text');
+
+            // Create and play spiral hum audio with increasing volume
+            let spiralHum = null;
+            if (!globalAudioMuted) {
+                spiralHum = new Audio('assets/audio/spiral-hum.mp3');
+                spiralHum.loop = true;
+                spiralHum.volume = 0.1;
+                spiralHum.play().catch(e => console.log('Spiral hum audio failed:', e));
+
+                // Gradually increase volume over 5 seconds
+                let volumeStep = 0;
+                const volumeInterval = setInterval(() => {
+                    volumeStep++;
+                    if (spiralHum && volumeStep <= 10) {
+                        spiralHum.volume = Math.min(0.1 + (volumeStep * 0.07), 0.8);
+                    } else {
+                        clearInterval(volumeInterval);
+                    }
+                }, 500);
+            }
+
+            // After 5 seconds, fade to black to signify crossing over
+            setTimeout(() => {
+                overlay.classList.add('fade-to-black');
+            }, delay - 1000);
+
+            // Execute callback after delay
+            setTimeout(() => {
+                // Clean up the transition
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('hypnotic-spiral-warp');
+                if (terminalBody) terminalBody.classList.remove('hypnotic-spiral-warp');
+                if (thoughtElement) thoughtElement.classList.remove('hypnotic-spiral-text');
+
+                // Fade out and stop audio
+                if (spiralHum) {
+                    const fadeOutAudio = setInterval(() => {
+                        if (spiralHum.volume > 0.05) {
+                            spiralHum.volume -= 0.05;
+                        } else {
+                            spiralHum.pause();
+                            spiralHum = null;
+                            clearInterval(fadeOutAudio);
+                        }
+                    }, 50);
+                }
 
                 setTimeout(() => {
                     overlay.remove();
