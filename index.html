@@ -867,6 +867,10 @@
             return remoteConfig && remoteConfig.meltdownAudioURL ? remoteConfig.meltdownAudioURL : '';
         }
 
+        function loadFinalActionSounds() {
+            return remoteConfig && remoteConfig.finalActionSounds ? remoteConfig.finalActionSounds : {};
+        }
+
         function loadMst3kOverlayURL() {
             return remoteConfig && remoteConfig.mst3kOverlayURL ? remoteConfig.mst3kOverlayURL : '';
         }
@@ -1294,6 +1298,7 @@ Welcome back to the loop.`;
             secretCommands = loadSecretCommands();
             meltdownMessage = loadMeltdownMessage();
             meltdownAudioURL = loadMeltdownAudioURL();
+            finalActionSounds = loadFinalActionSounds();
         }
 
         // Extract meltdown triggers from thoughts with [] brackets
@@ -1328,6 +1333,7 @@ Welcome back to the loop.`;
         let meltdownTriggers = [];
         let meltdownMessage = '';
         let meltdownAudioURL = '';
+        let finalActionSounds = {};  // Map of action type to ending sound URL
 
         // Secret command visual feedback
         function showCommandFeedback() {
@@ -3445,6 +3451,14 @@ Welcome back to the loop.`;
 
         // Execute a choice-specific action (for End Actions)
         function executeChoiceAction(actionType) {
+            // Play ending sound for this action type if configured
+            const soundUrl = finalActionSounds[actionType];
+            if (soundUrl) {
+                const audio = new Audio(soundUrl);
+                audio.volume = 0.6;
+                audio.play().catch(err => console.warn('Failed to play final action sound:', err));
+            }
+
             switch (actionType) {
                 case 'system-meltdown':
                     triggerMeltdown();
