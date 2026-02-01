@@ -3974,3 +3974,309 @@ body {
     }
 }
 
+/* ========================================
+   RECURSIVE REALITY - Infinity Mirror Effect
+   ======================================== */
+
+/* Recursive Reality Overlay */
+.recursive-reality-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9500;
+    background: radial-gradient(ellipse at center,
+        rgba(0, 0, 20, 0.7) 0%,
+        rgba(10, 0, 30, 0.85) 40%,
+        rgba(20, 0, 40, 0.95) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    perspective: 1000px;
+    overflow: hidden;
+}
+
+.recursive-reality-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.recursive-reality-overlay.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* Recursive mirror frames - nested infinity effect */
+.recursive-mirror-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(80% - var(--depth) * 10%);
+    height: calc(80% - var(--depth) * 10%);
+    transform: translate(-50%, -50%) scale(calc(1 - var(--depth) * 0.15));
+    border: 2px solid rgba(0, 255, 255, calc(0.8 - var(--depth) * 0.12));
+    border-radius: 8px;
+    box-shadow:
+        0 0 20px rgba(0, 255, 255, calc(0.5 - var(--depth) * 0.08)),
+        inset 0 0 40px rgba(138, 43, 226, calc(0.3 - var(--depth) * 0.05));
+    animation: recursivePulse 2s ease-in-out infinite, recursiveRotate 8s linear infinite;
+    animation-delay: calc(var(--depth) * 0.2s);
+}
+
+@keyframes recursivePulse {
+    0%, 100% {
+        border-color: rgba(0, 255, 255, 0.8);
+        box-shadow:
+            0 0 20px rgba(0, 255, 255, 0.5),
+            inset 0 0 40px rgba(138, 43, 226, 0.3);
+    }
+    50% {
+        border-color: rgba(255, 0, 255, 0.8);
+        box-shadow:
+            0 0 30px rgba(255, 0, 255, 0.6),
+            inset 0 0 60px rgba(0, 255, 255, 0.4);
+    }
+}
+
+@keyframes recursiveRotate {
+    0% {
+        transform: translate(-50%, -50%) scale(calc(1 - var(--depth) * 0.15)) rotateZ(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(calc(1 - var(--depth) * 0.15)) rotateZ(360deg);
+    }
+}
+
+/* Recursive effect on terminal elements */
+.recursive-reality {
+    animation: recursiveWarp 3.5s ease-in-out forwards;
+    transform-style: preserve-3d;
+}
+
+@keyframes recursiveWarp {
+    0% {
+        transform: scale(1) perspective(500px) rotateY(0deg);
+        filter: blur(0);
+    }
+    25% {
+        transform: scale(0.9) perspective(500px) rotateY(5deg);
+        filter: blur(1px);
+    }
+    50% {
+        transform: scale(0.8) perspective(500px) rotateY(-5deg);
+        filter: blur(2px);
+    }
+    75% {
+        transform: scale(0.7) perspective(500px) rotateY(3deg);
+        filter: blur(1px) hue-rotate(30deg);
+    }
+    100% {
+        transform: scale(0.6) perspective(500px) rotateY(0deg);
+        filter: blur(0) hue-rotate(0deg);
+        opacity: 0.8;
+    }
+}
+
+/* ========================================
+   QUANTUM LEAK - Rainbow Liquid Drip Effect
+   ======================================== */
+
+/* Quantum Leak Overlay */
+.quantum-leak-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9500;
+    background: linear-gradient(180deg,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(20, 0, 30, 0.5) 50%,
+        rgba(0, 0, 0, 0.3) 100%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    overflow: hidden;
+}
+
+.quantum-leak-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.quantum-leak-overlay.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* Rainbow liquid drip elements */
+.quantum-drip {
+    position: absolute;
+    top: -100px;
+    width: 8px;
+    height: 60px;
+    background: linear-gradient(180deg,
+        rgba(255, 0, 0, 0.9) 0%,
+        rgba(255, 127, 0, 0.9) 16%,
+        rgba(255, 255, 0, 0.9) 33%,
+        rgba(0, 255, 0, 0.9) 50%,
+        rgba(0, 0, 255, 0.9) 67%,
+        rgba(75, 0, 130, 0.9) 84%,
+        rgba(148, 0, 211, 0.9) 100%);
+    border-radius: 0 0 50% 50%;
+    animation: quantumDrip 3s ease-in infinite;
+    filter: blur(2px);
+    box-shadow:
+        0 0 15px rgba(255, 0, 255, 0.5),
+        0 0 30px rgba(0, 255, 255, 0.3);
+}
+
+@keyframes quantumDrip {
+    0% {
+        top: -100px;
+        opacity: 0;
+        transform: scaleY(0.5);
+    }
+    10% {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+    90% {
+        opacity: 1;
+        transform: scaleY(1.5);
+    }
+    100% {
+        top: 110vh;
+        opacity: 0;
+        transform: scaleY(2);
+    }
+}
+
+/* Quantum leak effect on terminal */
+.quantum-leak {
+    animation: quantumWobble 0.5s ease-in-out infinite;
+}
+
+@keyframes quantumWobble {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-2px);
+    }
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+/* Rainbow liquid drip effect on text */
+.quantum-leak-text {
+    animation: rainbowText 2s linear infinite;
+    background: linear-gradient(90deg,
+        #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(255, 0, 255, 0.5));
+}
+
+@keyframes rainbowText {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+/* Kaleidoscopic filter for body background */
+.kaleidoscope-filter {
+    animation: kaleidoscopeShift 4s linear infinite;
+}
+
+@keyframes kaleidoscopeShift {
+    0% {
+        filter: hue-rotate(0deg) saturate(1.5);
+    }
+    25% {
+        filter: hue-rotate(90deg) saturate(2);
+    }
+    50% {
+        filter: hue-rotate(180deg) saturate(1.5);
+    }
+    75% {
+        filter: hue-rotate(270deg) saturate(2);
+    }
+    100% {
+        filter: hue-rotate(360deg) saturate(1.5);
+    }
+}
+
+/* ========================================
+   Psychedelic Return to Main Button
+   ======================================== */
+
+.psychedelic-return-container {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 10000;
+}
+
+.psychedelic-return-container.visible {
+    opacity: 1;
+}
+
+.psychedelic-return-btn {
+    padding: 15px 40px;
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 1.4rem;
+    color: #00ffff;
+    background: linear-gradient(135deg,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(20, 0, 40, 0.9) 50%,
+        rgba(0, 0, 0, 0.8) 100%);
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.5),
+        inset 0 0 20px rgba(0, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    animation: returnButtonPulse 2s ease-in-out infinite;
+}
+
+.psychedelic-return-btn:hover {
+    color: #ff00ff;
+    border-color: #ff00ff;
+    box-shadow:
+        0 0 30px rgba(255, 0, 255, 0.7),
+        inset 0 0 30px rgba(255, 0, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.psychedelic-return-btn:active {
+    transform: scale(0.98);
+}
+
+@keyframes returnButtonPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 20px rgba(0, 255, 255, 0.5),
+            inset 0 0 20px rgba(0, 255, 255, 0.1);
+    }
+    50% {
+        box-shadow:
+            0 0 30px rgba(0, 255, 255, 0.7),
+            0 0 50px rgba(138, 43, 226, 0.4),
+            inset 0 0 30px rgba(0, 255, 255, 0.2);
+    }
+}
+
