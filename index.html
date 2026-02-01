@@ -5535,66 +5535,12 @@ Welcome back to the loop.`;
             }
 
             // Play cinematic whoosh/title theme audio
+            // STRICT SILENCE POLICY: No internal sound effects during intro sequence
+            // Only audio from Admin Panel URLs should play
             function playCinematicWhoosh() {
-                try {
-                    // Create a short cinematic whoosh sound using Web Audio API
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-                    // Create oscillator for the whoosh base
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-
-                    // Create filter for sweep effect
-                    const filter = audioContext.createBiquadFilter();
-                    filter.type = 'lowpass';
-                    filter.frequency.setValueAtTime(100, audioContext.currentTime);
-                    filter.frequency.exponentialRampToValueAtTime(2000, audioContext.currentTime + 0.3);
-                    filter.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.8);
-
-                    // Configure oscillator
-                    oscillator.type = 'sawtooth';
-                    oscillator.frequency.setValueAtTime(80, audioContext.currentTime);
-                    oscillator.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 0.2);
-                    oscillator.frequency.exponentialRampToValueAtTime(60, audioContext.currentTime + 0.8);
-
-                    // Configure gain envelope
-                    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-                    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + 0.1);
-                    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.4);
-                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.2);
-
-                    // Connect nodes
-                    oscillator.connect(filter);
-                    filter.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-
-                    // Play the sound
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 1.2);
-
-                    // Add a second layer - higher pitched shimmer
-                    const shimmer = audioContext.createOscillator();
-                    const shimmerGain = audioContext.createGain();
-
-                    shimmer.type = 'sine';
-                    shimmer.frequency.setValueAtTime(800, audioContext.currentTime);
-                    shimmer.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.2);
-                    shimmer.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 1.0);
-
-                    shimmerGain.gain.setValueAtTime(0, audioContext.currentTime);
-                    shimmerGain.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.15);
-                    shimmerGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.0);
-
-                    shimmer.connect(shimmerGain);
-                    shimmerGain.connect(audioContext.destination);
-
-                    shimmer.start(audioContext.currentTime);
-                    shimmer.stop(audioContext.currentTime + 1.0);
-
-                    console.log('Cinematic whoosh audio played');
-                } catch (error) {
-                    console.warn('Could not play cinematic whoosh audio:', error);
-                }
+                // Disabled - strict silence policy: no internal whirrs, clicks, or beeps
+                // Audio only plays from URLs configured in Admin Panel
+                return;
             }
 
             // ========================================
@@ -5740,6 +5686,11 @@ Welcome back to the loop.`;
                     audioEnabled = true;
                     audioYesBtn.classList.add('active');
                     audioNoBtn.classList.remove('active');
+
+                    // Direct audio trigger: immediately authorize and play mysterymusic
+                    isAudioAuthorized = true;
+                    globalAudioMuted = false;
+                    startIntroAudio();
                 });
 
                 audioNoBtn.addEventListener('click', function() {
@@ -5939,8 +5890,7 @@ Welcome back to the loop.`;
     <!-- Entry Page (Chapter 0) - Appears after splash, before terminal -->
     <div id="entryPage" class="entry-page" style="display: none;">
         <div class="entry-container">
-            <h1 class="entry-title">CHAPTER 0</h1>
-            <p class="entry-subtitle">SYSTEM INITIALIZATION</p>
+            <h1 class="entry-title">INITIALIZATION</h1>
 
             <!-- Name Capture -->
             <div class="entry-section">

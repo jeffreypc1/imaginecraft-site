@@ -1129,16 +1129,6 @@
                         Audio will start on loop after the user clicks anywhere on the site for the first time.
                     </p>
                 </div>
-                <!-- Autoplay after Intro Checkbox -->
-                <div class="form-group" style="grid-column: span 2; margin-top: 1rem;">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
-                        <input type="checkbox" id="autoplayAfterIntroCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
-                        <span>Autoplay after Intro</span>
-                    </label>
-                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
-                        If checked, the global ambient audio automatically continues from the intro (mystery music) into the main story once "Enable System Audio" has been pressed.
-                    </p>
-                </div>
             </div>
         </div>
 
@@ -2071,12 +2061,6 @@ SYS_CHECK: COMPLETE</textarea>
                 globalAmbientAudioURLInput.value = currentGlobalAmbientAudioURL;
             }
 
-            // Update Autoplay After Intro checkbox
-            const autoplayAfterIntroCheckbox = document.getElementById('autoplayAfterIntroCheckbox');
-            if (autoplayAfterIntroCheckbox) {
-                autoplayAfterIntroCheckbox.checked = currentAutoplayAfterIntro;
-            }
-
             renderThoughtCards();
             renderSecretCommands();
         }
@@ -2707,12 +2691,6 @@ SYS_CHECK: COMPLETE</textarea>
             const globalAmbientAudioURLInput = document.getElementById('globalAmbientAudioURL');
             if (globalAmbientAudioURLInput) {
                 currentGlobalAmbientAudioURL = globalAmbientAudioURLInput.value;
-            }
-
-            // Collect Autoplay After Intro checkbox
-            const autoplayAfterIntroCheckbox = document.getElementById('autoplayAfterIntroCheckbox');
-            if (autoplayAfterIntroCheckbox) {
-                currentAutoplayAfterIntro = autoplayAfterIntroCheckbox.checked;
             }
 
             // Collect secret commands
