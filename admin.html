@@ -940,6 +940,71 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Tab System Styles */
+        .admin-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--off-white-dark);
+        }
+
+        .admin-tab-btn {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: rgba(31, 31, 31, 0.5);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: -2px;
+        }
+
+        .admin-tab-btn:hover {
+            color: var(--primary);
+            background: rgba(91, 95, 234, 0.05);
+        }
+
+        .admin-tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .admin-tab-btn .tab-icon {
+            margin-right: 0.5rem;
+        }
+
+        .admin-tab-panel {
+            display: none;
+        }
+
+        .admin-tab-panel.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .admin-tabs {
+                flex-direction: column;
+                border-bottom: none;
+                gap: 0.5rem;
+            }
+
+            .admin-tab-btn {
+                border-bottom: none;
+                border-left: 3px solid transparent;
+                text-align: left;
+                margin-bottom: 0;
+            }
+
+            .admin-tab-btn.active {
+                border-bottom: none;
+                border-left-color: var(--accent);
+                background: rgba(91, 95, 234, 0.1);
+            }
+        }
     </style>
 </head>
 <body>
@@ -996,6 +1061,19 @@
             </p>
         </div>
 
+        <!-- Admin Tabs Navigation -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-tab="config" onclick="switchAdminTab('config')">
+                <span class="tab-icon">&#9881;</span>Config
+            </button>
+            <button class="admin-tab-btn" data-tab="story" onclick="switchAdminTab('story')">
+                <span class="tab-icon">&#9997;</span>Story
+            </button>
+        </div>
+
+        <!-- Tab Panel: Config -->
+        <div class="admin-tab-panel active" id="configTabPanel">
+
         <!-- Hero Text Section -->
         <div class="hero-section">
             <h2>Hero Heading</h2>
@@ -1008,6 +1086,13 @@
             <h2>Site Configuration</h2>
             <p>Configure global site settings and visual elements.</p>
             <div class="nav-links-grid">
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Studio Production Name</label>
+                    <input type="text" id="studioProductionName" placeholder="The Ghost" value="The Ghost">
+                    <p style="font-size: 0.75rem; color: rgba(31, 31, 31, 0.5); margin-top: 0.25rem;">
+                        The studio name displayed in the opening credits sequence (e.g., "A Production by The Ghost")
+                    </p>
+                </div>
                 <div class="form-group" style="grid-column: span 2;">
                     <label>MST3K Overlay URL</label>
                     <input type="url" id="mst3kOverlayURL" placeholder="https://example.com/mst3k-silhouettes.png">
@@ -1274,6 +1359,11 @@ SYS_CHECK: COMPLETE</textarea>
             </button>
         </div>
 
+        </div><!-- End Config Tab Panel -->
+
+        <!-- Tab Panel: Story -->
+        <div class="admin-tab-panel" id="storyTabPanel">
+
         <!-- Questions Section with Randomize Toggle -->
         <div class="questions-header-section">
             <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0; color: var(--primary);">Cycling Thoughts & Responses</h2>
@@ -1293,6 +1383,9 @@ SYS_CHECK: COMPLETE</textarea>
             </svg>
             Add New Thought
         </button>
+
+        </div><!-- End Story Tab Panel -->
+
     </div>
 
     <!-- Toast Notification -->
@@ -1492,6 +1585,10 @@ SYS_CHECK: COMPLETE</textarea>
             return [];
         }
 
+        function getDefaultStudioProductionName() {
+            return remoteConfig && remoteConfig.studioProductionName ? remoteConfig.studioProductionName : 'The Ghost';
+        }
+
         // Fetch remote configuration from Firebase
         async function fetchRemoteConfig() {
             return new Promise((resolve) => {
@@ -1647,6 +1744,7 @@ SYS_CHECK: COMPLETE</textarea>
         let currentTheaterFrameURL = '';
         let currentGlobalAmbientAudioURL = '';
         let currentSceneAudioOverrides = [];  // Per-card audio overrides: { url: '', loop: true }
+        let currentStudioProductionName = 'The Ghost';
 
         // Initialize default actions
         function initDefaultActions() {
@@ -1692,6 +1790,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentTheaterFrameURL = getDefaultTheaterFrameURL();
                 currentGlobalAmbientAudioURL = getDefaultGlobalAmbientAudioURL();
                 currentSceneAudioOverrides = getDefaultSceneAudioOverrides();
+                currentStudioProductionName = getDefaultStudioProductionName();
 
                 // Ensure all actions exist (based on thought count)
                 const thoughtCount = currentThoughts.length;
@@ -1772,6 +1871,7 @@ SYS_CHECK: COMPLETE</textarea>
                 currentTheaterFrameURL = getDefaultTheaterFrameURL();
                 currentGlobalAmbientAudioURL = getDefaultGlobalAmbientAudioURL();
                 currentSceneAudioOverrides = getDefaultSceneAudioOverrides();
+                currentStudioProductionName = getDefaultStudioProductionName();
             }
         }
 
@@ -1781,6 +1881,12 @@ SYS_CHECK: COMPLETE</textarea>
             const heroInput = document.getElementById('heroText');
             if (heroInput) {
                 heroInput.value = currentHeroText;
+            }
+
+            // Update studio production name field
+            const studioNameInput = document.getElementById('studioProductionName');
+            if (studioNameInput) {
+                studioNameInput.value = currentStudioProductionName;
             }
 
             // Update ghost memory toggle
@@ -2456,6 +2562,12 @@ SYS_CHECK: COMPLETE</textarea>
                 currentHeroText = heroInput.value || defaultHeroText;
             }
 
+            // Collect studio production name
+            const studioNameInput = document.getElementById('studioProductionName');
+            if (studioNameInput) {
+                currentStudioProductionName = studioNameInput.value || 'The Ghost';
+            }
+
             // Collect ghost memory setting
             const ghostMemoryToggle = document.getElementById('ghostMemoryToggle');
             if (ghostMemoryToggle) {
@@ -2751,7 +2863,8 @@ SYS_CHECK: COMPLETE</textarea>
                 mst3kGlowIntensity: currentMst3kGlowIntensity,
                 theaterFrameURL: currentTheaterFrameURL,
                 globalAmbientAudioURL: currentGlobalAmbientAudioURL,
-                sceneAudioOverrides: currentSceneAudioOverrides.map(s => ({...s}))
+                sceneAudioOverrides: currentSceneAudioOverrides.map(s => ({...s})),
+                studioProductionName: currentStudioProductionName
             };
 
             // Push to Firebase instead of downloading
@@ -2771,6 +2884,31 @@ SYS_CHECK: COMPLETE</textarea>
             return;
         }
 
+        // Tab switching function
+        function switchAdminTab(tabName) {
+            // Update tab buttons
+            const tabButtons = document.querySelectorAll('.admin-tab-btn');
+            tabButtons.forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Update tab panels
+            const configPanel = document.getElementById('configTabPanel');
+            const storyPanel = document.getElementById('storyTabPanel');
+
+            if (tabName === 'config') {
+                configPanel.classList.add('active');
+                storyPanel.classList.remove('active');
+            } else if (tabName === 'story') {
+                storyPanel.classList.add('active');
+                configPanel.classList.remove('active');
+            }
+        }
+
         // Expose functions to global scope for onclick handlers
         window.handleCommandEnabledChange = handleCommandEnabledChange;
         window.handleCommandActionChange = handleCommandActionChange;
@@ -2787,6 +2925,7 @@ SYS_CHECK: COMPLETE</textarea>
         window.updateTypingSpeedDisplay = updateTypingSpeedDisplay;
         window.downloadConfig = downloadConfig;
         window.factoryReset = factoryReset;
+        window.switchAdminTab = switchAdminTab;
 
         // ========================================
         // Narrative Persistence Testing Tools
