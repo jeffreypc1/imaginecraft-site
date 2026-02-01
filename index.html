@@ -3140,22 +3140,34 @@ Welcome back to the loop.`;
         function showChoiceButtons() {
             if (choiceButtonsContainer) {
                 // Reset any previous selection state - remove ALL state classes
-                choiceButtonsContainer.classList.remove('selection-made', 'fading-out');
+                choiceButtonsContainer.classList.remove('selection-made', 'fading-out', 'single-choice');
                 const yesBtn = document.getElementById('choiceBtnYes');
                 const noBtn = document.getElementById('choiceBtnNo');
 
+                // Get current choice texts
+                const choiceAText = choiceATexts[state.currentIndex];
+                const choiceBText = choiceBTexts[state.currentIndex];
+                const hasChoiceA = choiceAText && choiceAText.trim();
+                const hasChoiceB = choiceBText && choiceBText.trim();
+
                 // Thoroughly clean all button states to ensure responsiveness
                 if (yesBtn) {
-                    yesBtn.classList.remove('selected', 'btn-active', 'disabled');
+                    yesBtn.classList.remove('selected', 'btn-active', 'disabled', 'death-button');
                     // Set dynamic button text - use custom text or fallback to "Yes"
-                    const choiceAText = choiceATexts[state.currentIndex];
-                    yesBtn.textContent = (choiceAText && choiceAText.trim()) ? choiceAText : 'Yes';
+                    yesBtn.textContent = hasChoiceA ? choiceAText : 'Yes';
                 }
                 if (noBtn) {
                     noBtn.classList.remove('selected', 'btn-active', 'disabled');
                     // Set dynamic button text - use custom text or fallback to "No"
-                    const choiceBText = choiceBTexts[state.currentIndex];
-                    noBtn.textContent = (choiceBText && choiceBText.trim()) ? choiceBText : 'No';
+                    noBtn.textContent = hasChoiceB ? choiceBText : 'No';
+                }
+
+                // Check for single choice mode: Choice A has text, Choice B is empty
+                if (hasChoiceA && !hasChoiceB) {
+                    choiceButtonsContainer.classList.add('single-choice');
+                    if (yesBtn) {
+                        yesBtn.classList.add('death-button');
+                    }
                 }
 
                 // Hide the New Question button in choice area
@@ -3202,14 +3214,14 @@ Welcome back to the loop.`;
             if (!choiceButtonsContainer) return;
 
             // Remove all state classes from container
-            choiceButtonsContainer.classList.remove('selection-made', 'visible', 'fading-out');
+            choiceButtonsContainer.classList.remove('selection-made', 'visible', 'fading-out', 'single-choice');
             choiceButtonsContainer.hidden = true;
 
             // Remove all state classes from buttons
             const yesBtn = document.getElementById('choiceBtnYes');
             const noBtn = document.getElementById('choiceBtnNo');
             if (yesBtn) {
-                yesBtn.classList.remove('selected', 'disabled', 'btn-active');
+                yesBtn.classList.remove('selected', 'disabled', 'btn-active', 'death-button');
             }
             if (noBtn) {
                 noBtn.classList.remove('selected', 'disabled', 'btn-active');
@@ -3318,8 +3330,23 @@ Welcome back to the loop.`;
                 // Immediately prevent multiple clicks
                 state.waitingForChoice = false;
 
-                // Add flash feedback effect
                 const yesBtn = document.getElementById('choiceBtnYes');
+                const isDeathButton = yesBtn && yesBtn.classList.contains('death-button');
+
+                // For death button: execute immediately with no visual delay
+                // For regular end actions: add flash feedback effect
+                if (isDeathButton) {
+                    // Instant crimson flash for death button
+                    if (yesBtn) {
+                        yesBtn.classList.add('btn-active');
+                    }
+                    // Mark selection and execute immediately - no delay
+                    markChoiceSelection('yes');
+                    executeChoiceAction(choiceAction.type);
+                    return;
+                }
+
+                // Regular end action: add flash feedback effect
                 if (yesBtn) {
                     yesBtn.classList.add('btn-active');
                     setTimeout(() => {
