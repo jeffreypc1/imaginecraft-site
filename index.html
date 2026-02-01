@@ -817,6 +817,11 @@
             return settings ? (settings.randomizeEnabled || false) : false;
         }
 
+        function loadGhostMemoryEnabled() {
+            const settings = getConfigSettings();
+            return settings ? (settings.ghostMemoryEnabled || false) : false;
+        }
+
         function loadBootSequenceEnabled() {
             const settings = getConfigSettings();
             return settings ? (settings.bootSequenceEnabled !== undefined ? settings.bootSequenceEnabled : true) : true;
@@ -1004,9 +1009,10 @@
             }
         }
 
-        // Check if Ghost Awareness should be triggered (3+ unique endings)
+        // Check if Ghost Awareness should be triggered (toggle enabled AND 3+ unique endings)
         function shouldTriggerGhostAwareness() {
-            return getUserEndings().length >= 3;
+            const ghostMemoryEnabled = loadGhostMemoryEnabled();
+            return ghostMemoryEnabled && getUserEndings().length >= 3;
         }
 
         // Get formatted list of previous deaths for Ghost message
@@ -1049,9 +1055,7 @@ Welcome back to the loop.`;
         // Mark session as Ghost Awareness mode
         function enableGhostAwarenessMode() {
             sessionStorage.setItem('imaginecraft_ghost_awareness', 'true');
-            // Apply grayscale theme to entire document
-            document.documentElement.classList.add('ghost-awareness-theme');
-            console.log('Ghost Awareness Mode enabled - Grayscale theme applied');
+            console.log('Ghost Awareness Mode enabled');
         }
 
         // ========================================
