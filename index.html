@@ -2102,6 +2102,10 @@
                     return 2500;
                 case 'hull-breach':
                     return 1500;
+                case 'recursive-reality':
+                    return 3500;
+                case 'quantum-leak':
+                    return 3000;
                 default:
                     return 0;
             }
@@ -2129,6 +2133,12 @@
                     break;
                 case 'hull-breach':
                     triggerHullBreachTransition(callback, delay);
+                    break;
+                case 'recursive-reality':
+                    triggerRecursiveRealityTransition(callback, delay);
+                    break;
+                case 'quantum-leak':
+                    triggerQuantumLeakTransition(callback, delay);
                     break;
                 default:
                     unlockTerminal();
@@ -3155,6 +3165,12 @@
                 case 'oxygen-depletion':
                     triggerOxygenDepletion();
                     break;
+                case 'recursive-reality':
+                    triggerRecursiveReality();
+                    break;
+                case 'quantum-leak':
+                    triggerQuantumLeak();
+                    break;
                 default:
                     console.log('End action triggered:', actionType);
                     stopCycling();
@@ -4049,6 +4065,200 @@
                     overlay.remove();
                 }, 2000);
             }, 9000);
+        }
+
+        // Recursive Reality: Infinity mirror effect where terminal nests inside itself
+        function triggerRecursiveReality() {
+            console.log('RECURSIVE REALITY TRIGGERED');
+            stopCycling();
+
+            // Create recursive reality overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'recursiveRealityOverlay';
+            overlay.className = 'recursive-reality-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Get terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+
+            // Create nested mirror frames
+            if (terminalBody) {
+                // Create multiple nested layers
+                for (let i = 1; i <= 5; i++) {
+                    const mirrorFrame = document.createElement('div');
+                    mirrorFrame.className = 'recursive-mirror-frame';
+                    mirrorFrame.style.animationDelay = `${i * 0.2}s`;
+                    mirrorFrame.style.setProperty('--depth', i);
+                    overlay.appendChild(mirrorFrame);
+                }
+            }
+
+            // Apply recursive effect to terminal
+            if (explorePage) explorePage.classList.add('recursive-reality');
+            if (terminalBody) terminalBody.classList.add('recursive-reality');
+
+            // Add the Return to Main button for psychedelic end action (stays until refresh)
+            setTimeout(() => {
+                showPsychedelicReturnButton(overlay);
+            }, 3500);
+        }
+
+        // Recursive Reality transition (without permanent state)
+        function triggerRecursiveRealityTransition(callback, delay) {
+            console.log('RECURSIVE REALITY TRANSITION TRIGGERED');
+
+            // Create recursive reality overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'recursiveRealityTransitionOverlay';
+            overlay.className = 'recursive-reality-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Get terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+
+            // Create nested mirror frames
+            for (let i = 1; i <= 5; i++) {
+                const mirrorFrame = document.createElement('div');
+                mirrorFrame.className = 'recursive-mirror-frame';
+                mirrorFrame.style.animationDelay = `${i * 0.2}s`;
+                mirrorFrame.style.setProperty('--depth', i);
+                overlay.appendChild(mirrorFrame);
+            }
+
+            // Apply recursive effect
+            if (explorePage) explorePage.classList.add('recursive-reality');
+            if (terminalBody) terminalBody.classList.add('recursive-reality');
+
+            // Execute callback after delay
+            setTimeout(() => {
+                // Clean up the transition
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('recursive-reality');
+                if (terminalBody) terminalBody.classList.remove('recursive-reality');
+
+                setTimeout(() => {
+                    overlay.remove();
+                    unlockTerminal();
+                    if (callback) callback();
+                }, 500);
+            }, delay);
+        }
+
+        // Quantum Leak: Rainbow liquid drip effect with kaleidoscopic filter
+        function triggerQuantumLeak() {
+            console.log('QUANTUM LEAK TRIGGERED');
+            stopCycling();
+
+            // Create quantum leak overlay with kaleidoscopic background
+            const overlay = document.createElement('div');
+            overlay.id = 'quantumLeakOverlay';
+            overlay.className = 'quantum-leak-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Create rainbow drip elements
+            for (let i = 0; i < 20; i++) {
+                const drip = document.createElement('div');
+                drip.className = 'quantum-drip';
+                drip.style.left = `${Math.random() * 100}%`;
+                drip.style.animationDelay = `${Math.random() * 2}s`;
+                drip.style.animationDuration = `${2 + Math.random() * 2}s`;
+                overlay.appendChild(drip);
+            }
+
+            // Get terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+            const thoughtElement = document.getElementById('currentThought');
+
+            // Apply rainbow liquid drip effect to text
+            if (explorePage) explorePage.classList.add('quantum-leak');
+            if (terminalBody) terminalBody.classList.add('quantum-leak');
+            if (thoughtElement) thoughtElement.classList.add('quantum-leak-text');
+
+            // Apply kaleidoscopic filter to body
+            document.body.classList.add('kaleidoscope-filter');
+
+            // Add the Return to Main button for psychedelic end action (stays until refresh)
+            setTimeout(() => {
+                showPsychedelicReturnButton(overlay);
+            }, 3000);
+        }
+
+        // Quantum Leak transition (without permanent state)
+        function triggerQuantumLeakTransition(callback, delay) {
+            console.log('QUANTUM LEAK TRANSITION TRIGGERED');
+
+            // Create quantum leak overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'quantumLeakTransitionOverlay';
+            overlay.className = 'quantum-leak-overlay';
+            document.body.appendChild(overlay);
+            overlay.classList.add('active');
+
+            // Create rainbow drip elements
+            for (let i = 0; i < 20; i++) {
+                const drip = document.createElement('div');
+                drip.className = 'quantum-drip';
+                drip.style.left = `${Math.random() * 100}%`;
+                drip.style.animationDelay = `${Math.random() * 2}s`;
+                drip.style.animationDuration = `${2 + Math.random() * 2}s`;
+                overlay.appendChild(drip);
+            }
+
+            // Get terminal elements
+            const explorePage = document.querySelector('.explore-page');
+            const terminalBody = document.getElementById('terminal-body');
+            const thoughtElement = document.getElementById('currentThought');
+
+            // Apply effects
+            if (explorePage) explorePage.classList.add('quantum-leak');
+            if (terminalBody) terminalBody.classList.add('quantum-leak');
+            if (thoughtElement) thoughtElement.classList.add('quantum-leak-text');
+            document.body.classList.add('kaleidoscope-filter');
+
+            // Execute callback after delay
+            setTimeout(() => {
+                // Clean up the transition
+                overlay.classList.add('fade-out');
+                if (explorePage) explorePage.classList.remove('quantum-leak');
+                if (terminalBody) terminalBody.classList.remove('quantum-leak');
+                if (thoughtElement) thoughtElement.classList.remove('quantum-leak-text');
+                document.body.classList.remove('kaleidoscope-filter');
+
+                setTimeout(() => {
+                    overlay.remove();
+                    unlockTerminal();
+                    if (callback) callback();
+                }, 500);
+            }, delay);
+        }
+
+        // Show Return to Main button for psychedelic end actions
+        function showPsychedelicReturnButton(parentOverlay) {
+            // Create the return button container
+            const returnContainer = document.createElement('div');
+            returnContainer.className = 'psychedelic-return-container';
+
+            const returnButton = document.createElement('button');
+            returnButton.className = 'psychedelic-return-btn';
+            returnButton.textContent = 'Return to Main';
+            returnButton.onclick = function() {
+                // Remove all psychedelic effects and reload
+                window.location.reload();
+            };
+
+            returnContainer.appendChild(returnButton);
+            parentOverlay.appendChild(returnContainer);
+
+            // Fade in the button
+            setTimeout(() => {
+                returnContainer.classList.add('visible');
+            }, 100);
         }
 
         function resetExplore() {
